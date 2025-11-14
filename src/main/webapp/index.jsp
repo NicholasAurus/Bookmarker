@@ -17,8 +17,8 @@
         <img src="img/logo.png" alt="BookMarker Logo - Home">
     </a>
     <nav class="nav-buttons">
-        <a href="registrazione.html" class="btn">Registrati</a>
-        <a href="login.html" class="btn">Login</a> </nav>
+        <a href="registrazione.jsp" class="btn">Registrati</a>
+        <a href="login.jsp" class="btn">Login</a> </nav>
 </header>
 
     <main>
