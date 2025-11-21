@@ -63,12 +63,15 @@ public class LoginServlet extends HttpServlet {
                     
                     //crea sessione utente
                     HttpSession session = request.getSession();
-                    session.setAttribute("utenteLoggato", rs.getString("nome")); // Salviamo il nome
-                    session.setAttribute("emailUtente", rs.getString("email")); // E l'email
+                    session.setAttribute("utenteLoggato", rs.getString("nome")); // salviamo il nome
+                    session.setAttribute("emailUtente", rs.getString("email")); //  l'email
+                    
+                    // ruolo
+                    String ruolo = rs.getString("ruolo");
+                    session.setAttribute("ruoloUtente", ruolo);
                     
                     //timeout sessione 30 minuti
                     session.setMaxInactiveInterval(30 * 60); 
-                    
                     
                     response.sendRedirect("index.jsp");
                     
