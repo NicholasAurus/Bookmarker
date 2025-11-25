@@ -49,7 +49,7 @@
                 } 
             %>
             
-            <form action="RegistrationServlet" method="POST"> 
+            <form action="RegistrazioneServlet" method="POST"> 
                 <div class="form-group">
                     <label for="nome">Nome</label>
                     <input type="text" id="nome" name="nome" placeholder="Nome" required>
