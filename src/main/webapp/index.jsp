@@ -89,7 +89,7 @@
             } else { 
             %>
 
-                <a href="catalogo.jsp" class="main-link" id="catalogo">
+                <a href="LibriServlet" class="main-link" id="catalogo">
                     <div class="icon-container">
                         <img src="img/catalogo.png" alt="Icona Catalogo Libri">
                     </div>
