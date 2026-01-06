@@ -1,4 +1,4 @@
-package it.bookmarker.servlets;
+package it.bookmarker.controller;
 
 import java.io.IOException;
 import java.sql.Connection;
