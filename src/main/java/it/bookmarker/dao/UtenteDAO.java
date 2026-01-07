@@ -10,11 +10,7 @@ import it.bookmarker.model.Utente;
 
 public class UtenteDAO {
 
-<<<<<<< HEAD
-   
-=======
-    // Dati connessione 
->>>>>>> branch 'master' of https://github.com/NicholasAurus/Bookmarker.git
+
     private String url = "jdbc:mysql://localhost:3306/biblioteca?serverTimezone=UTC";
     private String user = "root";
     private String pass = "Bookmarker09!";
@@ -60,11 +56,7 @@ public class UtenteDAO {
 
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (rs.next()) {
-<<<<<<< HEAD
-                   
-=======
-                        // oggetto Utente con i dati dal DB
->>>>>>> branch 'master' of https://github.com/NicholasAurus/Bookmarker.git
+
                         utente = new Utente(
                             rs.getString("nome"),
                             rs.getString("email"),
@@ -78,10 +70,8 @@ public class UtenteDAO {
             e.printStackTrace();
         }
 
-<<<<<<< HEAD
+
         return utente; 
-=======
-        return utente; // Restituisce Utente o null se non trovato
->>>>>>> branch 'master' of https://github.com/NicholasAurus/Bookmarker.git
-    }
+
+}
 }
