@@ -1,5 +1,5 @@
 package it.bookmarker.model;
-
+//commit
 public class Utente {
     private int id;
     private String nome;
