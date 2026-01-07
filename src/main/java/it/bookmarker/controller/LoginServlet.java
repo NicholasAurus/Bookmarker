@@ -30,7 +30,7 @@ public class LoginServlet extends HttpServlet {
         // 2. Logica di verifica
         if (utenteTrovato != null) {
             // L'utente esiste, ora controlliamo la password
-            if (BCrypt.checkpw(password, utenteTrovato.getPasswordHash())) {
+            if (BCrypt.checkpw(password, utenteTrovato.getPassword())) {
                 
                 // LOGIN RIUSCITO: Creo la sessione
                 HttpSession session = request.getSession();

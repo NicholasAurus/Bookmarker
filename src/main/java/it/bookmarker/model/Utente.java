@@ -1,20 +1,60 @@
 package it.bookmarker.model;
 
 public class Utente {
+    private int id;
     private String nome;
-    private String email;
+    private String cognome;
+    private String numeroTessera; // <--- Questo c'è SEMPRE
+    private String recapito;      // Solo per non registrati
+    private String email;         // Solo per registrati
+    private String password;      // Solo per registrati
     private String ruolo;
-    private String passwordHash; // Ci serve l'hash per controllarlo nella servlet
 
-    public Utente(String nome, String email, String ruolo, String passwordHash) {
-        this.nome = nome;
-        this.email = email;
-        this.ruolo = ruolo;
-        this.passwordHash = passwordHash;
+    public Utente() {
+        this.ruolo = "LETTORE";
     }
 
+    // Costruttore per REGISTRAZIONE ONLINE (Senza recapito, con Email/Pass)
+    public Utente(String nome, String cognome, String numeroTessera, String email, String password) {
+        this.nome = nome;
+        this.cognome = cognome;
+        this.numeroTessera = numeroTessera;
+        this.email = email;
+        this.password = password;
+        this.ruolo = "LETTORE";
+    }
+    
+    // Costruttore per BIBLIOTECARIO (Senza Email/Pass, con Recapito)
+    public Utente(String nome, String cognome, String numeroTessera, String recapito) {
+        this.nome = nome;
+        this.cognome = cognome;
+        this.numeroTessera = numeroTessera;
+        this.recapito = recapito;
+        this.ruolo = "LETTORE";
+    }
+
+    // --- GETTER E SETTER ---
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    
     public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
+    
+    public String getCognome() { return cognome; }
+    public void setCognome(String cognome) { this.cognome = cognome; }
+    
+    public String getNumeroTessera() { return numeroTessera; }
+    public void setNumeroTessera(String numeroTessera) { this.numeroTessera = numeroTessera; }
+    
+    public String getRecapito() { return recapito; }
+    public void setRecapito(String recapito) { this.recapito = recapito; }
+    
     public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+    
     public String getRuolo() { return ruolo; }
-    public String getPasswordHash() { return passwordHash; }
+    public void setRuolo(String ruolo) { this.ruolo = ruolo; }
 }
