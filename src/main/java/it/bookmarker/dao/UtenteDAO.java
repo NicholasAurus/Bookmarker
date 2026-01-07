@@ -17,7 +17,7 @@ public class UtenteDAO {
 
     
     public boolean registraUtente(Utente utente) throws SQLException {
-        String sql = "INSERT INTO utenti (nome, cognome, n_tessera, email, password_hash) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO utenti (nome, cognome, n_tessera, email, password) VALUES (?, ?, ?, ?, ?)";
         
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -44,7 +44,7 @@ public class UtenteDAO {
     
     public Utente getUtenteByEmail(String email) {
         Utente utente = null;
-        String query = "SELECT nome, email, ruolo, password_hash FROM utenti WHERE email = ?";
+        String query = "SELECT nome, email, ruolo, password FROM utenti WHERE email = ?";
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -56,13 +56,13 @@ public class UtenteDAO {
 
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (rs.next()) {
-
-                        utente = new Utente(
-                            rs.getString("nome"),
-                            rs.getString("email"),
-                            rs.getString("ruolo"),
-                            rs.getString("password_hash")
-                        );
+                        
+                        utente = new Utente(); 
+                        
+                        utente.setNome(rs.getString("nome"));
+                        utente.setEmail(rs.getString("email"));
+                        utente.setRuolo(rs.getString("ruolo"));
+                        utente.setPassword(rs.getString("password"));
                     }
                 }
             }
@@ -70,8 +70,6 @@ public class UtenteDAO {
             e.printStackTrace();
         }
 
-
         return utente; 
-
-}
+    }
 }

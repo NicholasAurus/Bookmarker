@@ -26,6 +26,17 @@ public class LoginServlet extends HttpServlet {
         // Chiamo il DAO per cercare l'utente tramite email
         UtenteDAO dao = new UtenteDAO();
         Utente utenteTrovato = dao.getUtenteByEmail(email);
+        System.out.println("Email cercata: " + email);
+        if (utenteTrovato == null) {
+            System.out.println("ERRORE: Utente non trovato nel DB (l'oggetto è null)");
+        } else {
+            System.out.println("Utente trovato: " + utenteTrovato.getEmail());
+            System.out.println("Hash nel DB: " + utenteTrovato.getPassword());
+            System.out.println("Password inserita nel form: " + password);
+            boolean check = BCrypt.checkpw(password, utenteTrovato.getPassword());
+            System.out.println("Risultato BCrypt.checkpw: " + check);
+        }
+        // --- FINE DEBUG ---
 
         
         if (utenteTrovato != null) {

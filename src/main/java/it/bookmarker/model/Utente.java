@@ -1,5 +1,5 @@
 package it.bookmarker.model;
-//commit
+
 public class Utente {
     private int id;
     private String nome;
@@ -11,7 +11,7 @@ public class Utente {
     private String ruolo;
 
     public Utente() {
-        this.ruolo = "LETTORE";
+        this.ruolo = "lettore";
     }
 
     // Costruttore per registrazione 
@@ -21,19 +21,21 @@ public class Utente {
         this.numeroTessera = numeroTessera;
         this.email = email;
         this.password = password;
-        this.ruolo = "LETTORE";
+        this.ruolo = "lettore";
     }
     
+
+
     // Costruttore per utente non registrato 
     public Utente(String nome, String cognome, String numeroTessera, String recapito) {
         this.nome = nome;
         this.cognome = cognome;
         this.numeroTessera = numeroTessera;
         this.recapito = recapito;
-        this.ruolo = "LETTORE";
+        this.ruolo = "lettore";
     }
 
-    // getter e setter
+    // getter e setter (lasciali come sono)
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     
