@@ -8,7 +8,7 @@ import it.bookmarker.model.Utente;
 
 public class UtenteDAO {
 
-    // Dati connessione (come nel LibriDAO)
+    // Dati connessione 
     private String url = "jdbc:mysql://localhost:3306/biblioteca?serverTimezone=UTC";
     private String user = "root";
     private String pass = "Bookmarker09!";
@@ -27,7 +27,7 @@ public class UtenteDAO {
 
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (rs.next()) {
-                        // Creiamo l'oggetto Utente con i dati dal DB
+                        // oggetto Utente con i dati dal DB
                         utente = new Utente(
                             rs.getString("nome"),
                             rs.getString("email"),
@@ -41,6 +41,6 @@ public class UtenteDAO {
             e.printStackTrace();
         }
 
-        return utente; // Restituisce l'oggetto Utente o null se non trovato
+        return utente; // Restituisce Utente o null se non trovato
     }
 }

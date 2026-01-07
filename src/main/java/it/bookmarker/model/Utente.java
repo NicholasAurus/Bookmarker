@@ -4,7 +4,7 @@ public class Utente {
     private int id;
     private String nome;
     private String cognome;
-    private String numeroTessera; // <--- Questo c'è SEMPRE
+    private String numeroTessera; 
     private String recapito;      // Solo per non registrati
     private String email;         // Solo per registrati
     private String password;      // Solo per registrati
@@ -14,7 +14,7 @@ public class Utente {
         this.ruolo = "LETTORE";
     }
 
-    // Costruttore per REGISTRAZIONE ONLINE (Senza recapito, con Email/Pass)
+    // Costruttore per registrazione 
     public Utente(String nome, String cognome, String numeroTessera, String email, String password) {
         this.nome = nome;
         this.cognome = cognome;
@@ -24,7 +24,7 @@ public class Utente {
         this.ruolo = "LETTORE";
     }
     
-    // Costruttore per BIBLIOTECARIO (Senza Email/Pass, con Recapito)
+    // Costruttore per utente non registrato 
     public Utente(String nome, String cognome, String numeroTessera, String recapito) {
         this.nome = nome;
         this.cognome = cognome;
@@ -33,7 +33,7 @@ public class Utente {
         this.ruolo = "LETTORE";
     }
 
-    // --- GETTER E SETTER ---
+    // getter e setter
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     

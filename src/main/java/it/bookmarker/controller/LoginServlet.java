@@ -23,16 +23,16 @@ public class LoginServlet extends HttpServlet {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
-        // 1. Chiamo il DAO per cercare l'utente tramite email
+        // Chiamo il DAO per cercare l'utente tramite email
         UtenteDAO dao = new UtenteDAO();
         Utente utenteTrovato = dao.getUtenteByEmail(email);
 
-        // 2. Logica di verifica
+        
         if (utenteTrovato != null) {
-            // L'utente esiste, ora controlliamo la password
+            // controllo password
             if (BCrypt.checkpw(password, utenteTrovato.getPassword())) {
                 
-                // LOGIN RIUSCITO: Creo la sessione
+                // login riuscito, sessione
                 HttpSession session = request.getSession();
                 session.setAttribute("utenteLoggato", utenteTrovato.getNome());
                 session.setAttribute("emailUtente", utenteTrovato.getEmail());
@@ -42,11 +42,11 @@ public class LoginServlet extends HttpServlet {
                 session.setMaxInactiveInterval(30 * 60); 
                 
                 response.sendRedirect("index.jsp");
-                return; // Importante per fermare l'esecuzione qui
+                return; 
             }
         }
 
-        // 3. Se arriviamo qui, o l'utente è null o la password è sbagliata
+        // l'utente è null o la password è sbagliata
         sendError(request, response, "Email o password non validi.");
     }
 
