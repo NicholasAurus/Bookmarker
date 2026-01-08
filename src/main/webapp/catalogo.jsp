@@ -1,136 +1,156 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.List" %>
+<%@ page import="java.text.SimpleDateFormat" %>
 <%@ page import="it.bookmarker.model.Libro" %>
 
 <%
+
+    String nomeUtente = (String) session.getAttribute("utenteLoggato");
+    boolean isLoggato = (nomeUtente != null);
+
+
+    List<Libro> elencoLibri = (List<Libro>) request.getAttribute("elencoLibri");
     
-    List<Libro> libri = (List<Libro>) request.getAttribute("elencoLibri");
+
+    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 %>
 
 <!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Catalogo Libri - BookMarker</title>
-    <link rel="stylesheet" href="css/style.css"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <style>
-        
-        .catalogo-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-            padding: 20px;
-        }
-        .card-libro {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            background: white;
-            display: flex;
-            flex-direction: column;
-        }
-        .card-libro img {
-            width: 100%;
-            height: 350px;
-            object-fit: cover; 
-        }
-        .card-body {
-            padding: 15px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        .card-titolo { font-size: 1.2rem; font-weight: bold; margin-bottom: 5px; }
-        .card-autore { color: #555; font-style: italic; margin-bottom: 10px; }
-        .card-stato { margin-top: 10px; font-weight: bold; font-size: 0.9rem; }
-        
-        .btn-prenota {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            background-color: #27ae60;
-            color: white;
-            text-align: center;
-            text-decoration: none;
-            border-radius: 5px;
-            margin-top: 15px;
-            font-weight: bold;
-        }
-        .btn-prenota:hover { background-color: #219150; }
-        
-        .btn-disabled {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            background-color: #ccc;
-            color: #666;
-            text-align: center;
-            border-radius: 5px;
-            margin-top: 15px;
-            cursor: not-allowed;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalogo - BookMarker</title>
+    <link rel="stylesheet" href="css/catalogo.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
 
-    
+    <header>
+        <div class="header-spacer"></div>
+        
+        <a href="index.jsp" class="logo-container"> 
+            <img src="img/logo.png" alt="BookMarker Logo">
+        </a>
+        
+        <nav class="nav-buttons">
+            <% if (isLoggato) { %>
+                <span class="user-greeting">Ciao, <b><%= nomeUtente %></b></span>
+                <a href="logout.jsp" class="btn" style="background-color: #c0392b; color: white;">Logout</a>
+            <% } else { %>
+                <a href="registrazione.jsp" class="btn">Registrati</a>
+                <a href="login.jsp" class="btn">Login</a>
+            <% } %>
+        </nav>
+    </header>
 
     <main>
-        <h1 style="text-align: center; margin-top: 20px;">Catalogo Completo</h1>
+        <section class="blue-bar">
+            <div class="container-inner">
+                <h2 class="section-title">Catalogo</h2>
+                
+                <div class="search-wrapper">
+                    <input type="text" id="searchInput" placeholder="Cerca per titolo o autore..." class="search-input">
+                    <i class="fa-solid fa-xmark close-icon" onclick="document.getElementById('searchInput').value=''; filtraLibri();"></i>
+                </div>
 
-        <div class="catalogo-grid">
+                <div class="filter-wrapper">
+                    <i class="fa-solid fa-filter filter-icon"></i>
+                    <span>Filtri</span>
+                </div>
+            </div>
+        </section>
+
+        <div class="book-container">
+            
             <% 
-            if (libri != null && !libri.isEmpty()) {
-                for (Libro l : libri) {
+            if (elencoLibri == null) { 
             %>
-                <div class="card-libro">
+                <div style="text-align:center; padding: 50px; background: white; border-radius: 8px;">
+                    <h3>Attenzione</h3>
+                    <p>Devi passare dalla Servlet per vedere i libri.</p>
+                    <a href="LibriServlet" class="btn-neutral">Vai al Catalogo Corretto</a>
+                </div>
+            <% 
+            } else if (elencoLibri.isEmpty()) { 
+            %>
+                <div style="text-align:center; padding: 20px; background: white;">
+                    <p>Nessun libro presente nel catalogo.</p>
+                </div>
+            <% 
+            } else {
+                for (Libro libro : elencoLibri) {
                     
-                    <img src="img/<%= (l.getCopertina() != null) ? l.getCopertina() : "default_book.png" %>" 
-                         alt="Copertina di <%= l.getTitolo() %>">
+                  
+                    boolean disponibile = libro.getDisponibilita() > 0;
+                    String classeStato = disponibile ? "status-value" : "status-value status-red";
+                    String testoStato = "";
+                    
+                    if (disponibile) {
+                        testoStato = "Disponibile (" + libro.getDisponibilita() + ")";
+                    } else {
+                        if (libro.getDataRientro() != null) {
+                            testoStato = "Rientra il " + sdf.format(libro.getDataRientro());
+                        } else {
+                            testoStato = "Non disponibile";
+                        }
+                    }
+                    
+                    String imgPath = libro.getCopertina();
+                    boolean hasImg = (imgPath != null && !imgPath.isEmpty());
+            %>
 
-                    <div class="card-body">
-                        <div>
-                            <div class="card-titolo"><%= l.getTitolo() %></div>
-                            <div class="card-autore"><%= l.getAutore() %></div>
-                            <small><%= l.getGenere() %> - <%= l.getDataPubblicazione() %></small>
-                            
-                            <p style="font-size: 0.9em; margin-top: 10px; color: #666;">
-                                <%= (l.getDescrizione() != null && l.getDescrizione().length() > 100) 
-                                    ? l.getDescrizione().substring(0, 100) + "..." 
-                                    : l.getDescrizione() %>
-                            </p>
-                        </div>
-
-                        <div>
-                            <hr style="border: 0; border-top: 1px solid #eee; margin: 10px 0;">
-                            
-                            <div class="card-stato">
-                                <%= l.getMessaggioStato() %>
-                            </div>
-
-                            <% if (l.getDisponibilita() > 0) { %>
-                                <a href="PrenotaServlet?idLibro=<%= l.getId() %>" class="btn-prenota">
-                                    <i class="fas fa-bookmark"></i> Prenota Ora
-                                </a>
-                            <% } else { %>
-                                <div class="btn-disabled">
-                                    <i class="fas fa-lock"></i> Non Disponibile
-                                </div>
-                            <% } %>
-                        </div>
+            <div class="book-card-stroke search-item">
+                <div class="book-asset">
+                    <% if (hasImg) { %>
+                        <img src="<%= imgPath %>" alt="Copertina" style="max-width:100%; max-height:100%;">
+                    <% } else { %>
+                        <i class="fa-regular fa-image"></i>
+                    <% } %>
+                </div>
+                
+                <div class="book-content">
+                    <h3 class="book-title"><%= libro.getTitolo() %></h3>
+                    <p class="book-author" style="font-weight: bold; color: #555; margin-bottom: 5px;">
+                        <%= libro.getAutore() %>
+                    </p>
+                    
+                    <p><%= libro.getDescrizione() != null ? libro.getDescrizione() : "Nessuna descrizione." %></p>
+                    
+                    <div class="button-group">
+                        <span class="btn-neutral">Stato:</span>
+                        <span class="<%= classeStato %>"><%= testoStato %></span>
                     </div>
                 </div>
-                <% 
+            </div>
+
+            <% 
                 } 
-            } else { 
+            } 
             %>
-                <p style="text-align:center; width:100%;">Nessun libro trovato nel catalogo.</p>
-            <% } %>
+            
         </div>
     </main>
+
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        
+        searchInput.addEventListener('keyup', function() {
+            const term = searchInput.value.toLowerCase();
+            const cards = document.querySelectorAll('.search-item');
+
+            cards.forEach(card => {
+                const title = card.querySelector('.book-title').innerText.toLowerCase();
+                const author = card.querySelector('.book-author').innerText.toLowerCase();
+                
+                if (title.includes(term) || author.includes(term)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>

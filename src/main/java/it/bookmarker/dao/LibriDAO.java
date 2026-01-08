@@ -18,7 +18,7 @@ public class LibriDAO {
         String user = "root";
         String pass = "Bookmarker09!";
 
-        // anche quelli non disponibili
+        
         String query = "SELECT * FROM libri";
 
         try {
