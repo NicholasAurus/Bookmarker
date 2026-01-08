@@ -18,14 +18,14 @@ public class LibriServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        // 1. Chiamo il DAO per ottenere i dati
-        LibriDAO dao = new LibriDAO();
-        List<Libro> libriTrovati = dao.getLibriDisponibili();
         
-        // 2. Metto la lista nella 'request' così la pagina JSP può leggerla
+        LibriDAO dao = new LibriDAO();
+        List<Libro> libriTrovati = dao.getAllLibri();
+        
+        
         request.setAttribute("elencoLibri", libriTrovati);
         
-        // 3. Spedisco tutto alla pagina di visualizzazione (VIEW)
+        
         request.getRequestDispatcher("catalogo.jsp").forward(request, response);
     }
 
