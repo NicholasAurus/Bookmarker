@@ -1,5 +1,5 @@
 package it.bookmarker.controller;
-//commit
+
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -35,15 +35,24 @@ public class RegistrazioneServlet extends HttpServlet {
             forwardToRegistration(request, response);
             return;
         }
-      
-       
+        
+        
+        UtenteDAO dao = new UtenteDAO();
+        
+        
+        if (dao.esisteTessera(tessera)) {
+            request.setAttribute("errorMessage", "Il numero di tessera inserito è già registrato.");
+            forwardToRegistration(request, response);
+            return; 
+        }
+        
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
         
         Utente nuovoUtente = new Utente(nome, cognome, tessera, email, hashedPassword);
 
         
-        UtenteDAO dao = new UtenteDAO();
+        
 
         try {
             boolean isRegistered = dao.registraUtente(nuovoUtente);

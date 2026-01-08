@@ -40,7 +40,30 @@ public class UtenteDAO {
         }
         }
     
-    
+    public boolean esisteTessera(String numeroTessera) {
+        boolean esiste = false;
+        String sql = "SELECT 1 FROM utenti WHERE n_tessera = ?"; // n_tessera è il nome colonna nel DB
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(url, user, pass);
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+                pstmt.setString(1, numeroTessera);
+
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    // Se il ResultSet ha almeno una riga, significa che la tessera esiste
+                    if (rs.next()) {
+                        esiste = true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return esiste;
+    }
     
     public Utente getUtenteByEmail(String email) {
         Utente utente = null;
