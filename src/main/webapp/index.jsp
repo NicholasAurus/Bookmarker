@@ -1,12 +1,12 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%
-    // --- LOGICA LATO SERVER (JAVA) ---
     
-    // Recuperiamo l'utente e il ruolo dalla sessione
+    
+    //recuperiamo l'utente e il ruolo dalla sessione
     String nomeUtente = (String) session.getAttribute("utenteLoggato");
     String ruolo = (String) session.getAttribute("ruoloUtente");
     
-    // Capiamo se l'utente è loggato (se il nome non è null)
+    
     boolean isLoggato = (nomeUtente != null);
 %>
 <!DOCTYPE html>
@@ -45,9 +45,7 @@
         <div class="main-links">
             
             <% 
-            /* CASO 1: GESTORE 
-               Vede "Catalogo Gestore" e "Prestiti Globali"
-            */
+            
             if (isLoggato && "GESTORE".equals(ruolo)) { 
             %>
                 
@@ -64,9 +62,7 @@
                 </a>
 
             <% 
-            /* CASO 2: MODERATORE 
-               Vede "Lista Recensioni" e "Segnalazioni"
-            */
+            
             } else if (isLoggato && "MODERATORE".equals(ruolo)) { 
             %>
 
@@ -83,9 +79,7 @@
                 </a>
 
             <% 
-            /* CASO 3: TUTTI GLI ALTRI (Lettore normale o Visitatore non loggato)
-               Vedono il classico "Catalogo" e "Area Utente"
-            */
+            
             } else { 
             %>
 
