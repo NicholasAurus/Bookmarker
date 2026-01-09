@@ -4,14 +4,11 @@
 <%@ page import="it.bookmarker.model.Libro" %>
 
 <%
-
     String nomeUtente = (String) session.getAttribute("utenteLoggato");
     boolean isLoggato = (nomeUtente != null);
 
-
     List<Libro> elencoLibri = (List<Libro>) request.getAttribute("elencoLibri");
     
-
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 %>
 
@@ -51,17 +48,40 @@
                 
                 <div class="search-wrapper">
                     <input type="text" id="searchInput" placeholder="Cerca per titolo o autore..." class="search-input">
-                    <i class="fa-solid fa-xmark close-icon" onclick="document.getElementById('searchInput').value=''; filtraLibri();"></i>
+                    <i class="fa-solid fa-xmark close-icon" onclick="resetSearch()"></i>
                 </div>
 
-                <div class="filter-wrapper">
+                <div class="filter-wrapper" onclick="toggleFilters(event)">
                     <i class="fa-solid fa-filter filter-icon"></i>
                     <span>Filtri</span>
+                    
+                    <div class="filter-dropdown" id="filterDropdown" onclick="event.stopPropagation()"> <div class="filter-group">
+                            <label for="filterGenere">Genere:</label>
+                            <select id="filterGenere" class="filter-select" onchange="applicaFiltri()">
+                                <option value="all">Tutti</option>
+                                </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label for="filterDisp">Disponibilità:</label>
+                            <select id="filterDisp" class="filter-select" onchange="applicaFiltri()">
+                                <option value="all">Tutti</option>
+                                <option value="si">Solo Disponibili</option>
+                                <option value="no">Non Disponibili</option>
+                            </select>
+                        </div>
+                        
+                        <div style="text-align: right; margin-top: 15px;">
+    <small style="color: white; background-color: #c0392b; padding: 6px 12px; border-radius: 4px; cursor: pointer; display: inline-block;" onclick="resetFiltri()">
+        Resetta filtri
+    </small>
+</div>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <div class="book-container">
+        <div class="book-container" id="containerLibri">
             
             <% 
             if (elencoLibri == null) { 
@@ -81,7 +101,6 @@
             } else {
                 for (Libro libro : elencoLibri) {
                     
-                  
                     boolean disponibile = libro.getDisponibilita() > 0;
                     String classeStato = disponibile ? "status-value" : "status-value status-red";
                     String testoStato = "";
@@ -100,7 +119,10 @@
                     boolean hasImg = (imgPath != null && !imgPath.isEmpty());
             %>
 
-            <div class="book-card-stroke search-item">
+            <div class="book-card-stroke search-item" 
+                 data-genere="<%= libro.getGenere() %>" 
+                 data-disponibile="<%= disponibile ? "si" : "no" %>">
+                 
                 <div class="book-asset">
                     <% if (hasImg) { %>
                         <img src="<%= imgPath %>" alt="Copertina" style="max-width:100%; max-height:100%;">
@@ -110,11 +132,17 @@
                 </div>
                 
                 <div class="book-content">
-                    <h3 class="book-title"><%= libro.getTitolo() %></h3>
+                    
+                    <a href="DettaglioLibroServlet?id=<%= libro.getId() %>" style="text-decoration: none; color: inherit;">
+                        <h3 class="book-title"><%= libro.getTitolo() %></h3>
+                    </a>
+                    
                     <p class="book-author" style="font-weight: bold; color: #555; margin-bottom: 5px;">
                         <%= libro.getAutore() %>
                     </p>
                     
+                    <p style="font-size: 0.9rem; color: #888; margin: 0;">Genere: <span class="book-genre"><%= libro.getGenere() %></span></p>
+
                     <p><%= libro.getDescrizione() != null ? libro.getDescrizione() : "Nessuna descrizione." %></p>
                     
                     <div class="button-group">
@@ -133,23 +161,94 @@
     </main>
 
     <script>
+        // --- 1. GESTIONE MENU A TENDINA ---
+        function toggleFilters(event) {
+            const menu = document.getElementById('filterDropdown');
+            menu.classList.toggle('active');
+        }
+
+        // Chiude il menu se clicchi fuori
+        document.addEventListener('click', function(event) {
+            const wrapper = document.querySelector('.filter-wrapper');
+            const menu = document.getElementById('filterDropdown');
+            if (!wrapper.contains(event.target)) {
+                menu.classList.remove('active');
+            }
+        });
+
+        // --- 2. POPOLAMENTO AUTOMATICO GENERI ---
+        document.addEventListener("DOMContentLoaded", () => {
+            const cards = document.querySelectorAll('.search-item');
+            const selectGenere = document.getElementById('filterGenere');
+            const generiTrovati = new Set(); // Set evita i duplicati
+
+            // Scansiona tutti i libri e trova i generi unici
+            cards.forEach(card => {
+                const genere = card.getAttribute('data-genere');
+                if (genere) {
+                    generiTrovati.add(genere);
+                }
+            });
+
+            // Aggiungi le opzioni alla select
+            generiTrovati.forEach(genere => {
+                const option = document.createElement('option');
+                option.value = genere;
+                option.textContent = genere;
+                selectGenere.appendChild(option);
+            });
+        });
+
+        // --- 3. LOGICA DI FILTRAGGIO E RICERCA ---
         const searchInput = document.getElementById('searchInput');
-        
-        searchInput.addEventListener('keyup', function() {
-            const term = searchInput.value.toLowerCase();
+        const selectGenere = document.getElementById('filterGenere');
+        const selectDisp = document.getElementById('filterDisp');
+
+        function applicaFiltri() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedGenre = selectGenere.value; // Es: 'Fantasy', 'Horror', 'all'
+            const selectedDisp = selectDisp.value;    // Es: 'si', 'no', 'all'
+
             const cards = document.querySelectorAll('.search-item');
 
             cards.forEach(card => {
+                // Recuperiamo i dati dalla card
                 const title = card.querySelector('.book-title').innerText.toLowerCase();
                 const author = card.querySelector('.book-author').innerText.toLowerCase();
-                
-                if (title.includes(term) || author.includes(term)) {
+                const cardGenre = card.getAttribute('data-genere');
+                const cardDisp = card.getAttribute('data-disponibile');
+
+                // 1. Controllo Ricerca
+                const matchSearch = title.includes(searchTerm) || author.includes(searchTerm);
+
+                // 2. Controllo Genere
+                const matchGenre = (selectedGenre === 'all') || (cardGenre === selectedGenre);
+
+                // 3. Controllo Disponibilità
+                const matchDisp = (selectedDisp === 'all') || (cardDisp === selectedDisp);
+
+                // SE rispetta TUTTI i criteri -> Mostra, ALTRIMENTI -> Nascondi
+                if (matchSearch && matchGenre && matchDisp) {
                     card.style.display = 'flex';
                 } else {
                     card.style.display = 'none';
                 }
             });
-        });
+        }
+        
+        // Collega la funzione agli eventi
+        searchInput.addEventListener('keyup', applicaFiltri);
+
+        function resetSearch() {
+            searchInput.value = '';
+            applicaFiltri();
+        }
+
+        function resetFiltri() {
+            selectGenere.value = 'all';
+            selectDisp.value = 'all';
+            applicaFiltri();
+        }
     </script>
 
 </body>
