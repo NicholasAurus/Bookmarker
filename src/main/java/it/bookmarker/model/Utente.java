@@ -1,5 +1,7 @@
 package it.bookmarker.model;
 
+import java.sql.Date; // *** NUOVO IMPORT ***
+
 public class Utente {
     private int id;
     private String nome;
@@ -9,6 +11,7 @@ public class Utente {
     private String email;         // Solo per registrati
     private String password;      // Solo per registrati
     private String ruolo;
+    private Date data_registrazione;
 
     public Utente() {
         this.ruolo = "lettore";
@@ -24,8 +27,6 @@ public class Utente {
         this.ruolo = "lettore";
     }
     
-
-
     // Costruttore per utente non registrato 
     public Utente(String nome, String cognome, String numeroTessera, String recapito) {
         this.nome = nome;
@@ -35,7 +36,8 @@ public class Utente {
         this.ruolo = "lettore";
     }
 
-    // getter e setter (lasciali come sono)
+    // --- GETTER E SETTER ---
+
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     
@@ -59,4 +61,13 @@ public class Utente {
     
     public String getRuolo() { return ruolo; }
     public void setRuolo(String ruolo) { this.ruolo = ruolo; }
+
+    
+    public Date getDataRegistrazione() {
+        return data_registrazione;
+    }
+
+    public void setDataRegistrazione(Date data_registrazione) {
+        this.data_registrazione = data_registrazione;
+    }
 }

@@ -1,0 +1,109 @@
+/* Recupera lo stile base per header e colori */
+@import url('catalogo.css');
+
+body {
+    background-color: #f4f4f4;
+}
+
+.profile-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.profile-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header della card colorato */
+.profile-header-bg {
+    background: linear-gradient(135deg, #1f6fb3, #3498db);
+    height: 120px;
+    position: relative;
+}
+
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    background-color: white;
+    border-radius: 50%;
+    position: absolute;
+    bottom: -50px;
+    left: 40px;
+    border: 4px solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1f6fb3;
+    font-size: 3rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.profile-body {
+    padding: 60px 40px 40px 40px; /* Padding top alto per fare spazio all'avatar */
+}
+
+.profile-name {
+    font-size: 2rem;
+    color: #333;
+    margin: 0;
+    font-weight: 700;
+}
+
+.profile-role {
+    color: #777;
+    font-size: 1rem;
+    margin-bottom: 30px;
+    display: inline-block;
+    background: #eee;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-top: 5px;
+}
+
+/* Griglia per i dettagli */
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 20px;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.info-label {
+    font-size: 0.85rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+}
+
+.info-value {
+    font-size: 1.1rem;
+    color: #333;
+    font-weight: 500;
+}
+
+@media (max-width: 600px) {
+    .info-grid {
+        grid-template-columns: 1fr; /* Una colonna su mobile */
+    }
+    .profile-avatar {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    .profile-body {
+        text-align: center;
+    }
+}

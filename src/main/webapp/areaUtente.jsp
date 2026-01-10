@@ -1,3 +1,4 @@
+
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%
     // Recuperiamo l'utente dalla sessione
@@ -62,7 +63,7 @@
                 <p>STORICO <br> PRESTITI</p>
             </a>
 
-            <a href="profilo.jsp" class="main-link">
+            <a href="ProfiloServlet" class="main-link">
                 <div class="icon-container icon-area-utente">
                     <i class="fa-solid fa-address-card" style="font-size: 4rem; color: white;"></i>
                 </div>

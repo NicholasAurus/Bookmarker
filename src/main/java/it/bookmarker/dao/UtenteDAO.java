@@ -82,15 +82,15 @@ public class UtenteDAO {
                         
                         utente = new Utente(); 
                         
-                        // Ora funziona perché abbiamo fatto SELECT *
-                        // Controlla se nel DB la colonna si chiama "id" o "id_utente"
+                        
                         utente.setId(rs.getInt("id")); 
                         
                         utente.setNome(rs.getString("nome"));
-                        // utente.setCognome(rs.getString("cognome")); // Opzionale se ti serve
+                        utente.setCognome(rs.getString("cognome")); 
                         utente.setEmail(rs.getString("email"));
                         utente.setRuolo(rs.getString("ruolo"));
                         utente.setPassword(rs.getString("password"));
+                        utente.setDataRegistrazione(rs.getDate("data_registrazione"));
                     }
                 }
             }
@@ -99,5 +99,41 @@ public class UtenteDAO {
         }
 
         return utente; 
+    }
+    public Utente getUtenteById(int id) {
+        Utente utente = null;
+        
+        String sql = "SELECT * FROM utenti WHERE id = ?"; 
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(url, user, pass);
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
+
+                ps.setInt(1, id);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        utente = new Utente();
+                        
+                        utente.setId(rs.getInt("id"));
+                        utente.setNome(rs.getString("nome"));
+                        utente.setCognome(rs.getString("cognome")); 
+                        utente.setEmail(rs.getString("email"));
+                        utente.setPassword(rs.getString("password"));
+                        utente.setRuolo(rs.getString("ruolo"));
+                        
+                        
+                        utente.setNumeroTessera(rs.getString("n_tessera")); 
+                        
+                        
+                        utente.setDataRegistrazione(rs.getDate("data_registrazione"));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return utente;
     }
 }
