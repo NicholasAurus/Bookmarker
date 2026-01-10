@@ -1,19 +1,18 @@
 package it.bookmarker.model;
+
 import java.sql.Date;
 
 public class Recensione {
-
     private int id;
-    private int utenteId;
-    private int libroId;
+    private int utenteId; 
+    private int libroId;  
     private String testo;
     private Date dataInserimento;
+    
+    
+    private String nomeUtenteDisplay; 
 
-
-
-    public Recensione() {}
-
-    // Getter e Setter
+    
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     
@@ -28,6 +27,8 @@ public class Recensione {
     
     public Date getDataInserimento() { return dataInserimento; }
     public void setDataInserimento(Date dataInserimento) { this.dataInserimento = dataInserimento; }
-    
 
+   
+    public String getNomeUtenteDisplay() { return nomeUtenteDisplay; }
+    public void setNomeUtenteDisplay(String nomeUtenteDisplay) { this.nomeUtenteDisplay = nomeUtenteDisplay; }
 }

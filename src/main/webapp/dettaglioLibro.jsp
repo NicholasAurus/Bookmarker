@@ -1,10 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.util.List" %>
 <%@ page import="it.bookmarker.model.Libro" %>
-<%
+<%@ page import="it.bookmarker.model.Recensione" %> <%
     // Recuperiamo il libro passato dalla Servlet
     Libro libro = (Libro) request.getAttribute("libroDettaglio");
     String nomeUtente = (String) session.getAttribute("utenteLoggato");
     
+    // Recuperiamo la lista delle recensioni passata dalla Servlet
+    List<Recensione> elencoRecensioni = (List<Recensione>) request.getAttribute("listaRecensioni");
     // Se per qualche motivo il libro è null, torniamo al catalogo
     if (libro == null) { 
         response.sendRedirect("LibriServlet"); 
@@ -19,9 +22,7 @@
     <title><%= libro.getTitolo() %> - Dettaglio</title>
     
     <link rel="stylesheet" href="css/catalogo.css"> 
-    
     <link rel="stylesheet" href="css/dettaglio.css">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
@@ -91,37 +92,39 @@
             <div class="reviews-section" id="reviewsAnchor">
                 <h3 style="margin-bottom: 20px;">Recensioni</h3>
                 
-                <div class="review-card">
-                    <div class="review-header">
-                        <span>Utente Mario Rossi</span>
-                        <i class="fa-solid fa-chevron-down"></i>
+                <% 
+                if (elencoRecensioni == null || elencoRecensioni.isEmpty()) { 
+                %>
+                    <div style="padding: 20px; background: #f9f9f9; border-radius: 6px; color: #777; font-style: italic;">
+                        Non ci sono ancora recensioni per questo libro. Sii il primo a scriverne una!
                     </div>
-                    <div class="review-body">
-                        Un libro davvero interessante, lo consiglio a tutti gli amanti del genere. 
-                        La trama è avvincente e i personaggi sono ben costruiti.
-                    </div>
-                </div>
-
-                <div class="review-card">
-                    <div class="review-header">
-                        <span>Utente Giulia Bianchi</span>
-                        <i class="fa-solid fa-chevron-down"></i>
-                    </div>
-                    <div class="review-body">
-                        La trama è un po' lenta all'inizio, ma poi si riprende. 
-                        Comunque una lettura piacevole per il weekend.
-                    </div>
-                </div>
+                <% 
+                } else {
+                    // Ciclo sulle recensioni reali
+                    for (Recensione rec : elencoRecensioni) {
+                %>
                 
                 <div class="review-card">
                     <div class="review-header">
-                        <span>Utente Luca Verdi</span>
-                        <i class="fa-solid fa-chevron-down"></i>
+                        <span>
+                            <i class="fa-solid fa-user" style="margin-right: 8px; color:#888;"></i>
+                            <%= rec.getNomeUtenteDisplay() %>
+                        </span>
+                        
+                        <small style="font-weight: normal; color: #999;">
+                            <%= rec.getDataInserimento() %>
+                        </small>
                     </div>
+                    
                     <div class="review-body">
-                        Non mi ha convinto del tutto il finale, mi aspettavo qualcosa di diverso.
+                        <%= rec.getTesto() %>
                     </div>
                 </div>
+
+                <% 
+                    } // Fine for
+                } // Fine else
+                %>
 
             </div>
             
@@ -136,13 +139,9 @@
             
             if (heartBtn) {
                 heartBtn.addEventListener('click', function() {
-                    // Alterna la classe 'liked' per cambiare colore e stile
                     this.classList.toggle('liked');
-                    
-                    // Seleziona l'icona dentro il bottone
                     const icon = this.querySelector('i');
                     
-                    // Cambia l'icona da vuota (fa-regular) a piena (fa-solid) e viceversa
                     if (this.classList.contains('liked')) {
                         icon.classList.remove('fa-regular');
                         icon.classList.add('fa-solid');
@@ -153,22 +152,11 @@
                 });
             }
 
-            // 2. LOGICA ACCORDION RECENSIONI (Apri/Chiudi)
-            const reviews = document.querySelectorAll('.review-card');
-
-            reviews.forEach(card => {
-                // Troviamo l'header (la parte cliccabile)
-                const header = card.querySelector('.review-header');
-                
-                header.addEventListener('click', () => {
-                    // Aggiunge o toglie la classe 'open' alla card intera
-                    // Il CSS gestirà la rotazione della freccia e la comparsa del testo
-                    card.classList.toggle('open');
-                });
-            });
+            // NOTA: Ho rimosso la logica dell'Accordion perché ora le recensioni sono fisse (statiche)
+            // come da ultima modifica CSS.
         });
 
-        // 3. FUNZIONE SCROLL TO REVIEWS
+        // 2. FUNZIONE SCROLL TO REVIEWS
         function scrollToReviews() {
             const reviewsSection = document.getElementById('reviewsAnchor');
             if (reviewsSection) {
