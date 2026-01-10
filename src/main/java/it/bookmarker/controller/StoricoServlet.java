@@ -7,6 +7,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession; 
+
 import it.bookmarker.dao.PrestitiDAO;
 import it.bookmarker.model.Prestito;
 
@@ -17,11 +19,21 @@ public class StoricoServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-       
-        int utenteId = 101; 
+   
+        HttpSession session = request.getSession();
         
+        
+        Integer idUtente = (Integer) session.getAttribute("idUtente");
+        
+       
+        if (idUtente == null) {
+            response.sendRedirect("login.jsp");
+            return; 
+        }
+        
+      
         PrestitiDAO dao = new PrestitiDAO();
-        List<Prestito> storico = dao.getStoricoByUtente(utenteId);
+        List<Prestito> storico = dao.getStoricoByUtente(idUtente);
         
         request.setAttribute("elencoStorico", storico);
         request.getRequestDispatcher("storico.jsp").forward(request, response);

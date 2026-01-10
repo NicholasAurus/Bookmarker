@@ -180,7 +180,7 @@
 
                 <div class="history-content">
                     <h3><%= p.getTitoloLibro() %></h3>
-                    <span class="desc-short">Descrizione libro...</span>
+                   
 
                     <% if (!p.isRecensito()) { %>
                         <a href="scriviRecensione.jsp?idLibro=<%= p.getLibroId() %>" class="btn-recensione">

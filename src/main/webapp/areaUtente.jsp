@@ -55,7 +55,7 @@
     <main>
         <div class="main-links">
             
-            <a href="storico.jsp" class="main-link">
+            <a href="StoricoServlet" class="main-link">
                 <div class="icon-container icon-area-utente">
                     <i class="fa-solid fa-book-open" style="font-size: 4rem; color: white;"></i>
                 </div>

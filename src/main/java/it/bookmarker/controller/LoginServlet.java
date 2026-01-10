@@ -23,33 +23,36 @@ public class LoginServlet extends HttpServlet {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
-        // Chiamo il DAO per cercare l'utente tramite email
+      
         UtenteDAO dao = new UtenteDAO();
         Utente utenteTrovato = dao.getUtenteByEmail(email);
+        
+        
         System.out.println("Email cercata: " + email);
         if (utenteTrovato == null) {
             System.out.println("ERRORE: Utente non trovato nel DB (l'oggetto è null)");
         } else {
-            System.out.println("Utente trovato: " + utenteTrovato.getEmail());
-            System.out.println("Hash nel DB: " + utenteTrovato.getPassword());
-            System.out.println("Password inserita nel form: " + password);
-            boolean check = BCrypt.checkpw(password, utenteTrovato.getPassword());
-            System.out.println("Risultato BCrypt.checkpw: " + check);
+            System.out.println("Utente trovato ID: " + utenteTrovato.getId());
+            
         }
-        // --- FINE DEBUG ---
-
+    
         
         if (utenteTrovato != null) {
-            // controllo password
+            
             if (BCrypt.checkpw(password, utenteTrovato.getPassword())) {
                 
-                // login riuscito, sessione
+                
                 HttpSession session = request.getSession();
+                
+              
                 session.setAttribute("utenteLoggato", utenteTrovato.getNome());
                 session.setAttribute("emailUtente", utenteTrovato.getEmail());
                 session.setAttribute("ruoloUtente", utenteTrovato.getRuolo());
                 
-                // Timeout sessione 30 minuti
+              
+                session.setAttribute("idUtente", utenteTrovato.getId());
+                
+              
                 session.setMaxInactiveInterval(30 * 60); 
                 
                 response.sendRedirect("index.jsp");
@@ -57,7 +60,7 @@ public class LoginServlet extends HttpServlet {
             }
         }
 
-        // l'utente è null o la password è sbagliata
+       
         sendError(request, response, "Email o password non validi.");
     }
 
