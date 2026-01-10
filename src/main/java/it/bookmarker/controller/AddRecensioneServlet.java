@@ -27,12 +27,11 @@ public class AddRecensioneServlet extends HttpServlet {
 
         int idUtente = (Integer) session.getAttribute("idUtente");
         int idLibro = Integer.parseInt(request.getParameter("idLibro"));
-        String titolo = request.getParameter("titolo");
         String testo = request.getParameter("testo");
 
         AddRecensioneDAO dao = new AddRecensioneDAO();
-        dao.salvaRecensione(idUtente, idLibro, titolo, testo);
+        dao.salvaRecensione(idUtente, idLibro, testo);
 
-        response.sendRedirect("StoricoPrestitiServlet");
+        response.sendRedirect("StoricoServlet");
     }
 }

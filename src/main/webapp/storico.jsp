@@ -14,7 +14,8 @@
     <meta charset="UTF-8">
     <title>Storico - BookMarker</title>
     <link rel="stylesheet" href="css/catalogo.css">
-    <link rel="stylesheet" href="css/storico.css"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/storico.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
 
@@ -74,7 +75,6 @@
             <% 
             } else {
                 for (Prestito p : storico) {
-                    // Logica stato
                     boolean inCorso = (p.getDataRestituzioneEffettiva() == null);
                     String dataInizioStr = (p.getDataInizio() != null) ? sdf.format(p.getDataInizio()) : "--/--/----";
                     String dataRestituzioneStr = (!inCorso) ? sdf.format(p.getDataRestituzioneEffettiva()) : "In uso";
@@ -93,9 +93,10 @@
                     <h3 class="card-title"><%= p.getTitoloLibro() %></h3>
                     
                     <% if (!p.isRecensito()) { %>
-                        <a href="scriviRecensione.jsp?idLibro=<%= p.getLibroId() %>" class="btn-recensione">
-                            Recensione:
-                        </a>
+                        
+                        <button type="button" class="btn-recensione" onclick="apriModalRecensione(<%= p.getLibroId() %>, '<%= p.getTitoloLibro().replace("'", "\\'") %>')">
+                            Recensione
+                        </button>
                     <% } else { %>
                         <span class="recensione-presente"><i class="fa-solid fa-check"></i> Recensito</span>
                     <% } %>
@@ -124,15 +125,52 @@
         </div>
     </main>
 
+   
+    <div id="reviewModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="chiudiModalRecensione()">&times;</span>
+            <h3>Scrivi Recensione</h3>
+            <p style="margin-bottom: 20px; font-style: italic; color: #666;">Libro: <span id="modalTitoloLibro" style="font-weight: bold;"></span></p>
+            
+            <form action="AddRecensioneServlet" method="POST">
+                <input type="hidden" id="modalIdLibro" name="idLibro" value="">
+                
+                
+                <div class="modal-form-group">
+                    <label for="testoRecensione">La tua recensione (min. 20 caratteri)</label>
+                    <textarea id="testoRecensione" name="testo" required minlength="20" placeholder="Scrivi qui cosa ne pensi..."></textarea>
+                </div>
+                
+                <button type="submit" class="btn-submit-review">Invia Recensione</button>
+            </form>
+        </div>
+    </div>
+
     <script>
-        // 1. Funzione per aprire/chiudere il menu filtri
+        
+        function apriModalRecensione(idLibro, titoloLibro) {
+            document.getElementById('modalIdLibro').value = idLibro;
+            document.getElementById('reviewModal').style.display = "block";
+        }
+
+        function chiudiModalRecensione() {
+            document.getElementById('reviewModal').style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('reviewModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        
         function toggleFilters(event) {
             const dropdown = document.getElementById('filterDropdown');
             dropdown.classList.toggle('active');
-            event.stopPropagation(); // Evita conflitti
+            event.stopPropagation();
         }
 
-        // Chiude il menu se clicchi fuori
         document.addEventListener('click', function(event) {
             const dropdown = document.getElementById('filterDropdown');
             const filterWrapper = document.querySelector('.filter-wrapper');
@@ -141,32 +179,25 @@
             }
         });
 
-        // 2. LOGICA DI FILTRAGGIO (Ricerca + Stato)
         function applicaFiltriGlobale() {
-            // Prendo i valori attuali
             const inputTesto = document.getElementById('searchInput').value.toLowerCase();
-            const statoSelezionato = document.getElementById('filterStato').value; // 'all', 'in-corso', 'concluso'
+            const statoSelezionato = document.getElementById('filterStato').value;
             
-            // Elementi del DOM
             const cards = document.querySelectorAll('.search-item');
             const resetBtn = document.getElementById('resetBtn');
             const noResultsMsg = document.getElementById('noResults');
             
             let visibleCount = 0;
 
-            // Mostra la X se c'è testo
             resetBtn.style.display = (inputTesto.length > 0) ? 'block' : 'none';
 
             cards.forEach(card => {
-                // Recupero i dati dalla card
                 const titolo = card.querySelector('.card-title').innerText.toLowerCase();
                 const statoCard = card.getAttribute('data-stato');
 
-                // Verifico le condizioni
                 const matchTesto = titolo.includes(inputTesto);
                 const matchStato = (statoSelezionato === 'all') || (statoSelezionato === statoCard);
 
-                // Se ENTRAMBE sono vere, mostro la card
                 if (matchTesto && matchStato) {
                     card.style.display = "flex"; 
                     visibleCount++;
@@ -175,13 +206,11 @@
                 }
             });
 
-            // Gestione messaggio "Nessun risultato"
             if (noResultsMsg) {
                 noResultsMsg.style.display = (visibleCount === 0 && cards.length > 0) ? 'block' : 'none';
             }
         }
 
-        // 3. Reset dei filtri
         function resetFiltri() {
             document.getElementById('searchInput').value = '';
             document.getElementById('filterStato').value = 'all';
@@ -189,7 +218,6 @@
             document.getElementById('filterDropdown').classList.remove('active');
         }
 
-        // 4. Event Listeners
         const searchInput = document.getElementById('searchInput');
         if (searchInput) {
             searchInput.addEventListener('input', applicaFiltriGlobale);

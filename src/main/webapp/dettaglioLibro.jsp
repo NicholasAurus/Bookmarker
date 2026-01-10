@@ -100,7 +100,7 @@
                     </div>
                 <% 
                 } else {
-                    // Ciclo sulle recensioni reali
+                    
                     for (Recensione rec : elencoRecensioni) {
                 %>
                 
@@ -134,7 +134,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             
-            // 1. LOGICA CUORE (PREFERITI)
+            
             const heartBtn = document.querySelector('.favorite-btn');
             
             if (heartBtn) {
@@ -152,11 +152,10 @@
                 });
             }
 
-            // NOTA: Ho rimosso la logica dell'Accordion perché ora le recensioni sono fisse (statiche)
-            // come da ultima modifica CSS.
+            /
         });
 
-        // 2. FUNZIONE SCROLL TO REVIEWS
+        
         function scrollToReviews() {
             const reviewsSection = document.getElementById('reviewsAnchor');
             if (reviewsSection) {
