@@ -1,5 +1,4 @@
-
-
+/* --- STILI BASE CARD E LAYOUT --- */
 .history-card {
     display: flex;
     background: white;
@@ -11,7 +10,6 @@
     margin-bottom: 20px;
     width: 100%;
 }
-
 
 .history-asset {
     width: 100px;
@@ -48,7 +46,6 @@
     display: block;
 }
 
-
 .btn-recensione {
     background-color: #e0e0e0;
     border: 1px solid #ccc;
@@ -65,7 +62,6 @@
     background-color: #d0d0d0;
 }
 
-
 .recensione-presente {
     color: #27ae60;
     font-weight: bold;
@@ -73,7 +69,6 @@
     padding: 6px 0;
     display: inline-block;
 }
-
 
 .history-right {
     text-align: right;
@@ -89,7 +84,6 @@
     color: #333;
 }
 
-
 .status-badge {
     padding: 8px 0;
     width: 120px; 
@@ -103,6 +97,66 @@
 
 .bg-green { background-color: #6fdc8c; color: #000; } 
 .bg-blue { background-color: #1f6fb3; } 
+
+/* --- NUOVI STILI PER I FILTRI E DROPDOWN --- */
+
+.filter-wrapper {
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+/* Il menu a tendina nascosto di default */
+.filter-dropdown {
+    display: none; 
+    position: absolute;
+    top: 100%; /* Appare subito sotto l'icona */
+    right: 0;
+    width: 250px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    padding: 20px;
+    z-index: 100;
+    text-align: left;
+    margin-top: 10px;
+}
+
+/* Classe che aggiungiamo con JS per mostrarlo */
+.filter-dropdown.active {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
+
+.filter-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.filter-select {
+    width: 140px;
+    padding: 6px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+/* Icona X della ricerca */
+.close-icon {
+    display: none; /* Nascosta se non c'è testo */
+    cursor: pointer;
+}
+
+/* Animazione menu */
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
 @media (max-width: 768px) {
     .history-card { flex-direction: column; text-align: center; }
