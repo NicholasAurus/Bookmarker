@@ -23,44 +23,30 @@ public class LoginServlet extends HttpServlet {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
-      
         UtenteDAO dao = new UtenteDAO();
         Utente utenteTrovato = dao.getUtenteByEmail(email);
         
-        
-        System.out.println("Email cercata: " + email);
-        if (utenteTrovato == null) {
-            System.out.println("ERRORE: Utente non trovato nel DB (l'oggetto è null)");
-        } else {
-            System.out.println("Utente trovato ID: " + utenteTrovato.getId());
-            
-        }
-    
-        
         if (utenteTrovato != null) {
-            
             if (BCrypt.checkpw(password, utenteTrovato.getPassword())) {
-                
                 
                 HttpSession session = request.getSession();
                 
-              
                 session.setAttribute("utenteLoggato", utenteTrovato.getNome());
                 session.setAttribute("emailUtente", utenteTrovato.getEmail());
                 session.setAttribute("ruoloUtente", utenteTrovato.getRuolo());
-                
-              
                 session.setAttribute("idUtente", utenteTrovato.getId());
                 
-              
                 session.setMaxInactiveInterval(30 * 60); 
-                
-                response.sendRedirect("index.jsp");
+
+                if ("GESTORE".equals(utenteTrovato.getRuolo())) {
+                    response.sendRedirect("index.jsp");
+                } else {
+                    response.sendRedirect("index.jsp");
+                }
                 return; 
             }
         }
 
-       
         sendError(request, response, "Email o password non validi.");
     }
 
