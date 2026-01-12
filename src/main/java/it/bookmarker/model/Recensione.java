@@ -9,10 +9,13 @@ public class Recensione {
     private String testo;
     private Date dataInserimento;
     
+    // *** NUOVO CAMPO: VOTO ***
+    private int voto; // Valore da 1 a 5
     
     private String nomeUtenteDisplay; 
 
-    
+    // --- GETTER E SETTER ---
+
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     
@@ -28,7 +31,11 @@ public class Recensione {
     public Date getDataInserimento() { return dataInserimento; }
     public void setDataInserimento(Date dataInserimento) { this.dataInserimento = dataInserimento; }
 
-   
+    
+    public int getVoto() { return voto; }
+    public void setVoto(int voto) { this.voto = voto; }
+
+    
     public String getNomeUtenteDisplay() { return nomeUtenteDisplay; }
     public void setNomeUtenteDisplay(String nomeUtenteDisplay) { this.nomeUtenteDisplay = nomeUtenteDisplay; }
 }

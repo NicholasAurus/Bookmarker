@@ -1,3 +1,4 @@
+/* --- CARD STORICO --- */
 .history-card {
     display: flex;
     background: white;
@@ -45,6 +46,7 @@
     display: block;
 }
 
+/* --- BOTTONI E BADGE --- */
 .btn-recensione {
     background-color: #267bbc;
     border: none;
@@ -99,6 +101,21 @@
 .bg-green { background-color: #6fdc8c; color: #000; }
 .bg-blue { background-color: #1f6fb3; }
 
+/* --- TASTO ELIMINA RECENSIONE (CESTINO) --- */
+.btn-delete-review {
+    color: #999;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: color 0.2s;
+    text-decoration: none;
+    padding: 5px;
+}
+
+.btn-delete-review:hover {
+    color: #c0392b; /* Rosso al passaggio */
+}
+
+/* --- MODALE --- */
 .modal {
     display: none; 
     position: fixed; 
@@ -188,6 +205,50 @@
     background-color: #219150;
 }
 
+/* --- SISTEMA DI VOTO (STELLINE) --- */
+.rating-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row-reverse; /* Fondamentale per l'effetto riempimento */
+    gap: 5px;
+    margin-bottom: 15px;
+}
+
+.rating-wrapper input {
+    display: none;
+}
+
+.rating-wrapper label {
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.2s ease;
+}
+
+.rating-wrapper label i {
+    color: #ccc; /* Grigio default */
+    font-size: 1.5rem;
+}
+
+/* Effetto Hover e Checked: Colora di oro */
+.rating-wrapper input:checked ~ label i,
+.rating-wrapper label:hover i,
+.rating-wrapper label:hover ~ label i {
+    color: #f1c40f; 
+}
+
+.rating-title {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+/* --- RESPONSIVE --- */
 @media (max-width: 768px) {
     .history-card { flex-direction: column; text-align: center; }
     .history-right { text-align: center; margin-left: 0; align-items: center; }

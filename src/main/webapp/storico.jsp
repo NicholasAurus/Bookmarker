@@ -16,6 +16,8 @@
     <link rel="stylesheet" href="css/catalogo.css">
     <link rel="stylesheet" href="css/storico.css"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+
 </head>
 <body>
 
@@ -93,12 +95,20 @@
                     <h3 class="card-title"><%= p.getTitoloLibro() %></h3>
                     
                     <% if (!p.isRecensito()) { %>
-                        
                         <button type="button" class="btn-recensione" onclick="apriModalRecensione(<%= p.getLibroId() %>, '<%= p.getTitoloLibro().replace("'", "\\'") %>')">
                             Recensione
                         </button>
                     <% } else { %>
-                        <span class="recensione-presente"><i class="fa-solid fa-check"></i> Recensito</span>
+                        <div style="display:flex; align-items:center; gap:15px;">
+                            <span class="recensione-presente"><i class="fa-solid fa-check"></i> Recensito</span>
+                            
+                            <a href="RimuoviRecensioneServlet?idLibro=<%= p.getLibroId() %>" 
+                               class="btn-delete-review" 
+                               onclick="return confirm('Sei sicuro di voler eliminare la tua recensione per questo libro?');"
+                               title="Elimina la tua recensione">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        </div>
                     <% } %>
                 </div>
 
@@ -125,7 +135,6 @@
         </div>
     </main>
 
-   
     <div id="reviewModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="chiudiModalRecensione()">&times;</span>
@@ -135,7 +144,15 @@
             <form action="AddRecensioneServlet" method="POST">
                 <input type="hidden" id="modalIdLibro" name="idLibro" value="">
                 
-                
+                <div class="rating-title">Il tuo voto:</div>
+                <div class="rating-wrapper">
+                    <input type="radio" name="voto" id="star5" value="5" required><label for="star5" title="Eccellente"><i class="fa-solid fa-star"></i></label>
+                    <input type="radio" name="voto" id="star4" value="4"><label for="star4" title="Molto buono"><i class="fa-solid fa-star"></i></label>
+                    <input type="radio" name="voto" id="star3" value="3"><label for="star3" title="Buono"><i class="fa-solid fa-star"></i></label>
+                    <input type="radio" name="voto" id="star2" value="2"><label for="star2" title="Mediocre"><i class="fa-solid fa-star"></i></label>
+                    <input type="radio" name="voto" id="star1" value="1"><label for="star1" title="Scarso"><i class="fa-solid fa-star"></i></label>
+                </div>
+
                 <div class="modal-form-group">
                     <label for="testoRecensione">La tua recensione (min. 20 caratteri)</label>
                     <textarea id="testoRecensione" name="testo" required minlength="20" placeholder="Scrivi qui cosa ne pensi..."></textarea>
@@ -147,9 +164,10 @@
     </div>
 
     <script>
-        
+        // Funzioni Modale
         function apriModalRecensione(idLibro, titoloLibro) {
             document.getElementById('modalIdLibro').value = idLibro;
+            document.getElementById('modalTitoloLibro').innerText = titoloLibro;
             document.getElementById('reviewModal').style.display = "block";
         }
 
@@ -164,7 +182,7 @@
             }
         }
 
-        
+        // Funzioni Filtri
         function toggleFilters(event) {
             const dropdown = document.getElementById('filterDropdown');
             dropdown.classList.toggle('active');

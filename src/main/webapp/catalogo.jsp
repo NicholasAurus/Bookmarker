@@ -8,7 +8,6 @@
     boolean isLoggato = (nomeUtente != null);
 
     List<Libro> elencoLibri = (List<Libro>) request.getAttribute("elencoLibri");
-    
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 %>
 
@@ -25,7 +24,6 @@
 
     <header>
         <div class="header-spacer"></div>
-        
         <a href="index.jsp" class="logo-container"> 
             <img src="img/logo.png" alt="BookMarker Logo">
         </a>
@@ -55,11 +53,13 @@
                     <i class="fa-solid fa-filter filter-icon"></i>
                     <span>Filtri</span>
                     
-                    <div class="filter-dropdown" id="filterDropdown" onclick="event.stopPropagation()"> <div class="filter-group">
+                    <div class="filter-dropdown" id="filterDropdown" onclick="event.stopPropagation()"> 
+                        
+                        <div class="filter-group">
                             <label for="filterGenere">Genere:</label>
                             <select id="filterGenere" class="filter-select" onchange="applicaFiltri()">
                                 <option value="all">Tutti</option>
-                                </select>
+                            </select>
                         </div>
 
                         <div class="filter-group">
@@ -71,11 +71,19 @@
                             </select>
                         </div>
                         
+                        <div class="filter-group">
+                            <label for="sortOrder">Ordina per:</label>
+                            <select id="sortOrder" class="filter-select" onchange="applicaFiltri()">
+                                <option value="default">Default</option>
+                                <option value="votoDec">Valutazione (Migliori prima)</option>
+                            </select>
+                        </div>
+                        
                         <div style="text-align: right; margin-top: 15px;">
-    <small style="color: white; background-color: #c0392b; padding: 6px 12px; border-radius: 4px; cursor: pointer; display: inline-block;" onclick="resetFiltri()">
-        Resetta filtri
-    </small>
-</div>
+                            <small style="color: white; background-color: #c0392b; padding: 6px 12px; border-radius: 4px; cursor: pointer; display: inline-block;" onclick="resetFiltri()">
+                                Resetta filtri
+                            </small>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -121,7 +129,8 @@
 
             <div class="book-card-stroke search-item" 
                  data-genere="<%= libro.getGenere() %>" 
-                 data-disponibile="<%= disponibile ? "si" : "no" %>">
+                 data-disponibile="<%= disponibile ? "si" : "no" %>"
+                 data-media="<%= libro.getMediaVoti() %>">
                  
                 <div class="book-asset">
                     <% if (hasImg) { %>
@@ -141,6 +150,19 @@
                         <%= libro.getAutore() %>
                     </p>
                     
+                    <div style="color: #f1c40f; margin-bottom: 10px;">
+                       <% 
+                          int stellePiene = (int) Math.round(libro.getMediaVoti());
+                          for(int i=0; i<5; i++) {
+                              if(i < stellePiene) { %> <i class="fa-solid fa-star"></i> <% } 
+                              else { %> <i class="fa-regular fa-star" style="color:#ccc;"></i> <% }
+                          }
+                       %>
+                       <span style="color:#777; font-size:0.8rem; margin-left:5px;">
+                           (<%= (libro.getMediaVoti() > 0) ? String.format("%.1f", libro.getMediaVoti()) : "N/A" %>)
+                       </span>
+                   </div>
+
                     <p style="font-size: 0.9rem; color: #888; margin: 0;">Genere: <span class="book-genre"><%= libro.getGenere() %></span></p>
 
                     <p><%= libro.getDescrizione() != null ? libro.getDescrizione() : "Nessuna descrizione." %></p>
@@ -165,32 +187,34 @@
         function toggleFilters(event) {
             const menu = document.getElementById('filterDropdown');
             menu.classList.toggle('active');
+            event.stopPropagation();
         }
 
-        // Chiude il menu se clicchi fuori
         document.addEventListener('click', function(event) {
             const wrapper = document.querySelector('.filter-wrapper');
             const menu = document.getElementById('filterDropdown');
-            if (!wrapper.contains(event.target)) {
+            if (wrapper && !wrapper.contains(event.target)) {
                 menu.classList.remove('active');
             }
         });
 
-        // --- 2. POPOLAMENTO AUTOMATICO GENERI ---
+        // --- 2. POPOLAMENTO GENERI E SALVATAGGIO INDICE ORIGINALE ---
         document.addEventListener("DOMContentLoaded", () => {
             const cards = document.querySelectorAll('.search-item');
             const selectGenere = document.getElementById('filterGenere');
-            const generiTrovati = new Set(); // Set evita i duplicati
+            const generiTrovati = new Set(); 
 
-            // Scansiona tutti i libri e trova i generi unici
-            cards.forEach(card => {
+            // Ciclo su tutte le card
+            cards.forEach((card, index) => {
+                // SALVO L'ORDINE ORIGINALE (0, 1, 2...) in un attributo
+                card.setAttribute('data-original-index', index);
+
+                // Raccolgo i generi
                 const genere = card.getAttribute('data-genere');
-                if (genere) {
-                    generiTrovati.add(genere);
-                }
+                if (genere) generiTrovati.add(genere);
             });
 
-            // Aggiungi le opzioni alla select
+            // Popolo la select
             generiTrovati.forEach(genere => {
                 const option = document.createElement('option');
                 option.value = genere;
@@ -199,44 +223,61 @@
             });
         });
 
-        // --- 3. LOGICA DI FILTRAGGIO E RICERCA ---
+        // --- 3. LOGICA DI FILTRAGGIO E ORDINAMENTO ---
         const searchInput = document.getElementById('searchInput');
         const selectGenere = document.getElementById('filterGenere');
         const selectDisp = document.getElementById('filterDisp');
+        const selectSort = document.getElementById('sortOrder');
 
         function applicaFiltri() {
             const searchTerm = searchInput.value.toLowerCase();
-            const selectedGenre = selectGenere.value; // Es: 'Fantasy', 'Horror', 'all'
-            const selectedDisp = selectDisp.value;    // Es: 'si', 'no', 'all'
+            const selectedGenre = selectGenere.value;
+            const selectedDisp = selectDisp.value;
+            const sortMode = selectSort.value;
 
-            const cards = document.querySelectorAll('.search-item');
+            const container = document.getElementById('containerLibri');
+            // Converto NodeList in Array per usare .sort()
+            let cards = Array.from(document.querySelectorAll('.search-item'));
 
+            // A. FILTRO (Visibilità)
             cards.forEach(card => {
-                // Recuperiamo i dati dalla card
                 const title = card.querySelector('.book-title').innerText.toLowerCase();
                 const author = card.querySelector('.book-author').innerText.toLowerCase();
                 const cardGenre = card.getAttribute('data-genere');
                 const cardDisp = card.getAttribute('data-disponibile');
 
-                // 1. Controllo Ricerca
                 const matchSearch = title.includes(searchTerm) || author.includes(searchTerm);
-
-                // 2. Controllo Genere
                 const matchGenre = (selectedGenre === 'all') || (cardGenre === selectedGenre);
-
-                // 3. Controllo Disponibilità
                 const matchDisp = (selectedDisp === 'all') || (cardDisp === selectedDisp);
 
-                // SE rispetta TUTTI i criteri -> Mostra, ALTRIMENTI -> Nascondi
                 if (matchSearch && matchGenre && matchDisp) {
                     card.style.display = 'flex';
                 } else {
                     card.style.display = 'none';
                 }
             });
+
+            // B. ORDINA (Posizione fisica nel DOM)
+            if (sortMode === 'votoDec') {
+                // Ordina per voto (dal più alto al più basso)
+                cards.sort((a, b) => {
+                    const votoA = parseFloat(a.getAttribute('data-media')) || 0;
+                    const votoB = parseFloat(b.getAttribute('data-media')) || 0;
+                    return votoB - votoA; 
+                });
+            } else {
+                // Ordina per l'indice originale (Reset all'ordine iniziale)
+                cards.sort((a, b) => {
+                    const indexA = parseInt(a.getAttribute('data-original-index'));
+                    const indexB = parseInt(b.getAttribute('data-original-index'));
+                    return indexA - indexB;
+                });
+            }
+            
+            // Ri-appendo le card al container nell'ordine calcolato
+            cards.forEach(card => container.appendChild(card));
         }
         
-        // Collega la funzione agli eventi
         searchInput.addEventListener('keyup', applicaFiltri);
 
         function resetSearch() {
@@ -247,6 +288,8 @@
         function resetFiltri() {
             selectGenere.value = 'all';
             selectDisp.value = 'all';
+            selectSort.value = 'default';
+            searchInput.value = '';
             applicaFiltri();
         }
     </script>
