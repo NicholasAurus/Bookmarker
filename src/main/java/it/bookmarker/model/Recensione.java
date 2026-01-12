@@ -9,12 +9,11 @@ public class Recensione {
     private String testo;
     private Date dataInserimento;
     
-    // *** NUOVO CAMPO: VOTO ***
-    private int voto; // Valore da 1 a 5
+   
+    private int voto; 
     
     private String nomeUtenteDisplay; 
 
-    // --- GETTER E SETTER ---
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }

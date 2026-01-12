@@ -1,13 +1,16 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.List" %>
 <%@ page import="it.bookmarker.model.Libro" %>
-<%@ page import="it.bookmarker.model.Recensione" %> <%
+<%@ page import="it.bookmarker.model.Recensione" %> 
+
+<%
     // Recuperiamo il libro passato dalla Servlet
     Libro libro = (Libro) request.getAttribute("libroDettaglio");
     String nomeUtente = (String) session.getAttribute("utenteLoggato");
     
     // Recuperiamo la lista delle recensioni passata dalla Servlet
     List<Recensione> elencoRecensioni = (List<Recensione>) request.getAttribute("listaRecensioni");
+    
     // Se per qualche motivo il libro è null, torniamo al catalogo
     if (libro == null) { 
         response.sendRedirect("LibriServlet"); 
@@ -115,6 +118,20 @@
                             <%= rec.getDataInserimento() %>
                         </small>
                     </div>
+
+                    <div class="review-stars" style="color: #f1c40f; font-size: 0.9rem; margin: 8px 0;">
+                        <% 
+                        int voto = rec.getVoto(); // Assume che Recensione abbia il metodo getVoto() che ritorna int
+                        for (int i = 0; i < 5; i++) {
+                            if (i < voto) { 
+                        %>
+                            <i class="fa-solid fa-star"></i>
+                        <%  } else { %>
+                            <i class="fa-regular fa-star" style="color: #ddd;"></i>
+                        <%  }
+                        }
+                        %>
+                    </div>
                     
                     <div class="review-body">
                         <%= rec.getTesto() %>
@@ -134,7 +151,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             
-            
+            // Gestione bottone Cuore (Preferiti)
             const heartBtn = document.querySelector('.favorite-btn');
             
             if (heartBtn) {
@@ -151,11 +168,9 @@
                     }
                 });
             }
-
-            /
         });
 
-        
+        // Funzione per scrollare alle recensioni
         function scrollToReviews() {
             const reviewsSection = document.getElementById('reviewsAnchor');
             if (reviewsSection) {
