@@ -76,7 +76,7 @@
 
                 <div class="right-panel">
                     <a href="aggiungiLibro.jsp" class="btn-add-big">
-                        Aggiungi libro<br>al catalogo
+                        Aggiungi libro al catalogo
                     </a>
                 </div>
 
