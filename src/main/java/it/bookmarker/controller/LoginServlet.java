@@ -26,15 +26,36 @@ public class LoginServlet extends HttpServlet {
         UtenteDAO dao = new UtenteDAO();
         Utente utenteTrovato = dao.getUtenteByEmail(email);
 
+     
         if (utenteTrovato == null || !BCrypt.checkpw(password, utenteTrovato.getPassword())) {
             sendError(request, response, "Email o password non validi.");
             return; 
         }
 
+       
+        String stato = utenteTrovato.getStato();
+        
+      
+        if (stato != null) {
+            if (stato.equals("in_attesa")) {
+                sendError(request, response, "Registrazione in attesa di approvazione da parte del bibliotecario.");
+                return;
+            }
+            
+            if (stato.equals("rifiutato")) {
+                sendError(request, response, "La tua richiesta di iscrizione è stata rifiutata.");
+                return;
+            }
+        }
+
+      
         HttpSession session = request.getSession();
         
         session.setAttribute("utenteLoggato", utenteTrovato.getNome());
         session.setAttribute("emailUtente", utenteTrovato.getEmail());
+        
+       
+        session.setAttribute("utenteObj", utenteTrovato);
         
         String ruoloDB = utenteTrovato.getRuolo();
         if (ruoloDB != null) {
@@ -45,6 +66,7 @@ public class LoginServlet extends HttpServlet {
         
         session.setMaxInactiveInterval(30 * 60); 
 
+      
         response.sendRedirect("index.jsp");
     }
 

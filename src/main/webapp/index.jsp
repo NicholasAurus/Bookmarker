@@ -1,11 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%
-    
-    
     //recuperiamo l'utente e il ruolo dalla sessione
     String nomeUtente = (String) session.getAttribute("utenteLoggato");
     String ruolo = (String) session.getAttribute("ruoloUtente");
-    
     
     boolean isLoggato = (nomeUtente != null);
 %>
@@ -45,41 +42,52 @@
         <div class="main-links">
             
             <% 
-            
+            /* --- SEZIONE BIBLIOTECARIO --- */
             if (isLoggato && "BIBLIOTECARIO".equals(ruolo)) { 
             %>
                 
                 <a href="BibliotecarioServlet" class="main-link">
-                    <div class="icon-container" style="background-color: #d35400;"> <i class="fa-solid fa-book-open-reader" style="font-size: 4rem; color: white;"></i>
+                    <div class="icon-container" style="background-color: #d35400;"> 
+                        <i class="fa-solid fa-book-open-reader" style="font-size: 4rem; color: white;"></i>
                     </div>
                     <p>CATALOGO BIBLIOTECARIO</p>
                 </a>
                 
                 <a href="prestitiGlobali.jsp" class="main-link">
-                    <div class="icon-container" style="background-color: #e67e22;"> <i class="fa-solid fa-list-check" style="font-size: 4rem; color: white;"></i>
+                    <div class="icon-container" style="background-color: #e67e22;"> 
+                        <i class="fa-solid fa-list-check" style="font-size: 4rem; color: white;"></i>
                     </div>
                     <p>PRESTITI GLOBALI</p>
                 </a>
 
+                <a href="GestioneUtentiServlet" class="main-link">
+                    <div class="icon-container" style="background-color: #27ae60;"> 
+                        <i class="fa-solid fa-users-gear" style="font-size: 4rem; color: white;"></i>
+                    </div>
+                    <p>GESTIONE UTENTI</p>
+                </a>
+
             <% 
-            
+            /* --- SEZIONE MODERATORE --- */
             } else if (isLoggato && "MODERATORE".equals(ruolo)) { 
             %>
 
                 <a href="listaRecensioni.jsp" class="main-link">
-                    <div class="icon-container" style="background-color: #8e44ad;"> <i class="fa-solid fa-comments" style="font-size: 4rem; color: white;"></i>
+                    <div class="icon-container" style="background-color: #8e44ad;"> 
+                        <i class="fa-solid fa-comments" style="font-size: 4rem; color: white;"></i>
                     </div>
                     <p>LISTA RECENSIONI</p>
                 </a>
 
                 <a href="segnalazioni.jsp" class="main-link">
-                    <div class="icon-container" style="background-color: #9b59b6;"> <i class="fa-solid fa-circle-exclamation" style="font-size: 4rem; color: white;"></i>
+                    <div class="icon-container" style="background-color: #9b59b6;"> 
+                        <i class="fa-solid fa-circle-exclamation" style="font-size: 4rem; color: white;"></i>
                     </div>
                     <p>SEGNALAZIONI</p>
                 </a>
 
             <% 
-            
+            /* --- SEZIONE UTENTE GENERICO / OSPITE --- */
             } else { 
             %>
 

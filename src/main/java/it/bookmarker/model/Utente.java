@@ -11,7 +11,9 @@ public class Utente {
     private String password;       
     private String ruolo;
     private Date data_registrazione;
-
+    private String stato;
+    
+    
     public Utente() {
         this.ruolo = "lettore";
     }
@@ -56,4 +58,7 @@ public class Utente {
     
     public Date getDataRegistrazione() { return data_registrazione; }
     public void setDataRegistrazione(Date data_registrazione) { this.data_registrazione = data_registrazione; }
+
+    public String getStato() { return stato;}
+    public void setStato(String stato) {this.stato = stato;}
 }

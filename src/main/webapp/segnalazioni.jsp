@@ -63,7 +63,7 @@
                         <div class="user-info">
                             <div class="user-icon"><i class="fa-solid fa-user"></i></div>
                             <div class="user-text">
-                                <strong>Utente ID: <%= seg.getUtenteId() %></strong>
+                                <strong>Utente ID: <%= seg.getUtenteEmail() %></strong>
                                 <span>Segnala Recensione #<%= seg.getRecensioneId() %></span>
                             </div>
                         </div>

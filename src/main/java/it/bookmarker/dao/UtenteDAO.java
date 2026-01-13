@@ -5,6 +5,9 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 
 import it.bookmarker.model.Utente;
 
@@ -14,8 +17,9 @@ public class UtenteDAO {
     private String user = "root";
     private String pass = "Bookmarker09!";
 
+
     public boolean registraUtente(Utente utente) throws SQLException {
-        String sql = "INSERT INTO utenti (nome, cognome, codice_fiscale, email, password) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO utenti (nome, cognome, codice_fiscale, email, password, stato) VALUES (?, ?, ?, ?, ?, ?)";
         
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -32,6 +36,9 @@ public class UtenteDAO {
             pstmt.setString(3, utente.getCodiceFiscale());
             pstmt.setString(4, utente.getEmail());
             pstmt.setString(5, utente.getPassword());
+            
+           
+            pstmt.setString(6, "in_attesa"); 
 
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
@@ -62,6 +69,7 @@ public class UtenteDAO {
         return esiste;
     }
     
+
     public Utente getUtenteByEmail(String email) {
         Utente utente = null;
         String query = "SELECT * FROM utenti WHERE email = ?";
@@ -85,6 +93,9 @@ public class UtenteDAO {
                         utente.setPassword(rs.getString("password"));
                         utente.setCodiceFiscale(rs.getString("codice_fiscale"));
                         utente.setDataRegistrazione(rs.getDate("data_registrazione"));
+                        
+                       
+                        utente.setStato(rs.getString("stato"));
                     }
                 }
             }
@@ -93,5 +104,53 @@ public class UtenteDAO {
         }
 
         return utente; 
+    }
+
+   
+    public boolean updateStato(String email, String nuovoStato) {
+        String sql = "UPDATE utenti SET stato = ? WHERE email = ?";
+        
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(url, user, pass);
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+                pstmt.setString(1, nuovoStato); 
+                pstmt.setString(2, email);
+
+                int rows = pstmt.executeUpdate();
+                return rows > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    public List<Utente> getUtentiInAttesa() {
+        List<Utente> lista = new ArrayList<>();
+        String sql = "SELECT * FROM utenti WHERE stato = 'in_attesa'";
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(url, user, pass);
+                 PreparedStatement pstmt = conn.prepareStatement(sql);
+                 ResultSet rs = pstmt.executeQuery()) {
+
+                while (rs.next()) {
+                    Utente u = new Utente();
+                    u.setEmail(rs.getString("email"));
+                    u.setNome(rs.getString("nome"));
+                    u.setCognome(rs.getString("cognome"));
+                    u.setCodiceFiscale(rs.getString("codice_fiscale"));
+                    u.setDataRegistrazione(rs.getDate("data_registrazione"));
+                    u.setStato(rs.getString("stato"));
+                    lista.add(u);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return lista;
     }
 }
