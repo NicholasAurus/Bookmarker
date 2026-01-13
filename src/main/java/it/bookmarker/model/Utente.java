@@ -3,13 +3,12 @@ package it.bookmarker.model;
 import java.sql.Date; 
 
 public class Utente {
-    private int id;
     private String nome;
     private String cognome;
     private String codiceFiscale;
-    private String recapito;      
-    private String email;         
-    private String password;      
+    private String recapito;       
+    private String email;          
+    private String password;       
     private String ruolo;
     private Date data_registrazione;
 
@@ -17,7 +16,6 @@ public class Utente {
         this.ruolo = "lettore";
     }
 
-    // Costruttore per registrazione 
     public Utente(String nome, String cognome, String codiceFiscale, String email, String password) {
         this.nome = nome;
         this.cognome = cognome;
@@ -27,7 +25,6 @@ public class Utente {
         this.ruolo = "lettore";
     }
     
-    // Costruttore per utente non registrato 
     public Utente(String nome, String cognome, String codiceFiscale, String recapito) {
         this.nome = nome;
         this.cognome = cognome;
@@ -36,11 +33,6 @@ public class Utente {
         this.ruolo = "lettore";
     }
 
-    // GETTER E SETTER
-
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-    
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
     
@@ -48,7 +40,6 @@ public class Utente {
     public void setCognome(String cognome) { this.cognome = cognome; }
     
     public String getCodiceFiscale() { return codiceFiscale; }
-
     public void setCodiceFiscale(String codiceFiscale) { this.codiceFiscale = codiceFiscale; }
     
     public String getRecapito() { return recapito; }

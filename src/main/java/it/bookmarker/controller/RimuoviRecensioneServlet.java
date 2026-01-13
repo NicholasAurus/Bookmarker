@@ -18,11 +18,10 @@ public class RimuoviRecensioneServlet extends HttpServlet {
             throws ServletException, IOException {
         
         HttpSession session = request.getSession();
-        Integer idUtente = (Integer) session.getAttribute("idUtente");
+        String emailUtente = (String) session.getAttribute("emailUtente");
         String idLibroParam = request.getParameter("idLibro");
 
-        // Se l'utente non è loggato o manca l'ID del libro, torna allo storico
-        if (idUtente == null || idLibroParam == null) {
+        if (emailUtente == null || idLibroParam == null) {
             response.sendRedirect("StoricoServlet");
             return;
         }
@@ -30,9 +29,8 @@ public class RimuoviRecensioneServlet extends HttpServlet {
         try {
             int idLibro = Integer.parseInt(idLibroParam);
             
-            // Chiamo il DAO per eliminare
             RecensioneDAO dao = new RecensioneDAO();
-            boolean eliminato = dao.eliminaRecensione(idUtente, idLibro);
+            boolean eliminato = dao.eliminaRecensione(emailUtente, idLibro);
             
             if (eliminato) {
                 System.out.println("Recensione eliminata con successo.");
@@ -44,7 +42,6 @@ public class RimuoviRecensioneServlet extends HttpServlet {
             e.printStackTrace();
         }
         
-        // Torno allo storico aggiornato
         response.sendRedirect("StoricoServlet");
     }
 }

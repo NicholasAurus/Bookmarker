@@ -1,93 +1,21 @@
-* {
-    box-sizing: border-box;
-}
-
-/* SFONDO SFOCATO */
-body::before {
-    content: '';
-    background-image: url('../img/background.png'); 
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    filter: blur(5px);
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    background-color: rgba(0, 0, 0, 0.4);
-    background-blend-mode: multiply;
-}
-
 body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Arial', sans-serif;
-    overflow-x: hidden; 
-}
-
-/* HEADER */
-header {
-    display: flex;
-    justify-content: space-between;
-    height: 110px;
-    align-items: center;
-    padding: 1rem 2rem;
-    background-color: rgba(38, 123, 188, 0.79);
-    width: 100%;
-}
-
-.header-spacer,
-.nav-buttons {
-    flex: 1;
-}
-
-.logo-container {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-}
-
-.logo-container img {
-    height: 150px;
-    width: auto;
+    overflow-x: hidden;
 }
 
 .nav-buttons {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
+    flex-wrap: wrap;
     gap: 15px;
-    flex-wrap: wrap; 
 }
 
 .user-greeting {
-    font-size: 1.1rem;
-    color: white;
-    text-transform: capitalize;
     margin-right: 10px;
 }
 
 .nav-buttons .btn {
-    background-color: white;
-    color: #333;
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
-    font-weight: bold;
-    text-decoration: none;
-    transition: background-color 0.3s ease;
     white-space: nowrap;
     display: inline-block;
 }
 
-.nav-buttons .btn:hover {
-    background-color: #f0f0f0;
-}
-
-/* BARRA BLU (CATALOGO) */
 .blue-bar {
     background-color: rgba(38, 123, 188, 0.79);
     padding: 30px 0;
@@ -97,7 +25,7 @@ header {
 
 .container-inner {
     max-width: 1100px;
-    margin: 0 auto; 
+    margin: 0 auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -108,7 +36,6 @@ header {
 .section-title {
     margin: 0;
     font-size: 1.8rem;
-    color: white;
     flex-shrink: 0;
 }
 
@@ -119,8 +46,7 @@ header {
 
 .search-input {
     width: 100%;
-    padding: 12px 20px;
-    padding-right: 40px; 
+    padding: 12px 40px 12px 20px;
     border-radius: 25px;
     border: none;
     outline: none;
@@ -135,7 +61,6 @@ header {
     cursor: pointer;
 }
 
-/* LISTA LIBRI E CARD */
 .book-container {
     max-width: 1000px;
     margin: 40px auto;
@@ -152,7 +77,7 @@ header {
     border: 1px solid #dcdcdc;
     border-radius: 8px;
     align-items: center;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .book-asset {
@@ -166,7 +91,7 @@ header {
     color: #ccc;
     border-radius: 4px;
     margin-right: 30px;
-    flex-shrink: 0; 
+    flex-shrink: 0;
 }
 
 .book-content {
@@ -210,25 +135,78 @@ header {
     color: #c0392b;
 }
 
-/* RESPONSIVE (SMARTPHONE E TABLET) */
+.filter-wrapper {
+    text-align: center;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    user-select: none;
+}
+
+.filter-icon {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+}
+
+.filter-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 280px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    z-index: 100;
+    text-align: left;
+    margin-top: 10px;
+}
+
+.filter-dropdown.active {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
+
+.filter-group {
+    display: grid;
+    grid-template-columns: 1fr 140px;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.filter-group label {
+    margin-bottom: 0;
+    font-weight: bold;
+    color: #333;
+    font-size: 0.9rem;
+    text-align: left;
+}
+
+.filter-select {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 @media screen and (max-width: 768px) {
-    
-    /* HEADER SU MOBILE */
-    header {
-        flex-direction: column; 
-        padding: 1rem;
-        gap: 15px;
-        height: auto;
-    }
-
-    .header-spacer {
-        display: none;
-    }
-
     .nav-buttons {
         width: 100%;
-        justify-content: center; 
-        flex-direction: column; 
+        flex-direction: column;
         gap: 10px;
     }
 
@@ -237,13 +215,12 @@ header {
         margin-bottom: 5px;
         text-align: center;
     }
-    
+
     .nav-buttons a.btn {
-        width: 100%; 
+        width: 100%;
         text-align: center;
     }
 
-    /* BARRA BLU SU MOBILE */
     .container-inner {
         flex-direction: column;
         gap: 20px;
@@ -251,10 +228,9 @@ header {
     }
 
     .search-wrapper {
-        width: 100%; 
+        width: 100%;
     }
 
-    /* CARD LIBRO SU MOBILE */
     .book-card-stroke {
         flex-direction: column;
         text-align: center;
@@ -270,75 +246,4 @@ header {
         justify-content: center;
         width: 100%;
     }
-}
-
-/* MENU FILTRI  */
-.filter-wrapper {
-    text-align: center;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative; 
-    user-select: none;
-}
-
-.filter-icon {
-    font-size: 1.5rem;
-    margin-bottom: 5px;
-}
-
-.filter-dropdown {
-    display: none; 
-    position: absolute;
-    top: 100%;
-    right: 0;
-    width: 280px;
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-    padding: 20px;
-    z-index: 100;
-    text-align: left;
-    margin-top: 10px;
-}
-
-.filter-dropdown.active {
-    display: block; 
-    animation: slideDown 0.3s ease;
-}
-
-
-.filter-group {
-    display: grid;
-    grid-template-columns: 1fr 140px; 
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.filter-group label {
-    margin-bottom: 0;
-    font-weight: bold;
-    color: #333;
-    font-size: 0.9rem;
-    text-align: left; 
-}
-
-
-.filter-select {
-    width: 100%; 
-    padding: 6px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    outline: none;
-    cursor: pointer;
-}
-
-@keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
 }

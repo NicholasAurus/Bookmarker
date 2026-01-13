@@ -19,19 +19,16 @@ public class ProfiloServlet extends HttpServlet {
             throws ServletException, IOException {
         
         HttpSession session = request.getSession();
-        Integer idUtente = (Integer) session.getAttribute("idUtente");
+        String emailUtente = (String) session.getAttribute("emailUtente");
         
-       
-        if (idUtente == null) {
+        if (emailUtente == null) {
             response.sendRedirect("login.jsp");
             return;
         }
         
-      
         UtenteDAO dao = new UtenteDAO();
-        Utente utenteCompleto = dao.getUtenteById(idUtente);
+        Utente utenteCompleto = dao.getUtenteByEmail(emailUtente);
         
-      
         request.setAttribute("datiUtente", utenteCompleto);
         request.getRequestDispatcher("profilo.jsp").forward(request, response);
     }

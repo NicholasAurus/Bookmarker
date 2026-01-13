@@ -19,21 +19,19 @@ public class StoricoServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-   
         HttpSession session = request.getSession();
         
         
-        Integer idUtente = (Integer) session.getAttribute("idUtente");
+        String emailUtente = (String) session.getAttribute("emailUtente");
         
-       
-        if (idUtente == null) {
+        if (emailUtente == null) {
             response.sendRedirect("login.jsp");
             return; 
         }
         
-      
         PrestitiDAO dao = new PrestitiDAO();
-        List<Prestito> storico = dao.getStoricoByUtente(idUtente);
+        
+        List<Prestito> storico = dao.getStoricoByUtente(emailUtente);
         
         request.setAttribute("elencoStorico", storico);
         request.getRequestDispatcher("storico.jsp").forward(request, response);

@@ -23,33 +23,25 @@ body {
 
 body::before {
     content: '';
-    background-image: url('../img/background.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    filter: blur(5px);
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    background-color: rgba(0, 0, 0, 0.4);
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4) url('../img/background.png') center/cover no-repeat;
     background-blend-mode: multiply;
+    filter: blur(5px);
+    z-index: -1;
 }
 
 header {
     display: flex;
     justify-content: space-between;
-    height: 110px;
     align-items: center;
+    height: 110px;
     padding: 1rem 2rem;
     background-color: rgba(38, 123, 188, 0.79);
     width: 100%;
 }
 
-.header-spacer,
-.nav-buttons {
+.header-spacer, .nav-buttons {
     flex: 1;
 }
 
@@ -74,19 +66,13 @@ header {
     height: 100%;
 }
 
-
-.nav-buttons span,
-.nav-buttons .user-greeting {
-    margin: 0;
-    padding: 0;
+.nav-buttons span, .nav-buttons .user-greeting {
     line-height: 1;
     position: relative;
-    
 }
 
 .user-greeting {
     font-size: 1.1rem;
-    color: white;
     text-transform: capitalize;
 }
 
@@ -265,8 +251,7 @@ main {
         display: none;
     }
 
-    .logo-container,
-    .nav-buttons {
+    .logo-container, .nav-buttons {
         flex: 0 0 auto;
     }
 
@@ -297,4 +282,3 @@ main {
         font-size: 1rem;
     }
 }
-

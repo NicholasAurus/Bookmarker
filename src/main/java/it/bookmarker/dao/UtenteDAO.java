@@ -14,7 +14,6 @@ public class UtenteDAO {
     private String user = "root";
     private String pass = "Bookmarker09!";
 
-    
     public boolean registraUtente(Utente utente) throws SQLException {
         String sql = "INSERT INTO utenti (nome, cognome, codice_fiscale, email, password) VALUES (?, ?, ?, ?, ?)";
         
@@ -65,8 +64,6 @@ public class UtenteDAO {
     
     public Utente getUtenteByEmail(String email) {
         Utente utente = null;
-        
-
         String query = "SELECT * FROM utenti WHERE email = ?";
 
         try {
@@ -79,17 +76,14 @@ public class UtenteDAO {
 
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (rs.next()) {
-                        
                         utente = new Utente(); 
-                        
-                        
-                        utente.setId(rs.getInt("id")); 
                         
                         utente.setNome(rs.getString("nome"));
                         utente.setCognome(rs.getString("cognome")); 
                         utente.setEmail(rs.getString("email"));
                         utente.setRuolo(rs.getString("ruolo"));
                         utente.setPassword(rs.getString("password"));
+                        utente.setCodiceFiscale(rs.getString("codice_fiscale"));
                         utente.setDataRegistrazione(rs.getDate("data_registrazione"));
                     }
                 }
@@ -99,37 +93,5 @@ public class UtenteDAO {
         }
 
         return utente; 
-    }
-    public Utente getUtenteById(int id) {
-        Utente utente = null;
-        
-        String sql = "SELECT * FROM utenti WHERE id = ?"; 
-
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(url, user, pass);
-                 PreparedStatement ps = conn.prepareStatement(sql)) {
-
-                ps.setInt(1, id);
-
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        utente = new Utente();
-                        
-                        utente.setId(rs.getInt("id"));
-                        utente.setNome(rs.getString("nome"));
-                        utente.setCognome(rs.getString("cognome")); 
-                        utente.setEmail(rs.getString("email"));
-                        utente.setPassword(rs.getString("password"));
-                        utente.setRuolo(rs.getString("ruolo"));
-                        utente.setCodiceFiscale(rs.getString("codice_fiscale")); 
-                        utente.setDataRegistrazione(rs.getDate("data_registrazione"));
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return utente;
     }
 }

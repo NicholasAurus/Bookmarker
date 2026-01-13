@@ -4,22 +4,19 @@ import java.sql.Date;
 public class Segnalazione {
     
     private int id;
-    private int utenteId;     // Chi segnala
-    private int recensioneId; // Quale recensione è segnalata
+    private String utenteEmail;
+    private int recensioneId;
     private String motivo;
     private Date dataSegnalazione;
-    private String stato;     // "APERTA", "CHIUSA"
-
-
+    private String stato;
 
     public Segnalazione() {}
 
-    // Getter e Setter
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     
-    public int getUtenteId() { return utenteId; }
-    public void setUtenteId(int utenteId) { this.utenteId = utenteId; }
+    public String getUtenteEmail() { return utenteEmail; }
+    public void setUtenteEmail(String utenteEmail) { this.utenteEmail = utenteEmail; }
     
     public int getRecensioneId() { return recensioneId; }
     public void setRecensioneId(int recensioneId) { this.recensioneId = recensioneId; }
@@ -32,5 +29,4 @@ public class Segnalazione {
     
     public String getStato() { return stato; }
     public void setStato(String stato) { this.stato = stato; }
-
 }

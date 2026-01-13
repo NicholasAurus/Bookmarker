@@ -35,16 +35,15 @@ public class LoginServlet extends HttpServlet {
         
         session.setAttribute("utenteLoggato", utenteTrovato.getNome());
         session.setAttribute("emailUtente", utenteTrovato.getEmail());
-        session.setAttribute("idUtente", utenteTrovato.getId());
-
+        
         String ruoloDB = utenteTrovato.getRuolo();
         if (ruoloDB != null) {
             session.setAttribute("ruoloUtente", ruoloDB.toUpperCase());
         } else {
-            session.setAttribute("ruoloUtente", "UTENTE"); // Valore di default se nullo
+            session.setAttribute("ruoloUtente", "UTENTE");
         }
         
-        session.setMaxInactiveInterval(30 * 60); // 30 minuti
+        session.setMaxInactiveInterval(30 * 60); 
 
         response.sendRedirect("index.jsp");
     }

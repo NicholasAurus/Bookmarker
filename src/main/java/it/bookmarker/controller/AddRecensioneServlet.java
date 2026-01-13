@@ -23,7 +23,7 @@ public class AddRecensioneServlet extends HttpServlet {
         HttpSession session = request.getSession();
         
         try {
-            // 1. Recupero l'utente dalla sessione
+            // Recupero l'utente dalla sessione
             Integer idUtente = (Integer) session.getAttribute("idUtente");
             
             // Se la sessione è scaduta o l'utente non è loggato, lo mando al login
@@ -32,7 +32,7 @@ public class AddRecensioneServlet extends HttpServlet {
                 return;
             }
 
-            // 2. Recupero i parametri dal form (quelli con name="...")
+            // Recupero i parametri dal form (quelli con name="...")
             String idLibroParam = request.getParameter("idLibro");
             String testo = request.getParameter("testo");
             String votoParam = request.getParameter("voto");
@@ -42,7 +42,7 @@ public class AddRecensioneServlet extends HttpServlet {
                 int idLibro = Integer.parseInt(idLibroParam);
                 int voto = Integer.parseInt(votoParam);
 
-                // 3. Chiamo il DAO per salvare nel database
+                // Chiamo il DAO per salvare nel database
                 AddRecensioneDAO dao = new AddRecensioneDAO();
                 boolean successo = dao.salvaRecensione(idUtente, idLibro, testo, voto);
                 
@@ -57,8 +57,7 @@ public class AddRecensioneServlet extends HttpServlet {
             e.printStackTrace();
         }
         
-        // 4. FONDAMENTALE: Rimando l'utente allo Storico
-        // Non uso "storico.jsp" ma "StoricoServlet" perché deve ricaricare la lista aggiornata
+
         response.sendRedirect("StoricoServlet");
     }
 }

@@ -15,12 +15,11 @@ public class RecensioneDAO {
     private static final String USER = "root";
     private static final String PASS = "Bookmarker09!";
 
-    // 1. METODO PER LEGGERE LE RECENSIONI DI UN LIBRO
     public List<Recensione> getRecensioniByLibro(int idLibro) {
         List<Recensione> lista = new ArrayList<>();
         String sql = "SELECT r.*, u.nome, u.cognome " +
                      "FROM recensioni r " +
-                     "JOIN utenti u ON r.utente_id = u.id " +
+                     "JOIN utenti u ON r.utente_id = u.email " + 
                      "WHERE r.libro_id = ? " +
                      "ORDER BY r.data_inserimento DESC";
 
@@ -35,7 +34,7 @@ public class RecensioneDAO {
                     while (rs.next()) {
                         Recensione r = new Recensione();
                         r.setId(rs.getInt("id"));
-                        r.setUtenteId(rs.getInt("utente_id"));
+                        r.setUtenteEmail(rs.getString("utente_id"));
                         r.setLibroId(rs.getInt("libro_id"));
                         r.setTesto(rs.getString("testo"));
                         r.setDataInserimento(rs.getDate("data_inserimento"));
@@ -54,8 +53,7 @@ public class RecensioneDAO {
         return lista;
     }
 
-    // 2. METODO PER ELIMINARE UNA RECENSIONE
-    public boolean eliminaRecensione(int idUtente, int idLibro) {
+    public boolean eliminaRecensione(String emailUtente, int idLibro) {
         String sql = "DELETE FROM recensioni WHERE utente_id = ? AND libro_id = ?";
         
         try {
@@ -63,7 +61,7 @@ public class RecensioneDAO {
             try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
                  PreparedStatement ps = conn.prepareStatement(sql)) {
                 
-                ps.setInt(1, idUtente);
+                ps.setString(1, emailUtente);
                 ps.setInt(2, idLibro);
                 
                 int rows = ps.executeUpdate();
