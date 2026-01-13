@@ -44,6 +44,6 @@ public class AggiungiLibroServlet extends HttpServlet {
             e.printStackTrace();
         }
         
-        response.sendRedirect("GestoreServlet");
+        response.sendRedirect("BibliotecarioServlet");
     }
 }

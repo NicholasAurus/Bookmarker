@@ -16,7 +16,7 @@ public class UtenteDAO {
 
     
     public boolean registraUtente(Utente utente) throws SQLException {
-        String sql = "INSERT INTO utenti (nome, cognome, n_tessera, email, password) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO utenti (nome, cognome, codice_fiscale, email, password) VALUES (?, ?, ?, ?, ?)";
         
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -30,7 +30,7 @@ public class UtenteDAO {
 
             pstmt.setString(1, utente.getNome());
             pstmt.setString(2, utente.getCognome());
-            pstmt.setString(3, utente.getNumeroTessera());
+            pstmt.setString(3, utente.getCodiceFiscale());
             pstmt.setString(4, utente.getEmail());
             pstmt.setString(5, utente.getPassword());
 
@@ -39,16 +39,16 @@ public class UtenteDAO {
         }
     }
     
-    public boolean esisteTessera(String numeroTessera) {
+    public boolean esisteCodiceFiscale(String codiceFiscale) {
         boolean esiste = false;
-        String sql = "SELECT 1 FROM utenti WHERE n_tessera = ?"; 
+        String sql = "SELECT 1 FROM utenti WHERE codice_fiscale = ?"; 
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             try (Connection conn = DriverManager.getConnection(url, user, pass);
                  PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-                pstmt.setString(1, numeroTessera);
+                pstmt.setString(1, codiceFiscale);
 
                 try (ResultSet rs = pstmt.executeQuery()) {
                     if (rs.next()) {
@@ -122,11 +122,7 @@ public class UtenteDAO {
                         utente.setEmail(rs.getString("email"));
                         utente.setPassword(rs.getString("password"));
                         utente.setRuolo(rs.getString("ruolo"));
-                        
-                        
-                        utente.setNumeroTessera(rs.getString("n_tessera")); 
-                        
-                        
+                        utente.setCodiceFiscale(rs.getString("codice_fiscale")); 
                         utente.setDataRegistrazione(rs.getDate("data_registrazione"));
                     }
                 }

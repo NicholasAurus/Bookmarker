@@ -15,7 +15,7 @@
     <meta charset="UTF-8">
     <title>Gestione Catalogo - BookMarker</title>
     <link rel="stylesheet" href="css/catalogo.css">
-    <link rel="stylesheet" href="css/catalogoGestore.css"> 
+    <link rel="stylesheet" href="css/catalogoBibliotecario.css"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
@@ -26,17 +26,17 @@
             <img src="img/logo.png" alt="BookMarker Logo">
         </a>
         <nav class="nav-buttons">
-            <span class="user-greeting">Area Gestore</span>
+            <span class="user-greeting">Area Bibliotecario</span>
             <a href="logout.jsp" class="btn" style="background-color: #c0392b; color: white;">Logout</a>
         </nav>
     </header>
 
     <main>
-        <section class="blue-bar-gestore">
-            <div class="container-gestore">
+        <section class="blue-bar-bibliotecario">
+            <div class="container-bibliotecario">
                 
                 <div class="left-panel">
-                    <h2 class="section-title">Catalogo gestore</h2>
+                    <h2 class="section-title">Catalogo bibliotecario</h2>
                     
                     <div class="search-wrapper" style="width: 300px;">
                         <input type="text" id="searchInput" placeholder="Ricerca..." class="search-input">

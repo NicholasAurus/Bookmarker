@@ -24,7 +24,7 @@ public class ModificaLibroServlet extends HttpServlet {
             request.setAttribute("libroDaModificare", libro);
             request.getRequestDispatcher("modificaLibro.jsp").forward(request, response);
         } else {
-            response.sendRedirect("GestoreServlet");
+            response.sendRedirect("BibliotecarioServlet");
         }
     }
 
@@ -41,6 +41,6 @@ public class ModificaLibroServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        response.sendRedirect("GestoreServlet");
+        response.sendRedirect("BibliotecarioServlet");
     }
 }

@@ -56,7 +56,7 @@
             </div>
             
             <button type="submit" class="btn-submit">Salva Libro</button>
-            <a href="GestoreServlet" style="display:block; text-align:center; margin-top:15px; text-decoration:none; color:#777;">Annulla</a>
+            <a href="BibliotecarioServlet" style="display:block; text-align:center; margin-top:15px; text-decoration:none; color:#777;">Annulla</a>
         </form>
     </div>
 </body>

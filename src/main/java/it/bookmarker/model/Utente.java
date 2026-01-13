@@ -1,15 +1,15 @@
 package it.bookmarker.model;
 
-import java.sql.Date; // *** NUOVO IMPORT ***
+import java.sql.Date; 
 
 public class Utente {
     private int id;
     private String nome;
     private String cognome;
-    private String numeroTessera; 
-    private String recapito;      // Solo per non registrati
-    private String email;         // Solo per registrati
-    private String password;      // Solo per registrati
+    private String codiceFiscale;
+    private String recapito;      
+    private String email;         
+    private String password;      
     private String ruolo;
     private Date data_registrazione;
 
@@ -18,25 +18,25 @@ public class Utente {
     }
 
     // Costruttore per registrazione 
-    public Utente(String nome, String cognome, String numeroTessera, String email, String password) {
+    public Utente(String nome, String cognome, String codiceFiscale, String email, String password) {
         this.nome = nome;
         this.cognome = cognome;
-        this.numeroTessera = numeroTessera;
+        this.codiceFiscale = codiceFiscale;
         this.email = email;
         this.password = password;
         this.ruolo = "lettore";
     }
     
     // Costruttore per utente non registrato 
-    public Utente(String nome, String cognome, String numeroTessera, String recapito) {
+    public Utente(String nome, String cognome, String codiceFiscale, String recapito) {
         this.nome = nome;
         this.cognome = cognome;
-        this.numeroTessera = numeroTessera;
+        this.codiceFiscale = codiceFiscale;
         this.recapito = recapito;
         this.ruolo = "lettore";
     }
 
-    // --- GETTER E SETTER ---
+    // GETTER E SETTER
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -47,8 +47,9 @@ public class Utente {
     public String getCognome() { return cognome; }
     public void setCognome(String cognome) { this.cognome = cognome; }
     
-    public String getNumeroTessera() { return numeroTessera; }
-    public void setNumeroTessera(String numeroTessera) { this.numeroTessera = numeroTessera; }
+    public String getCodiceFiscale() { return codiceFiscale; }
+
+    public void setCodiceFiscale(String codiceFiscale) { this.codiceFiscale = codiceFiscale; }
     
     public String getRecapito() { return recapito; }
     public void setRecapito(String recapito) { this.recapito = recapito; }
@@ -61,13 +62,7 @@ public class Utente {
     
     public String getRuolo() { return ruolo; }
     public void setRuolo(String ruolo) { this.ruolo = ruolo; }
-
     
-    public Date getDataRegistrazione() {
-        return data_registrazione;
-    }
-
-    public void setDataRegistrazione(Date data_registrazione) {
-        this.data_registrazione = data_registrazione;
-    }
+    public Date getDataRegistrazione() { return data_registrazione; }
+    public void setDataRegistrazione(Date data_registrazione) { this.data_registrazione = data_registrazione; }
 }

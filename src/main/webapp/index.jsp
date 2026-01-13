@@ -46,13 +46,13 @@
             
             <% 
             
-            if (isLoggato && "GESTORE".equals(ruolo)) { 
+            if (isLoggato && "BIBLIOTECARIO".equals(ruolo)) { 
             %>
                 
-                <a href="GestoreServlet" class="main-link">
+                <a href="BibliotecarioServlet" class="main-link">
                     <div class="icon-container" style="background-color: #d35400;"> <i class="fa-solid fa-book-open-reader" style="font-size: 4rem; color: white;"></i>
                     </div>
-                    <p>CATALOGO GESTORE</p>
+                    <p>CATALOGO BIBLIOTECARIO</p>
                 </a>
                 
                 <a href="prestitiGlobali.jsp" class="main-link">

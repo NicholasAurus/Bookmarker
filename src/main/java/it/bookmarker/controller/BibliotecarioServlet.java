@@ -12,17 +12,17 @@ import javax.servlet.http.HttpSession;
 import it.bookmarker.dao.LibriDAO;
 import it.bookmarker.model.Libro;
 
-@WebServlet("/GestoreServlet")
-public class GestoreServlet extends HttpServlet {
+@WebServlet("/BibliotecarioServlet")
+public class BibliotecarioServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-      /*decommentare questo quando avremo un Gestore
+      /*decommentare questo quando avremo un Bibliotecario
         HttpSession session = request.getSession();
         String ruolo = (String) session.getAttribute("ruoloUtente");
-        if (ruolo == null || !ruolo.equalsIgnoreCase("gestore")) { // o "admin"
+        if (ruolo == null || !ruolo.equalsIgnoreCase("bibliotecario")) { // o "admin"
             response.sendRedirect("index.jsp"); // Rimanda alla home se non è autorizzato
             return;
         }
@@ -36,6 +36,6 @@ public class GestoreServlet extends HttpServlet {
         request.setAttribute("elencoLibri", elencoLibri);
         
   
-        request.getRequestDispatcher("catalogoGestore.jsp").forward(request, response);
+        request.getRequestDispatcher("catalogoBibliotecario.jsp").forward(request, response);
     }
 }

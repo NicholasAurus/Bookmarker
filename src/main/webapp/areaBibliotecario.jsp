@@ -9,7 +9,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Area Gestore - BookMarker</title>
+    <title>Area Bibliotecario - BookMarker</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -30,15 +30,15 @@
         </nav>
     </header>
 
-    <main class="gestore-main">
-        <div class="gestore-container">
-            <% if (isLoggato && "GESTORE".equals(ruolo)) { %>
+    <main class="bibliotecario-main">
+        <div class="bibliotecario-container">
+            <% if (isLoggato && "BIBLIOTECARIO".equals(ruolo)) { %>
                 
-                <a href="GestoreServlet" class="gestore-square">
-                    <span>CATALOGO GESTORE</span>
+                <a href="BibliotecarioServlet" class="bibliotecario-square">
+                    <span>CATALOGO BIBLIOTECARIO</span>
                 </a>
                 
-                <a href="prestitiGlobali.jsp" class="gestore-square">
+                <a href="prestitiGlobali.jsp" class="bibliotecario-square">
                     <span>PRESTITI GLOBALI</span>
                 </a>
 

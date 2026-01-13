@@ -26,6 +26,6 @@ public class RimuoviLibroServlet extends HttpServlet {
             }
         }
         // Torna al catalogo aggiornato
-        response.sendRedirect("GestoreServlet");
+        response.sendRedirect("BibliotecarioServlet");
     }
 }

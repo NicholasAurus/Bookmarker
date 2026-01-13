@@ -25,29 +25,28 @@ public class LoginServlet extends HttpServlet {
 
         UtenteDAO dao = new UtenteDAO();
         Utente utenteTrovato = dao.getUtenteByEmail(email);
-        
-        if (utenteTrovato != null) {
-            if (BCrypt.checkpw(password, utenteTrovato.getPassword())) {
-                
-                HttpSession session = request.getSession();
-                
-                session.setAttribute("utenteLoggato", utenteTrovato.getNome());
-                session.setAttribute("emailUtente", utenteTrovato.getEmail());
-                session.setAttribute("ruoloUtente", utenteTrovato.getRuolo());
-                session.setAttribute("idUtente", utenteTrovato.getId());
-                
-                session.setMaxInactiveInterval(30 * 60); 
 
-                if ("GESTORE".equals(utenteTrovato.getRuolo())) {
-                    response.sendRedirect("index.jsp");
-                } else {
-                    response.sendRedirect("index.jsp");
-                }
-                return; 
-            }
+        if (utenteTrovato == null || !BCrypt.checkpw(password, utenteTrovato.getPassword())) {
+            sendError(request, response, "Email o password non validi.");
+            return; 
         }
 
-        sendError(request, response, "Email o password non validi.");
+        HttpSession session = request.getSession();
+        
+        session.setAttribute("utenteLoggato", utenteTrovato.getNome());
+        session.setAttribute("emailUtente", utenteTrovato.getEmail());
+        session.setAttribute("idUtente", utenteTrovato.getId());
+
+        String ruoloDB = utenteTrovato.getRuolo();
+        if (ruoloDB != null) {
+            session.setAttribute("ruoloUtente", ruoloDB.toUpperCase());
+        } else {
+            session.setAttribute("ruoloUtente", "UTENTE"); // Valore di default se nullo
+        }
+        
+        session.setMaxInactiveInterval(30 * 60); // 30 minuti
+
+        response.sendRedirect("index.jsp");
     }
 
     private void sendError(HttpServletRequest request, HttpServletResponse response, String message) 

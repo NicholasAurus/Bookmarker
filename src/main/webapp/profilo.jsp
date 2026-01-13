@@ -2,7 +2,10 @@
 <%@ page import="it.bookmarker.model.Utente" %>
 <%@ page import="java.text.SimpleDateFormat" %>
 <%
+    // Recuperiamo l'oggetto utente passato dalla Servlet
     Utente u = (Utente) request.getAttribute("datiUtente");
+    
+    // Controllo di sicurezza: se non c'è l'utente, vai al login
     if (u == null) {
         response.sendRedirect("login.jsp");
         return;
@@ -13,7 +16,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Il mio Profilo - BookMarker</title>
-    <link rel="stylesheet" href="css/catalogo.css"> <link rel="stylesheet" href="css/profilo.css">  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/catalogo.css"> 
+    <link rel="stylesheet" href="css/profilo.css">  
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
 
@@ -56,25 +61,25 @@
                         </div>
 
                         <div class="info-item">
-                            <span class="info-label">Numero Tessera</span>
+                            <span class="info-label">Codice Fiscale</span>
                             <span class="info-value">
-                                <%= (u.getNumeroTessera() != null) ? u.getNumeroTessera() : "Non assegnata" %>
+                                <%= (u.getCodiceFiscale() != null) ? u.getCodiceFiscale().toUpperCase() : "Non inserito" %>
                             </span>
                         </div>
 
-                      <div class="info-item">
-    <span class="info-label">Data Registrazione</span>
-    <span class="info-value">
-        <% 
-            if (u.getDataRegistrazione() != null) {
-                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-                out.print(sdf.format(u.getDataRegistrazione()));
-            } else {
-                out.print("Data non disponibile");
-            }
-        %>
-    </span>
-</div>
+                        <div class="info-item">
+                            <span class="info-label">Data Registrazione</span>
+                            <span class="info-value">
+                                <% 
+                                    if (u.getDataRegistrazione() != null) {
+                                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                                        out.print(sdf.format(u.getDataRegistrazione()));
+                                    } else {
+                                        out.print("Data non disponibile");
+                                    }
+                                %>
+                            </span>
+                        </div>
                         
                         <div class="info-item">
                             <span class="info-label">Stato Account</span>

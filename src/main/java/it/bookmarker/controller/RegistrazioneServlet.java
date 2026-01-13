@@ -24,10 +24,10 @@ public class RegistrazioneServlet extends HttpServlet {
        
         String nome = request.getParameter("nome");
         String cognome = request.getParameter("cognome");
-        String tessera = request.getParameter("tessera");
+        String codiceFiscale = request.getParameter("codice_fiscale");
         String email = request.getParameter("email");
         String password = request.getParameter("password");
-        String confirmPassword = request.getParameter("confirm-password");
+        String confirmPassword = request.getParameter("conferma_password");
         
        
         if (!password.equals(confirmPassword)) {
@@ -40,8 +40,8 @@ public class RegistrazioneServlet extends HttpServlet {
         UtenteDAO dao = new UtenteDAO();
         
         
-        if (dao.esisteTessera(tessera)) {
-            request.setAttribute("errorMessage", "Il numero di tessera inserito è già registrato.");
+        if (dao.esisteCodiceFiscale(codiceFiscale)) {
+            request.setAttribute("errorMessage", "Il codice fiscale inserito è già registrato.");
             forwardToRegistration(request, response);
             return; 
         }
@@ -49,7 +49,7 @@ public class RegistrazioneServlet extends HttpServlet {
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
         
-        Utente nuovoUtente = new Utente(nome, cognome, tessera, email, hashedPassword);
+        Utente nuovoUtente = new Utente(nome, cognome, codiceFiscale, email, hashedPassword);
 
         
         

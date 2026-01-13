@@ -58,10 +58,10 @@
                     <label for="cognome">Cognome</label>
                     <input type="text" id="cognome" name="cognome" placeholder="Cognome" required>
                 </div>
-                <div class="form-group">
-                    <label for="tessera">N. Tessera</label>
-                    <input type="text" id="tessera" name="tessera" placeholder="000000" required>
-                </div>
+				<div class="form-group">
+    				<label for="codice_fiscale">Codice Fiscale</label>
+    				<input type="text" id="codice_fiscale" name="codice_fiscale" placeholder="Es. RSSMRA80A01H501U" maxlength="16" style="text-transform: uppercase;" required>
+				</div>
                 <div class="form-group">
                     <label for="email">Email</label>
                     <input type="email" id="email" name="email" placeholder="example@mail.com" required>
@@ -71,8 +71,8 @@
                     <input type="password" id="password" name="password" placeholder="password" required>
                 </div>
                 <div class="form-group">
-                    <label for="confirm-password">Conferma password</label>
-                    <input type="password" id="confirm-password" name="confirm-password" placeholder="password" required>
+                    <label for="conferma_password">Conferma password</label>
+                    <input type="password" id="conferma_password" name="conferma_password" placeholder="conferma password" required>
                 </div>
                 <button type="submit" class="submit-btn">Registrati</button>
             </form>
