@@ -16,128 +16,8 @@
     
     <link rel="stylesheet" href="css/catalogo.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <style>
-        /* --- STILI ESISTENTI (Tabella e Layout) --- */
-        .admin-container {
-            max-width: 1100px;
-            margin: 40px auto;
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .styled-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            font-size: 0.95em;
-            font-family: sans-serif;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
-            border-radius: 5px 5px 0 0;
-            overflow: hidden;
-        }
-
-        .styled-table thead tr {
-            background-color: #267bbc; 
-            color: #ffffff;
-            text-align: left;
-        }
-
-        .styled-table th, .styled-table td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #dddddd;
-        }
-
-        .styled-table tbody tr:nth-of-type(even) { background-color: #f3f3f3; }
-        .styled-table tbody tr:hover { background-color: #eaf6ff; }
-        .styled-table tbody tr:last-of-type { border-bottom: 2px solid #267bbc; }
-
-        .btn-action {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: bold;
-            color: white;
-            text-transform: uppercase;
-            transition: opacity 0.3s ease;
-        }
-        .btn-action:hover { opacity: 0.8; }
-        .btn-green { background-color: #27ae60; }
-        .btn-red { background-color: #c0392b; margin-left: 5px; }
-        
-        .empty-msg {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-            font-size: 1.1rem;
-        }
-
-        /* --- NUOVI STILI PER LA MODALE (POPUP) --- */
-        .modal-overlay {
-            display: none; /* Nascosto di default */
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); /* Sfondo scuro semitrasparente */
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            animation: fadeIn 0.3s;
-        }
-
-        .modal-box {
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            width: 400px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            animation: slideUp 0.3s;
-        }
-
-        .modal-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-        }
-
-        .modal-title {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .modal-text {
-            color: #666;
-            margin-bottom: 25px;
-        }
-
-        .modal-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .btn-modal {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .btn-cancel { background-color: #e0e0e0; color: #333; }
-        .btn-confirm { background-color: #267bbc; color: white; }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(20px); } to { transform: translateY(0); } }
-    </style>
+    
+    <link rel="stylesheet" href="css/approvazione_utenti.css">
 </head>
 <body>
 
@@ -161,9 +41,6 @@
         <section class="blue-bar">
             <div class="container-inner">
                 <h2 class="section-title">Amministrazione: Approvazione Utenti</h2>
-                <a href="index.jsp" style="color: white; text-decoration: underline; font-size: 0.9rem;">
-                    <i class="fa-solid fa-arrow-left"></i> Torna alla Home
-                </a>
             </div>
         </section>
 
@@ -241,7 +118,7 @@
     </div>
 
     <script>
-        let formDaInviareId = null; // Variabile per ricordarsi quale form inviare
+        let formDaInviareId = null; 
 
         function apriModal(tipo, nomeUtente, formId) {
             const modal = document.getElementById('confirmationModal');
@@ -250,24 +127,23 @@
             const icona = document.getElementById('modalIcon');
             const btnConferma = document.getElementById('confirmBtn');
 
-            // Salviamo l'ID del form che dobbiamo inviare se l'utente dice SI
             formDaInviareId = formId;
 
             if (tipo === 'accetta') {
                 titolo.innerText = "Accetta Utente";
                 testo.innerText = "Sei sicuro di voler attivare l'account di " + nomeUtente + "?";
                 icona.innerHTML = '<i class="fa-solid fa-user-check" style="color: #27ae60;"></i>';
-                btnConferma.style.backgroundColor = "#27ae60"; // Verde
+                btnConferma.style.backgroundColor = "#27ae60"; 
                 btnConferma.innerText = "Sì, Attiva";
             } else {
                 titolo.innerText = "Rifiuta Utente";
                 testo.innerText = "Attenzione: Stai per rifiutare l'iscrizione di " + nomeUtente + ".";
                 icona.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color: #c0392b;"></i>';
-                btnConferma.style.backgroundColor = "#c0392b"; // Rosso
+                btnConferma.style.backgroundColor = "#c0392b"; 
                 btnConferma.innerText = "Sì, Rifiuta";
             }
 
-            modal.style.display = 'flex'; // Mostra la modale
+            modal.style.display = 'flex'; 
         }
 
         function chiudiModal() {
@@ -275,14 +151,12 @@
             formDaInviareId = null;
         }
 
-        // Quando si clicca "Conferma" dentro la modale
         document.getElementById('confirmBtn').addEventListener('click', function() {
             if (formDaInviareId) {
                 document.getElementById(formDaInviareId).submit();
             }
         });
 
-        // Chiude la modale se clicchi fuori dal box
         window.onclick = function(event) {
             const modal = document.getElementById('confirmationModal');
             if (event.target == modal) {
