@@ -6,20 +6,18 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class AddRecensioneDAO {
-    
 
     private String jdbcURL = "jdbc:mysql://localhost:3306/biblioteca?serverTimezone=UTC";
     private String jdbcUsername = "root";
     private String jdbcPassword = "Bookmarker09!";
 
-   
-    public boolean salvaRecensione(int idUtente, int idLibro, String testo, int voto) {
+    public boolean salvaRecensione(String emailUtente, int idLibro, String testo, int voto) {
         Connection conn = null;
         PreparedStatement pstmt = null;
         boolean rowInserted = false;
 
         System.out.println("[DEBUG DAO] Inizio salvataggio recensione...");
-        System.out.println("[DEBUG DAO] Dati ricevuti -> Utente: " + idUtente + ", Libro: " + idLibro + ", Voto: " + voto);
+        System.out.println("[DEBUG DAO] Dati ricevuti -> Utente: " + emailUtente + ", Libro: " + idLibro + ", Voto: " + voto);
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -29,10 +27,9 @@ public class AddRecensioneDAO {
                 System.out.println("[DEBUG DAO] Connessione al DB riuscita!");
             }
 
-           
-            String sql = "INSERT INTO recensioni (utente_id, libro_id, testo, data_inserimento, voto) VALUES (?, ?, ?, NOW(), ?)";
+            String sql = "INSERT INTO recensioni (utente_email, libro_id, testo, data_inserimento, voto) VALUES (?, ?, ?, NOW(), ?)";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, idUtente);
+            pstmt.setString(1, emailUtente);
             pstmt.setInt(2, idLibro);
             pstmt.setString(3, testo);
             pstmt.setInt(4, voto);

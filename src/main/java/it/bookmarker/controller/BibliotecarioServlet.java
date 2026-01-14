@@ -22,7 +22,7 @@ public class BibliotecarioServlet extends HttpServlet {
       /*decommentare questo quando avremo un Bibliotecario
         HttpSession session = request.getSession();
         String ruolo = (String) session.getAttribute("ruoloUtente");
-        if (ruolo == null || !ruolo.equalsIgnoreCase("bibliotecario")) { // o "admin"
+        if (ruolo == null || !ruolo.equalsIgnoreCase("bibliotecario")) { 
             response.sendRedirect("index.jsp"); // Rimanda alla home se non è autorizzato
             return;
         }
