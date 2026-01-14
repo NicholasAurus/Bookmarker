@@ -42,11 +42,11 @@
         <div class="main-links">
             
             <% 
-            /* --- SEZIONE BIBLIOTECARIO --- */
+            /* SEZIONE BIBLIOTECARIO */
             if (isLoggato && "BIBLIOTECARIO".equals(ruolo)) { 
             %>
                 
-                <a href="BibliotecarioServlet" class="main-link">
+                <a href="CatalogoBibliotecarioServlet" class="main-link">
                     <div class="icon-container" style="background-color: #d35400;"> 
                         <i class="fa-solid fa-book-open-reader" style="font-size: 4rem; color: white;"></i>
                     </div>
@@ -68,7 +68,7 @@
                 </a>
 
             <% 
-            /* --- SEZIONE MODERATORE --- */
+            /* SEZIONE MODERATORE */
             } else if (isLoggato && "MODERATORE".equals(ruolo)) { 
             %>
 
@@ -87,7 +87,7 @@
                 </a>
 
             <% 
-            /* --- SEZIONE UTENTE GENERICO / OSPITE --- */
+            /* SEZIONE VISTIATORE */
             } else { 
             %>
 

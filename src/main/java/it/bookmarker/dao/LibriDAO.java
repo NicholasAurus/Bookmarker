@@ -48,7 +48,7 @@ public class LibriDAO {
         return libro;
     }
     
-    // *** METODO AGGIORNATO PER CATALOGO E ORDINAMENTO ***
+    
     public List<Libro> getAllLibri() {
         List<Libro> listaLibri = new ArrayList<>();
         
@@ -76,7 +76,7 @@ public class LibriDAO {
                     libro.setDescrizione(rs.getString("descrizione"));
                     libro.setCopertina(rs.getString("copertina"));
                     
-                    // *** SALVIAMO LA MEDIA CALCOLATA ***
+                    
                     libro.setMediaVoti(rs.getDouble("media_voti"));
 
                     listaLibri.add(libro);
@@ -104,15 +104,15 @@ public class LibriDAO {
                      PreparedStatement ps2 = conn.prepareStatement(deletePres);
                      PreparedStatement ps3 = conn.prepareStatement(deleteLib)) {
                     
-                    // 1. Cancella recensioni
+                    // Cancella recensioni
                     ps1.setInt(1, idLibro);
                     ps1.executeUpdate();
                     
-                    // 2. Cancella prestiti
+                    // Cancella prestiti
                     ps2.setInt(1, idLibro);
                     ps2.executeUpdate();
                     
-                    // 3. Cancella libro
+                    // Cancella libro
                     ps3.setInt(1, idLibro);
                     int rows = ps3.executeUpdate();
                     

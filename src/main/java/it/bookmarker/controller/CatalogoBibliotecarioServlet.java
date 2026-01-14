@@ -12,21 +12,20 @@ import javax.servlet.http.HttpSession;
 import it.bookmarker.dao.LibriDAO;
 import it.bookmarker.model.Libro;
 
-@WebServlet("/BibliotecarioServlet")
-public class BibliotecarioServlet extends HttpServlet {
+@WebServlet("/CatalogoBibliotecarioServlet")
+public class CatalogoBibliotecarioServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        
-      /*decommentare questo quando avremo un Bibliotecario
+
         HttpSession session = request.getSession();
         String ruolo = (String) session.getAttribute("ruoloUtente");
         if (ruolo == null || !ruolo.equalsIgnoreCase("bibliotecario")) { 
             response.sendRedirect("index.jsp"); // Rimanda alla home se non è autorizzato
             return;
         }
-      */
+
 
       
         LibriDAO dao = new LibriDAO();

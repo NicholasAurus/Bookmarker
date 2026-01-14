@@ -1,12 +1,30 @@
+/* --- RESET E GLOBAL --- */
 * {
+    margin: 0;
+    padding: 0;
     box-sizing: border-box;
 }
 
+html, body {
+    height: 100%;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    color: #333;
+}
+
+/* Sfondo sfocato */
 body::before {
     content: '';
-    background-image: url('../img/background.png'); 
+    background-image: url('../img/background.png'); /* Assicurati che il percorso sia giusto */
     background-size: cover;
     background-position: center;
+    background-repeat: no-repeat;
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
     filter: blur(5px);
@@ -15,164 +33,246 @@ body::before {
     background-blend-mode: multiply;
 }
 
-body {
-    margin: 0;
-    font-family: 'Arial', sans-serif;
-    color: #333;
+a {
+    text-decoration: none;
+    color: inherit;
 }
 
+/* --- HEADER (Stile fornito) --- */
 header {
     display: flex;
     justify-content: space-between;
     height: 110px;
     align-items: center;
-    padding: 0 2rem;
-    background-color: rgba(38, 123, 188, 0.8);
+    padding: 1rem 2rem;
+    background-color: rgba(38, 123, 188, 0.79);
+    width: 100%;
+    flex-shrink: 0; /* Impedisce all'header di schiacciarsi */
 }
 
-.header-spacer, .nav-buttons { flex: 1; }
-.logo-container img { height: 140px; }
+.header-spacer, .nav-buttons {
+    flex: 1;
+}
+
+.logo-container {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-container img {
+    height: 150px;
+    width: auto;
+}
 
 .nav-buttons {
     display: flex;
-    justify-content: flex-end;
     align-items: center;
-    gap: 15px;
+    justify-content: flex-end;
+    gap: 1.5rem;
+    height: 100%;
 }
 
-.user-greeting { color: white; }
-.btn {
-    background: white;
-    padding: 8px 15px;
-    border-radius: 5px;
-    text-decoration: none;
-    color: #333;
-    font-weight: bold;
-}
-
-.blue-bar {
-    background-color: rgba(38, 123, 188, 0.8);
-    padding: 25px 0;
+.user-greeting {
+    font-size: 1.1rem;
     color: white;
+    text-transform: capitalize;
+}
+
+.nav-buttons .btn {
+    background-color: white;
+    color: #333;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.nav-buttons .btn:hover {
+    background-color: #f0f0f0;
+}
+
+/* --- MAIN LAYOUT --- */
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+/* Barra Blu Titolo e Filtri */
+.blue-bar {
+    background-color: rgba(255, 255, 255, 0.95); /* O bianco pieno per contrasto */
+    padding: 20px 0;
+    border-bottom: 1px solid #ddd;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
 .container-inner {
-    max-width: 1000px;
+    max-width: 1200px;
+    width: 90%;
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 20px;
 }
 
-.title-group { display: flex; align-items: center; gap: 15px; }
+.title-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.section-title {
+    margin: 0;
+    color: #333;
+    font-size: 1.5rem;
+}
+
 .count-badge {
-    background: #e67e22;
+    background: #e0e0e0;
     padding: 4px 10px;
     border-radius: 20px;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
+    color: #555;
 }
 
-.header-actions { display: flex; gap: 15px; align-items: center; }
+/* --- FILTRI --- */
+.header-actions {
+    display: flex;
+    align-items: center;
+}
 
-.search-box {
-    background: white;
-    padding: 5px 10px;
-    border-radius: 20px;
+.filter-wrapper {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.search-box input { border: none; outline: none; }
-.btn-back { color: white; text-decoration: none; font-weight: bold; }
+.filter-select {
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: white;
+}
 
+/* --- LISTA SEGNALAZIONI --- */
 .content-wrapper {
-    max-width: 900px;
+    max-width: 1200px;
+    width: 90%;
     margin: 30px auto;
-    padding: 0 20px;
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
+.empty-msg {
+    text-align: center;
+    padding: 50px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
 .card-segnalazione {
     background: white;
-    border-radius: 12px;
+    border-radius: 8px;
     display: flex;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     overflow: hidden;
 }
 
-.card-left { flex: 2; padding: 20px; }
-.card-right {
+.card-left {
     flex: 1;
+    padding: 20px;
+}
+
+.card-right {
+    width: 200px;
     background: #f8f9fa;
     padding: 20px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    align-items: center;
-    border-left: 1px solid #ddd;
+    align-items: flex-end;
+    border-left: 1px solid #eee;
 }
 
-.user-info { display: flex; gap: 15px; align-items: center; margin-bottom: 15px; }
+.user-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
 .user-icon {
     width: 40px; height: 40px;
     background: #eee;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #267bbc;
+    display: flex; align-items: center; justify-content: center;
+    color: #555;
+    margin-right: 15px;
 }
 
-.user-text strong { display: block; font-size: 1.1rem; }
-.user-text span { font-size: 0.8rem; color: #777; }
+.user-text strong { display: block; font-size: 1rem; color: #333; }
+.user-text span { font-size: 0.85rem; color: #777; }
 
-.reason-box label { font-size: 0.7rem; font-weight: bold; color: #aaa; text-transform: uppercase; }
-.reason-box p {
-    margin: 5px 0 0 0;
-    padding: 10px;
-    background: #f1f1f1;
-    border-radius: 5px;
-    font-style: italic;
-}
+.reason-box label { font-weight: bold; font-size: 0.9rem; color: #555; }
+.card-motivo { margin: 5px 0; color: #333; font-style: italic; background: #f9f9f9; padding: 10px; border-radius: 4px; }
 
+/* Status Styles */
 .status-tag {
-    font-size: 0.7rem;
-    font-weight: bold;
-    color: #e67e22;
-    border: 1px solid #e67e22;
-    padding: 3px 8px;
+    padding: 5px 10px;
     border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.8rem;
+    text-transform: uppercase;
 }
+.status-aperta { background: #fff3cd; color: #856404; }
+.status-risolta { background: #d4edda; color: #155724; }
+.status-ignorata { background: #f8d7da; color: #721c24; }
+.status-chiusa { background: #e2e3e5; color: #383d41; }
 
-.action-buttons { width: 100%; display: flex; flex-direction: column; gap: 10px; }
-.action-buttons form { width: 100%; }
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
 
 .btn-resolve, .btn-ignore {
     width: 100%;
-    padding: 10px;
+    padding: 8px;
     border: none;
-    border-radius: 5px;
-    font-weight: bold;
+    border-radius: 4px;
     cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    color: white;
 }
 
-.btn-resolve { background: #267bbc; color: white; }
-.btn-ignore { background: #ddd; color: #333; }
+.btn-resolve { background-color: #27ae60; }
+.btn-ignore { background-color: #c0392b; }
 
-.empty-msg {
-    text-align: center;
-    background: white;
-    padding: 50px;
-    border-radius: 12px;
-}
-
-.empty-msg i { font-size: 3rem; color: #27ae60; margin-bottom: 10px; display: block; }
-
+/* RESPONSIVE */
 @media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        height: auto;
+        padding: 10px;
+        gap: 15px;
+    }
+    .header-spacer { display: none; }
+    .nav-buttons { justify-content: center; }
+    .logo-container img { height: 80px; }
+    
     .card-segnalazione { flex-direction: column; }
-    .card-right { border-left: none; border-top: 1px solid #ddd; }
+    .card-right { width: 100%; flex-direction: row; align-items: center; border-left: none; border-top: 1px solid #eee; }
+    .action-buttons { flex-direction: row; width: auto; }
 }
