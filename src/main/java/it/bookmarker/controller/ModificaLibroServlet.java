@@ -13,34 +13,50 @@ import it.bookmarker.model.Libro;
 public class ModificaLibroServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-   
+    
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         String idParam = request.getParameter("id");
         if(idParam != null) {
-            int id = Integer.parseInt(idParam);
-            LibriDAO dao = new LibriDAO();
-            Libro libro = dao.getLibroById(id);
-            request.setAttribute("libroDaModificare", libro);
-            request.getRequestDispatcher("modificaLibro.jsp").forward(request, response);
+            try {
+                int id = Integer.parseInt(idParam);
+                LibriDAO dao = new LibriDAO();
+                Libro libro = dao.getLibroById(id);
+                request.setAttribute("libroDaModificare", libro);
+                request.getRequestDispatcher("modificaLibro.jsp").forward(request, response);
+            } catch (NumberFormatException e) {
+                response.sendRedirect("CatalogoBibliotecarioServlet");
+            }
         } else {
             response.sendRedirect("CatalogoBibliotecarioServlet");
         }
     }
 
-    
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        try {
-            int id = Integer.parseInt(request.getParameter("idLibro"));
-            int nuoveCopie = Integer.parseInt(request.getParameter("copie"));
-            
-            LibriDAO dao = new LibriDAO();
-            dao.aggiornaDisponibilita(id, nuoveCopie);
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        
+        String azione = request.getParameter("azione");
+        LibriDAO dao = new LibriDAO();
+
+        
+        if ("aggiornaQuantita".equals(azione)) {
+            try {
+                
+                String idStr = request.getParameter("id");
+                String quantitaStr = request.getParameter("quantita");
+
+                if (idStr != null && quantitaStr != null) {
+                    int id = Integer.parseInt(idStr);
+                    int nuoveCopie = Integer.parseInt(quantitaStr);
+                    dao.aggiornaDisponibilita(id, nuoveCopie);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } 
+        
+
+        
         response.sendRedirect("CatalogoBibliotecarioServlet");
     }
 }

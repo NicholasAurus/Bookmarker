@@ -155,7 +155,7 @@ public class LibriDAO {
     }
 
     // MODIFICA DISPONIBILITÀ
-    public boolean aggiornaDisponibilita(int idLibro, int nuoveCopie) {
+    public boolean aggiornaDisponibilita(int id_libro, int nuoveCopie) {
         String sql = "UPDATE libri SET disponibilita = ? WHERE id_libro = ?";
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -163,7 +163,7 @@ public class LibriDAO {
                  PreparedStatement ps = conn.prepareStatement(sql)) {
                 
                 ps.setInt(1, nuoveCopie);
-                ps.setInt(2, idLibro);
+                ps.setInt(2, id_libro);
                 
                 return ps.executeUpdate() > 0;
             }

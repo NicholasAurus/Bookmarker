@@ -26,7 +26,7 @@
             <h3 class="book-title"><%= l.getTitolo() %></h3>
             
             <form action="ModificaLibroServlet" method="post">
-                <input type="hidden" name="idLibro" value="<%= l.getId() %>">
+                <input type="hidden" name="id_libro" value="<%= l.getId() %>">
                 
                 <label style="display:block; margin-bottom:10px; font-weight:bold;">Numero di Copie:</label>
                 <input type="number" name="copie" value="<%= l.getDisponibilita() %>" min="0" class="input-qty">
