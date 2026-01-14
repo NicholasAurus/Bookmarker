@@ -35,7 +35,7 @@ public class GestioneUtentiServlet extends HttpServlet {
 
         request.setAttribute("listaUtenti", utentiInAttesa);
         
-        RequestDispatcher dispatcher = request.getRequestDispatcher("approvazione_utenti.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("approvazioneUtenti.jsp");
         dispatcher.forward(request, response);
     }
 

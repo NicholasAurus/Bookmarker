@@ -79,7 +79,7 @@
                     <p>LISTA RECENSIONI</p>
                 </a>
 
-                <a href="segnalazioni.jsp" class="main-link">
+                <a href="SegnalazioniServlet" class="main-link">
                     <div class="icon-container" style="background-color: #9b59b6;"> 
                         <i class="fa-solid fa-circle-exclamation" style="font-size: 4rem; color: white;"></i>
                     </div>

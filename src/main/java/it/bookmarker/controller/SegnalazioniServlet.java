@@ -1,4 +1,4 @@
-/*package it.bookmarker.controller;
+package it.bookmarker.controller;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,14 +19,16 @@ public class SegnalazioniServlet extends HttpServlet {
             throws ServletException, IOException {
         
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("utenteLoggato") == null) {
+        
+        
+        if (session == null || session.getAttribute("emailUtente") == null) {
             response.sendRedirect("login.jsp");
             return;
         }
         
         
         String ruolo = (String) session.getAttribute("ruoloUtente");
-        if (!"MODERATORE".equals(ruolo)) {
+        if (ruolo == null || !ruolo.equalsIgnoreCase("MODERATORE")) {
              response.sendRedirect("index.jsp"); 
              return;
         }
@@ -38,4 +40,3 @@ public class SegnalazioniServlet extends HttpServlet {
         request.getRequestDispatcher("segnalazioni.jsp").forward(request, response);
     }
 }
-*/

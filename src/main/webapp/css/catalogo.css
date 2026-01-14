@@ -2,7 +2,6 @@
     box-sizing: border-box;
 }
 
-
 body::-webkit-scrollbar { 
     display: none;
 }
@@ -37,7 +36,6 @@ html, body {
     -ms-overflow-style: none;  
     scrollbar-width: none; 
 }
-
 
 header {
     display: flex;
@@ -98,7 +96,6 @@ header {
     background-color: #f0f0f0;
 }
 
-
 .blue-bar {
     background-color: rgba(38, 123, 188, 0.79);
     padding: 30px 0;
@@ -116,6 +113,12 @@ header {
     width: 100%;
 }
 
+.title-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: flex-start;
+}
+
 .section-title {
     margin: 0;
     font-size: 1.8rem;
@@ -124,8 +127,15 @@ header {
 }
 
 .search-wrapper {
+    flex: 2;
+    display: flex;
+    justify-content: center;
+}
+
+.search-box-inner {
     position: relative;
-    width: 50%;
+    width: 100%;
+    max-width: 500px;
 }
 
 .search-input {
@@ -146,6 +156,74 @@ header {
     cursor: pointer;
 }
 
+.filter-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    position: relative; 
+    user-select: none;
+}
+
+.filter-trigger {
+    text-align: center;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.filter-icon {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+}
+
+.filter-dropdown {
+    display: none; 
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 280px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    padding: 20px;
+    z-index: 100;
+    text-align: left;
+    margin-top: 15px;
+}
+
+.filter-dropdown.active {
+    display: block; 
+    animation: slideDown 0.3s ease;
+}
+
+.filter-group {
+    display: grid;
+    grid-template-columns: 1fr 140px; 
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.filter-group label {
+    margin-bottom: 0;
+    font-weight: bold;
+    color: #333;
+    font-size: 0.9rem;
+    text-align: left; 
+}
+
+.filter-select {
+    width: 100%; 
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+}
 
 .book-container {
     max-width: 1000px;
@@ -199,7 +277,7 @@ header {
 .button-group {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 10px;
     flex-wrap: wrap;
 }
 
@@ -209,22 +287,54 @@ header {
     padding: 8px 15px;
     border-radius: 4px;
     font-size: 0.9rem;
-    color: #444;
 }
 
-.status-value {
-    font-size: 1.1rem;
-    font-weight: 600;
+.text-green {
+    color: #27ae60;
+    font-weight: bold;
 }
 
-.status-red {
+.text-red {
     color: #c0392b;
+    font-weight: bold;
 }
 
+.detail-text {
+    font-size: 0.95rem;
+    color: #555;
+    margin-left: 5px;
+}
+
+/* Stili Tasto Torna Su */
+#scrollTopBtn {
+    display: none;
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 99;
+    border: none;
+    outline: none;
+    background-color: rgba(38, 123, 188, 0.9);
+    color: white;
+    cursor: pointer;
+    padding: 15px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+#scrollTopBtn:hover {
+    background-color: #1a5276;
+    transform: translateY(-3px);
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
 @media screen and (max-width: 768px) {
-    
- 
     header {
         flex-direction: column; 
         padding: 1rem;
@@ -254,17 +364,21 @@ header {
         text-align: center;
     }
 
-
     .container-inner {
         flex-direction: column;
         gap: 20px;
         text-align: center;
     }
 
-    .search-wrapper {
-        width: 100%; 
+    .title-wrapper, .search-wrapper, .filter-wrapper {
+        width: 100%;
+        flex: auto;
+        justify-content: center;
     }
-
+    
+    .search-box-inner {
+        width: 100%;
+    }
 
     .book-card-stroke {
         flex-direction: column;
@@ -281,75 +395,4 @@ header {
         justify-content: center;
         width: 100%;
     }
-}
-
-
-.filter-wrapper {
-    text-align: center;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative; 
-    user-select: none;
-}
-
-.filter-icon {
-    font-size: 1.5rem;
-    margin-bottom: 5px;
-}
-
-.filter-dropdown {
-    display: none; 
-    position: absolute;
-    top: 100%;
-    right: 0;
-    width: 280px;
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-    padding: 20px;
-    z-index: 100;
-    text-align: left;
-    margin-top: 10px;
-}
-
-.filter-dropdown.active {
-    display: block; 
-    animation: slideDown 0.3s ease;
-}
-
-
-.filter-group {
-    display: grid;
-    grid-template-columns: 1fr 140px; 
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.filter-group label {
-    margin-bottom: 0;
-    font-weight: bold;
-    color: #333;
-    font-size: 0.9rem;
-    text-align: left; 
-}
-
-
-.filter-select {
-    width: 100%; 
-    padding: 6px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    outline: none;
-    cursor: pointer;
-}
-
-@keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
 }

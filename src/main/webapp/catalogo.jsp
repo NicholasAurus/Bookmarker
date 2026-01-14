@@ -42,16 +42,22 @@
     <main>
         <section class="blue-bar">
             <div class="container-inner">
-                <h2 class="section-title">Catalogo</h2>
+                <div class="title-wrapper">
+                    <h2 class="section-title">Catalogo</h2>
+                </div>
                 
                 <div class="search-wrapper">
-                    <input type="text" id="searchInput" placeholder="Cerca per titolo o autore..." class="search-input">
-                    <i class="fa-solid fa-xmark close-icon" onclick="resetSearch()"></i>
+                    <div class="search-box-inner">
+                        <input type="text" id="searchInput" placeholder="Cerca per titolo o autore..." class="search-input">
+                        <i class="fa-solid fa-xmark close-icon" onclick="resetSearch()"></i>
+                    </div>
                 </div>
 
                 <div class="filter-wrapper" onclick="toggleFilters(event)">
-                    <i class="fa-solid fa-filter filter-icon"></i>
-                    <span>Filtri</span>
+                    <div class="filter-trigger">
+                        <i class="fa-solid fa-filter filter-icon"></i>
+                        <span>Filtri</span>
+                    </div>
                     
                     <div class="filter-dropdown" id="filterDropdown" onclick="event.stopPropagation()"> 
                         
@@ -110,16 +116,18 @@
                 for (Libro libro : elencoLibri) {
                     
                     boolean disponibile = libro.getDisponibilita() > 0;
-                    String classeStato = disponibile ? "status-value" : "status-value status-red";
-                    String testoStato = "";
                     
+                    // Colore del testo dentro il riquadro
+                    String textClass = disponibile ? "text-green" : "text-red";
+                    
+                    String labelStato = disponibile ? "Disponibile" : "Non disponibile";
+                    
+                    String labelDettaglio = "";
                     if (disponibile) {
-                        testoStato = "Disponibile (" + libro.getDisponibilita() + ")";
+                        labelDettaglio = "Copie: " + libro.getDisponibilita();
                     } else {
                         if (libro.getDataRientro() != null) {
-                            testoStato = "Rientra il " + sdf.format(libro.getDataRientro());
-                        } else {
-                            testoStato = "Non disponibile";
+                            labelDettaglio = "Tornerà il " + sdf.format(libro.getDataRientro());
                         }
                     }
                     
@@ -151,25 +159,28 @@
                     </p>
                     
                     <div style="color: #f1c40f; margin-bottom: 10px;">
-                       <% 
+                        <% 
                           int stellePiene = (int) Math.round(libro.getMediaVoti());
                           for(int i=0; i<5; i++) {
                               if(i < stellePiene) { %> <i class="fa-solid fa-star"></i> <% } 
                               else { %> <i class="fa-regular fa-star" style="color:#ccc;"></i> <% }
                           }
-                       %>
-                       <span style="color:#777; font-size:0.8rem; margin-left:5px;">
-                           (<%= (libro.getMediaVoti() > 0) ? String.format("%.1f", libro.getMediaVoti()) : "N/A" %>)
-                       </span>
-                   </div>
+                        %>
+                        <span style="color:#777; font-size:0.8rem; margin-left:5px;">
+                            (<%= (libro.getMediaVoti() > 0) ? String.format("%.1f", libro.getMediaVoti()) : "N/A" %>)
+                        </span>
+                    </div>
 
                     <p style="font-size: 0.9rem; color: #888; margin: 0;">Genere: <span class="book-genre"><%= libro.getGenere() %></span></p>
 
                     <p><%= libro.getDescrizione() != null ? libro.getDescrizione() : "Nessuna descrizione." %></p>
                     
                     <div class="button-group">
-                        <span class="btn-neutral">Stato:</span>
-                        <span class="<%= classeStato %>"><%= testoStato %></span>
+                        <span class="btn-neutral <%= textClass %>"><%= labelStato %></span>
+                        
+                        <% if (!labelDettaglio.isEmpty()) { %>
+                            <span class="detail-text"><%= labelDettaglio %></span>
+                        <% } %>
                     </div>
                 </div>
             </div>
@@ -181,6 +192,10 @@
             
         </div>
     </main>
+
+    <button onclick="scrollToTop()" id="scrollTopBtn" title="Torna su">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
 
     <script>
         
@@ -198,23 +213,17 @@
             }
         });
 
-        
         document.addEventListener("DOMContentLoaded", () => {
             const cards = document.querySelectorAll('.search-item');
             const selectGenere = document.getElementById('filterGenere');
             const generiTrovati = new Set(); 
 
-            
             cards.forEach((card, index) => {
-                
                 card.setAttribute('data-original-index', index);
-
-                
                 const genere = card.getAttribute('data-genere');
                 if (genere) generiTrovati.add(genere);
             });
 
-           
             generiTrovati.forEach(genere => {
                 const option = document.createElement('option');
                 option.value = genere;
@@ -223,7 +232,6 @@
             });
         });
 
-        
         const searchInput = document.getElementById('searchInput');
         const selectGenere = document.getElementById('filterGenere');
         const selectDisp = document.getElementById('filterDisp');
@@ -236,10 +244,8 @@
             const sortMode = selectSort.value;
 
             const container = document.getElementById('containerLibri');
-    
             let cards = Array.from(document.querySelectorAll('.search-item'));
 
-          
             cards.forEach(card => {
                 const title = card.querySelector('.book-title').innerText.toLowerCase();
                 const author = card.querySelector('.book-author').innerText.toLowerCase();
@@ -257,23 +263,19 @@
                 }
             });
 
-            
             if (sortMode === 'votoDec') {
-                
                 cards.sort((a, b) => {
                     const votoA = parseFloat(a.getAttribute('data-media')) || 0;
                     const votoB = parseFloat(b.getAttribute('data-media')) || 0;
                     return votoB - votoA; 
                 });
             } else {
-                
                 cards.sort((a, b) => {
                     const indexA = parseInt(a.getAttribute('data-original-index'));
                     const indexB = parseInt(b.getAttribute('data-original-index'));
                     return indexA - indexB;
                 });
             }
-            
             
             cards.forEach(card => container.appendChild(card));
         }
@@ -291,6 +293,24 @@
             selectSort.value = 'default';
             searchInput.value = '';
             applicaFiltri();
+        }
+
+        // Script per il tasto Scroll Top
+        const scrollBtn = document.getElementById("scrollTopBtn");
+
+        window.onscroll = function() {
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                scrollBtn.style.display = "block";
+            } else {
+                scrollBtn.style.display = "none";
+            }
+        };
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
         }
     </script>
 

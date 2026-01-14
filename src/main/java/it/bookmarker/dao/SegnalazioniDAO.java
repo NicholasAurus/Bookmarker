@@ -1,4 +1,4 @@
-/*package it.bookmarker.dao;
+package it.bookmarker.dao;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -24,6 +24,7 @@ public class SegnalazioniDAO {
             Class.forName("com.mysql.cj.jdbc.Driver");
             conn = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
             
+            
             String sql = "SELECT * FROM segnalazioni ORDER BY data_segnalazione DESC";
             pstmt = conn.prepareStatement(sql);
             rs = pstmt.executeQuery();
@@ -31,7 +32,10 @@ public class SegnalazioniDAO {
             while (rs.next()) {
                 Segnalazione s = new Segnalazione();
                 s.setId(rs.getInt("id"));
-                s.setUtenteId(rs.getInt("utente_id"));
+                
+                
+                s.setUtenteEmail(rs.getString("utente_email")); 
+                
                 s.setRecensioneId(rs.getInt("recensione_id"));
                 s.setMotivo(rs.getString("motivo"));
                 s.setDataSegnalazione(rs.getDate("data_segnalazione"));
@@ -50,7 +54,6 @@ public class SegnalazioniDAO {
         }
         return lista;
     }
-    
     
     public boolean aggiornaStato(int id, String nuovoStato) {
         Connection conn = null;
@@ -79,4 +82,3 @@ public class SegnalazioniDAO {
         return updated;
     }
 }
-*/
