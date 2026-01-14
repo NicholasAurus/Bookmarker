@@ -57,7 +57,7 @@
                     <div class="icon-container" style="background-color: #e67e22;"> 
                         <i class="fa-solid fa-list-check" style="font-size: 4rem; color: white;"></i>
                     </div>
-                    <p>PRESTITI GLOBALI</p>
+                    <p>GESTIONE PRESTITI</p>
                 </a>
 
                 <a href="GestioneUtentiServlet" class="main-link">

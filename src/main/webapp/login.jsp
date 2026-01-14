@@ -56,7 +56,7 @@
                 String regSuccess = request.getParameter("reg");
                 if ("success".equals(regSuccess)) {
             %>
-                <div class="success-message">Registrazione completata! Ora puoi accedere.</div>
+                <div class="success-message">Richiesta di registrazione inviata!</div>
             <% 
                 } 
             %>
