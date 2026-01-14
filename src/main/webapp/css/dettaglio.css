@@ -1,4 +1,4 @@
-/* STILE PAGINA DETTAGLIO LIBRO */
+
 
 .detail-wrapper {
     display: flex;
@@ -9,7 +9,7 @@
     z-index: 1; 
 }
 
-/* Il box bianco centrale */
+
 .white-box {
     background-color: white;
     width: 100%;
@@ -19,7 +19,7 @@
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
 
-/* Superiore: Immagine a Sx, Info a Dx */
+
 .product-hero {
     display: flex;
     gap: 40px;
@@ -78,7 +78,7 @@
     background: white;
 }
 
-/* Animazione rimbalzo icona */
+
 .favorite-btn i {
     transition: transform 0.2s;
 }
@@ -87,7 +87,7 @@
     font-weight: 900; 
 }
 
-/* Dettagli Libro*/
+
 .hero-details {
     flex: 1;
     display: flex;
@@ -149,7 +149,7 @@
     
 }
 
-/* Header della recensione */
+
 .review-header {
     font-weight: bold;
     color: #333;
@@ -160,12 +160,12 @@
     
 }
 
-/* Nascondiamo la freccia perché è sempre aperto */
+
 .review-header .fa-chevron-down {
     display: none;
 }
 
-/* Il corpo della recensione è SEMPRE VISIBILE (block) */
+
 .review-body {
     display: block; 
     padding-top: 10px;
@@ -176,7 +176,7 @@
     line-height: 1.5;
 }
 
-/* Responsive per cellulari */
+
 @media (max-width: 768px) {
     .product-hero {
         flex-direction: column;
