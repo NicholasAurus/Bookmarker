@@ -39,7 +39,7 @@
         <% } %>
         
         <br>
-        <a href="BibliotecarioServlet" style="text-decoration:none; color:#777;">Annulla</a>
+        <a href="CatalogoBibliotecarioServlet" style="text-decoration:none; color:#777;">Annulla</a>
     </div>
 </body>
 </html>

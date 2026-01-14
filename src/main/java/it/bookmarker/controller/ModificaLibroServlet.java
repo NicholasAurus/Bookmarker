@@ -13,7 +13,7 @@ import it.bookmarker.model.Libro;
 public class ModificaLibroServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    // FASE 1: Carica il libro e mostra il form
+   
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         String idParam = request.getParameter("id");
@@ -24,11 +24,11 @@ public class ModificaLibroServlet extends HttpServlet {
             request.setAttribute("libroDaModificare", libro);
             request.getRequestDispatcher("modificaLibro.jsp").forward(request, response);
         } else {
-            response.sendRedirect("BibliotecarioServlet");
+            response.sendRedirect("CatalogoBibliotecarioServlet");
         }
     }
 
-    // FASE 2: Riceve i dati dal form e aggiorna il DB
+    
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         try {
@@ -41,6 +41,6 @@ public class ModificaLibroServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        response.sendRedirect("BibliotecarioServlet");
+        response.sendRedirect("CatalogoBibliotecarioServlet");
     }
 }
