@@ -2,7 +2,16 @@
     box-sizing: border-box;
 }
 
-/* SFONDO SFOCATO */
+
+body::-webkit-scrollbar { 
+    display: none;
+}
+
+html::-webkit-scrollbar, 
+body::-webkit-scrollbar { 
+    display: none; 
+}
+
 body::before {
     content: '';
     background-image: url('../img/background.png'); 
@@ -20,14 +29,16 @@ body::before {
     background-blend-mode: multiply;
 }
 
-body {
+html, body {
     margin: 0;
     padding: 0;
     font-family: 'Arial', sans-serif;
-    overflow-x: hidden; 
+    overflow-x: hidden;
+    -ms-overflow-style: none;  
+    scrollbar-width: none; 
 }
 
-/* HEADER */
+
 header {
     display: flex;
     justify-content: space-between;
@@ -87,7 +98,7 @@ header {
     background-color: #f0f0f0;
 }
 
-/* BARRA BLU (CATALOGO) */
+
 .blue-bar {
     background-color: rgba(38, 123, 188, 0.79);
     padding: 30px 0;
@@ -135,7 +146,7 @@ header {
     cursor: pointer;
 }
 
-/* LISTA LIBRI E CARD */
+
 .book-container {
     max-width: 1000px;
     margin: 40px auto;
@@ -210,10 +221,10 @@ header {
     color: #c0392b;
 }
 
-/* RESPONSIVE (SMARTPHONE E TABLET) */
+
 @media screen and (max-width: 768px) {
     
-    /* HEADER SU MOBILE */
+ 
     header {
         flex-direction: column; 
         padding: 1rem;
@@ -243,7 +254,7 @@ header {
         text-align: center;
     }
 
-    /* BARRA BLU SU MOBILE */
+
     .container-inner {
         flex-direction: column;
         gap: 20px;
@@ -254,7 +265,7 @@ header {
         width: 100%; 
     }
 
-    /* CARD LIBRO SU MOBILE */
+
     .book-card-stroke {
         flex-direction: column;
         text-align: center;
@@ -272,7 +283,7 @@ header {
     }
 }
 
-/* MENU FILTRI  */
+
 .filter-wrapper {
     text-align: center;
     color: white;

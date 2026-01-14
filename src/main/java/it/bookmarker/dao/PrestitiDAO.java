@@ -18,10 +18,10 @@ public class PrestitiDAO {
         List<Prestito> lista = new ArrayList<>();
         
         String sql = "SELECT p.*, l.titolo, l.autore, l.copertina, l.descrizione, " +
-                     "(SELECT COUNT(*) FROM recensioni r WHERE r.libro_id = p.libro_id AND r.utente_id = p.utente_id) as recensioni_count " +
+                     "(SELECT COUNT(*) FROM recensioni r WHERE r.libro_id = p.libro_id AND r.utente_email = p.utente_email) as recensioni_count " +
                      "FROM prestiti p " +
                      "JOIN libri l ON p.libro_id = l.id_libro " + 
-                     "WHERE p.utente_id = ? " +
+                     "WHERE p.utente_email = ? " +
                      "ORDER BY p.data_inizio DESC";
         
         try {
@@ -36,7 +36,7 @@ public class PrestitiDAO {
                         Prestito p = new Prestito();
                         
                         p.setId(rs.getInt("id"));
-                        p.setUtenteEmail(rs.getString("utente_id"));
+                        p.setUtenteEmail(rs.getString("utente_email"));
                         p.setLibroId(rs.getInt("libro_id"));
                         p.setDataInizio(rs.getDate("data_inizio"));
                         p.setDataFinePrevista(rs.getDate("data_fine_prevista"));

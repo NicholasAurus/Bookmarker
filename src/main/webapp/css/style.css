@@ -130,6 +130,8 @@ main {
     transition: transform 0.3s ease;
 }
 
+
+
 .main-link:hover {
     transform: scale(1.05);
 }
@@ -139,6 +141,9 @@ main {
     font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 1px;
+    text-align: center; 
+    width: 100%;        
+    margin-top: 10px;
 }
 
 .icon-container {

@@ -183,7 +183,7 @@
     </main>
 
     <script>
-        // --- 1. GESTIONE MENU A TENDINA ---
+        
         function toggleFilters(event) {
             const menu = document.getElementById('filterDropdown');
             menu.classList.toggle('active');
@@ -198,23 +198,23 @@
             }
         });
 
-        // --- 2. POPOLAMENTO GENERI E SALVATAGGIO INDICE ORIGINALE ---
+        
         document.addEventListener("DOMContentLoaded", () => {
             const cards = document.querySelectorAll('.search-item');
             const selectGenere = document.getElementById('filterGenere');
             const generiTrovati = new Set(); 
 
-            // Ciclo su tutte le card
+            
             cards.forEach((card, index) => {
-                // SALVO L'ORDINE ORIGINALE (0, 1, 2...) in un attributo
+                
                 card.setAttribute('data-original-index', index);
 
-                // Raccolgo i generi
+                
                 const genere = card.getAttribute('data-genere');
                 if (genere) generiTrovati.add(genere);
             });
 
-            // Popolo la select
+           
             generiTrovati.forEach(genere => {
                 const option = document.createElement('option');
                 option.value = genere;
@@ -223,7 +223,7 @@
             });
         });
 
-        // --- 3. LOGICA DI FILTRAGGIO E ORDINAMENTO ---
+        
         const searchInput = document.getElementById('searchInput');
         const selectGenere = document.getElementById('filterGenere');
         const selectDisp = document.getElementById('filterDisp');
@@ -236,10 +236,10 @@
             const sortMode = selectSort.value;
 
             const container = document.getElementById('containerLibri');
-            // Converto NodeList in Array per usare .sort()
+    
             let cards = Array.from(document.querySelectorAll('.search-item'));
 
-            // A. FILTRO (Visibilità)
+          
             cards.forEach(card => {
                 const title = card.querySelector('.book-title').innerText.toLowerCase();
                 const author = card.querySelector('.book-author').innerText.toLowerCase();
@@ -257,16 +257,16 @@
                 }
             });
 
-            // B. ORDINA (Posizione fisica nel DOM)
+            
             if (sortMode === 'votoDec') {
-                // Ordina per voto (dal più alto al più basso)
+                
                 cards.sort((a, b) => {
                     const votoA = parseFloat(a.getAttribute('data-media')) || 0;
                     const votoB = parseFloat(b.getAttribute('data-media')) || 0;
                     return votoB - votoA; 
                 });
             } else {
-                // Ordina per l'indice originale (Reset all'ordine iniziale)
+                
                 cards.sort((a, b) => {
                     const indexA = parseInt(a.getAttribute('data-original-index'));
                     const indexB = parseInt(b.getAttribute('data-original-index'));
@@ -274,7 +274,7 @@
                 });
             }
             
-            // Ri-appendo le card al container nell'ordine calcolato
+            
             cards.forEach(card => container.appendChild(card));
         }
         

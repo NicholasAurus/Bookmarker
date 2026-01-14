@@ -19,7 +19,7 @@ public class RecensioneDAO {
         List<Recensione> lista = new ArrayList<>();
         String sql = "SELECT r.*, u.nome, u.cognome " +
                      "FROM recensioni r " +
-                     "JOIN utenti u ON r.utente_id = u.email " + 
+                     "JOIN utenti u ON r.utente_email = u.email " +
                      "WHERE r.libro_id = ? " +
                      "ORDER BY r.data_inserimento DESC";
 
@@ -34,7 +34,7 @@ public class RecensioneDAO {
                     while (rs.next()) {
                         Recensione r = new Recensione();
                         r.setId(rs.getInt("id"));
-                        r.setUtenteEmail(rs.getString("utente_id"));
+                        r.setUtenteEmail(rs.getString("utente_email"));
                         r.setLibroId(rs.getInt("libro_id"));
                         r.setTesto(rs.getString("testo"));
                         r.setDataInserimento(rs.getDate("data_inserimento"));
@@ -54,7 +54,7 @@ public class RecensioneDAO {
     }
 
     public boolean eliminaRecensione(String emailUtente, int idLibro) {
-        String sql = "DELETE FROM recensioni WHERE utente_id = ? AND libro_id = ?";
+        String sql = "DELETE FROM recensioni WHERE utente_email = ? AND libro_id = ?";
         
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
