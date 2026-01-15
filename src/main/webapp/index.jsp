@@ -53,7 +53,7 @@
                     <p>CATALOGO BIBLIOTECARIO</p>
                 </a>
                 
-                <a href="prestitiGlobali.jsp" class="main-link">
+                <a href="GestionePrestitiServlet" class="main-link">
                     <div class="icon-container" style="background-color: #e67e22;"> 
                         <i class="fa-solid fa-list-check" style="font-size: 4rem; color: white;"></i>
                     </div>

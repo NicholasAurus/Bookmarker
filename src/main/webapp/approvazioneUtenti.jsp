@@ -109,7 +109,7 @@
                         <thead>
                             <tr>
                                 <th>Email Utente</th>
-                                <th>ID Libro</th>
+                                <th>Libro</th>
                                 <th>Periodo Previsto</th>
                                 <th style="text-align: center;">Azioni</th>
                             </tr>
@@ -118,7 +118,7 @@
                             <c:forEach items="${listaPrestiti}" var="p" varStatus="loop">
                                 <tr>
                                     <td>${p.utenteEmail}</td>
-                                    <td>#${p.libroId}</td>
+                                    <td>${p.titoloLibro}</td>
                                     <td>Da: ${p.dataInizio} <br> A: ${p.dataFinePrevista}</td>
                                     <td style="text-align: center; white-space: nowrap;">
                                         <form id="form-loan-accetta-${loop.index}" action="GestioneUtentiServlet" method="post" style="display:none;">

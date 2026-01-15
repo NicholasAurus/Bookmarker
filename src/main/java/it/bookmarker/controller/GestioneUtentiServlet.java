@@ -75,7 +75,7 @@ public class GestioneUtentiServlet extends HttpServlet {
                 
                 if ("accetta".equals(azione)) {
                   
-                    dao.gestisciPrestito(idPrestito, "attivo");
+                    dao.gestisciPrestito(idPrestito, "prenotato");
                 } else if ("rifiuta".equals(azione)) {
                     dao.gestisciPrestito(idPrestito, "rifiutato");
                 }

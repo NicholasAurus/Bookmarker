@@ -10,15 +10,15 @@ public class Prestito {
     private Date dataInizio;
     private Date dataFinePrevista;
     private Date dataRestituzioneEffettiva;
-
     private String titoloLibro;
+    
     private String autoreLibro;
     private String copertinaLibro;
     private String descrizioneLibro;
     
     private boolean recensito; 
     
-    // Nuova variabile aggiunta (VARCHAR -> String)
+    
     private String stato;
 
     public Prestito() {}
@@ -56,7 +56,7 @@ public class Prestito {
     public boolean isRecensito() { return recensito; }
     public void setRecensito(boolean recensito) { this.recensito = recensito; }
 
-    // Nuovi Getter e Setter per 'stato'
+    
     public String getStato() { return stato; }
     public void setStato(String stato) { this.stato = stato; }
 }
