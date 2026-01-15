@@ -1,10 +1,14 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.List" %>
+<%@ page import="java.util.Map" %>
 <%@ page import="java.text.SimpleDateFormat" %>
 <%@ page import="it.bookmarker.model.Prestito" %>
+<%@ page import="it.bookmarker.model.Recensione" %>
 
 <%
     List<Prestito> storico = (List<Prestito>) request.getAttribute("elencoStorico");
+    // Recupero la mappa delle recensioni
+    Map<Integer, Recensione> mappaRecensioni = (Map<Integer, Recensione>) request.getAttribute("mappaRecensioni");
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 %>
 
@@ -13,11 +17,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Storico - BookMarker</title>
-    <link rel="stylesheet" href="css/catalogo.css">
     <link rel="stylesheet" href="css/storico.css"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-
 </head>
 <body>
 
@@ -34,24 +35,26 @@
 
     <main>
         <section class="blue-bar" style="display: flex; justify-content: center;">
-            <div class="container-inner" style="max-width: 1200px; display: flex; align-items: center;">
-                <h2 class="section-title" style="margin-right: 30px;">Storico</h2>
+            <div class="container-inner" style="width: 100%; max-width: 1200px;">
+                <h2 class="section-title" style="margin: 0; white-space: nowrap;">Storico</h2>
                 
-                <div class="search-wrapper" style="flex: 1; margin-right: 20px;">
+                <div class="search-wrapper">
                     <input type="text" id="searchInput" placeholder="Ricerca per titolo..." class="search-input" style="width: 100%;">
                     <i class="fa-solid fa-xmark close-icon" id="resetBtn"></i>
                 </div>
 
-                <div class="filter-wrapper" onclick="toggleFilters(event)">
+                <div class="filter-wrapper" onclick="toggleFilters(event)" style="cursor: pointer;">
                     <i class="fa-solid fa-filter filter-icon"></i>
                     
-                    <div class="filter-dropdown" id="filterDropdown" onclick="event.stopPropagation()">
+                    <div class="filter-dropdown" id="filterDropdown" onclick="event.stopPropagation()" style="cursor: default;">
                         <div class="filter-group">
                             <label style="font-weight:bold; color:#333;">Stato:</label>
                             <select id="filterStato" class="filter-select" onchange="applicaFiltriGlobale()">
                                 <option value="all">Tutti</option>
+                                <option value="richiesto">Richiesti</option>
+                                <option value="prenotato">Prenotati</option>
                                 <option value="in-corso">In corso</option>
-                                <option value="concluso">Concluso</option>
+                                <option value="concluso">Conclusi</option>
                             </select>
                         </div>
                         
@@ -62,8 +65,6 @@
                         </div>
                     </div>
                 </div>
-                
-                <div style="margin-left: 20px; font-weight: bold; color: #333;">Filtri Attivi</div>
             </div>
         </section>
 
@@ -77,12 +78,39 @@
             <% 
             } else {
                 for (Prestito p : storico) {
-                    boolean inCorso = (p.getDataRestituzioneEffettiva() == null);
-                    String dataInizioStr = (p.getDataInizio() != null) ? sdf.format(p.getDataInizio()) : "--/--/----";
-                    String dataRestituzioneStr = (!inCorso) ? sdf.format(p.getDataRestituzioneEffettiva()) : "In uso";
+                    
+                    String statoDB = (p.getStato() != null) ? p.getStato() : "";
+                    String badgeClass = "";
+                    String labelStato = "";
+                    String filterCategory = ""; 
+                    String labelData1 = "";
+                    String valData1 = "";
+                    String labelData2 = "";
+                    String valData2 = "";
+                    boolean abilitaRecensione = false;
+
+                    // Logica Stati (Invariata)
+                    if (statoDB.equalsIgnoreCase("Richiesto")) {
+                        badgeClass = "badge-richiesto"; labelStato = "Richiesto"; filterCategory = "richiesto";
+                        labelData1 = "Data Prenotazione:"; valData1 = (p.getDataPrenotazione() != null) ? sdf.format(p.getDataPrenotazione()) : "--/--/----";
+                        labelData2 = "Data Ritiro:"; valData2 = "In attesa";
+                    } else if (statoDB.equalsIgnoreCase("Prenotato")) {
+                        badgeClass = "badge-prenotato"; labelStato = "Prenotato"; filterCategory = "prenotato";
+                        labelData1 = "Data Prenotazione:"; valData1 = (p.getDataPrenotazione() != null) ? sdf.format(p.getDataPrenotazione()) : "--/--/----";
+                        labelData2 = "Stato Ritiro:"; valData2 = "Pronto al ritiro";
+                    } else if (statoDB.equalsIgnoreCase("In Corso")) {
+                        badgeClass = "badge-corso"; labelStato = "In Corso"; filterCategory = "in-corso"; 
+                        labelData1 = "Data Inizio:"; valData1 = (p.getDataInizio() != null) ? sdf.format(p.getDataInizio()) : "--/--/----";
+                        labelData2 = "Scadenza Prevista:"; valData2 = (p.getDataFinePrevista() != null) ? sdf.format(p.getDataFinePrevista()) : "--/--/----";
+                    } else { 
+                        badgeClass = "badge-restituito"; labelStato = "Restituito"; filterCategory = "concluso"; 
+                        labelData1 = "Data Inizio:"; valData1 = (p.getDataInizio() != null) ? sdf.format(p.getDataInizio()) : "--/--/----";
+                        labelData2 = "Data Restituzione:"; valData2 = (p.getDataRestituzioneEffettiva() != null) ? sdf.format(p.getDataRestituzioneEffettiva()) : "--/--/----";
+                        abilitaRecensione = true;
+                    }
             %>
             
-            <div class="history-card search-item" data-stato="<%= inCorso ? "in-corso" : "concluso" %>">
+            <div class="history-card search-item" data-stato="<%= filterCategory %>">
                 <div class="history-asset">
                     <% if(p.getCopertinaLibro() != null) { %>
                         <img src="<%= p.getCopertinaLibro() %>" alt="cover" style="max-width:100%; max-height:100%;">
@@ -94,33 +122,49 @@
                 <div class="history-content">
                     <h3 class="card-title"><%= p.getTitoloLibro() %></h3>
                     
-                    <% if (!p.isRecensito()) { %>
-                        <button type="button" class="btn-recensione" onclick="apriModalRecensione(<%= p.getLibroId() %>, '<%= p.getTitoloLibro().replace("'", "\\'") %>')">
-                            Recensione
-                        </button>
-                    <% } else { %>
-                        <div style="display:flex; align-items:center; gap:15px;">
-                            <span class="recensione-presente"><i class="fa-solid fa-check"></i> Recensito</span>
-                            
-                            <a href="RimuoviRecensioneServlet?idLibro=<%= p.getLibroId() %>" 
-                               class="btn-delete-review" 
-                               onclick="return confirm('Sei sicuro di voler eliminare la tua recensione per questo libro?');"
-                               title="Elimina la tua recensione">
-                                <i class="fa-solid fa-trash"></i>
-                            </a>
-                        </div>
+                    <% if (abilitaRecensione) { %>
+                        <% if (!p.isRecensito()) { %>
+                            <button type="button" class="btn-recensione" 
+                                    data-id="<%= p.getLibroId() %>" 
+                                    data-titolo="<%= p.getTitoloLibro().replace("\"", "&quot;") %>"
+                                    onclick="apriModalRecensione(this)">
+                                Lascia Recensione
+                            </button>
+                        <% } else { 
+                            // Recupero la recensione dalla mappa
+                            Recensione rec = null;
+                            if (mappaRecensioni != null) {
+                                rec = mappaRecensioni.get(p.getLibroId());
+                            }
+                            String testoRec = (rec != null) ? rec.getTesto() : "";
+                            int votoRec = (rec != null) ? rec.getVoto() : 0;
+                        %>
+                            <div style="display:flex; align-items:center; gap:15px;">
+                                <button type="button" class="btn-recensione" style="background-color: #3498db;"
+                                        data-id="<%= p.getLibroId() %>" 
+                                        data-titolo="<%= p.getTitoloLibro().replace("\"", "&quot;") %>"
+                                        data-voto="<%= votoRec %>"
+                                        data-testo="<%= testoRec.replace("\"", "&quot;") %>"
+                                        onclick="apriModalRecensione(this)">
+                                    Visualizza/Modifica
+                                </button>
+                                
+                                <button type="button" class="btn-delete-review" 
+                                        onclick="apriModalElimina(<%= p.getLibroId() %>)"
+                                        title="Elimina la tua recensione"
+                                        style="background:none; border:none;">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        <% } %>
                     <% } %>
                 </div>
 
                 <div class="history-right">
-                    <div class="date-label">Data Prestito : <%= dataInizioStr %></div>
-                    <div class="date-label">Data Restituzione: <%= dataRestituzioneStr %></div>
+                    <div class="date-label"><%= labelData1 %> <%= valData1 %></div>
+                    <div class="date-label"><%= labelData2 %> <%= valData2 %></div>
                     
-                    <% if (inCorso) { %>
-                        <div class="status-badge bg-green">In corso</div>
-                    <% } else { %>
-                        <div class="status-badge bg-blue">Concluso</div>
-                    <% } %>
+                    <div class="<%= badgeClass %>"><%= labelStato %></div>
                 </div>
             </div>
 
@@ -138,7 +182,7 @@
     <div id="reviewModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="chiudiModalRecensione()">&times;</span>
-            <h3>Scrivi Recensione</h3>
+            <h3 id="modalTitle">Scrivi Recensione</h3>
             <p style="margin-bottom: 20px; font-style: italic; color: #666;">Libro: <span id="modalTitoloLibro" style="font-weight: bold;"></span></p>
             
             <form action="AddRecensioneServlet" method="POST">
@@ -158,16 +202,53 @@
                     <textarea id="testoRecensione" name="testo" required minlength="20" placeholder="Scrivi qui cosa ne pensi..."></textarea>
                 </div>
                 
-                <button type="submit" class="btn-submit-review">Invia Recensione</button>
+                <button type="submit" class="btn-submit-review">Salva Recensione</button>
             </form>
         </div>
     </div>
 
+    <div id="deleteModal" class="modal">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <span class="close-modal" onclick="chiudiModalElimina()">&times;</span>
+            <h3 style="color: #c0392b;">Elimina Recensione</h3>
+            <p>Sei sicuro di voler eliminare definitivamente la tua recensione per questo libro?</p>
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                <button type="button" class="btn-neutral" onclick="chiudiModalElimina()">Annulla</button>
+                <a id="btnConfirmDelete" href="#" class="btn-submit-review" style="background-color: #c0392b; text-decoration: none; padding: 10px 20px; display: inline-block;">Elimina</a>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Funzioni Modale
-        function apriModalRecensione(idLibro, titoloLibro) {
+        function apriModalRecensione(btn) {
+            const idLibro = btn.getAttribute('data-id');
+            const titoloLibro = btn.getAttribute('data-titolo');
+            const votoEsistente = btn.getAttribute('data-voto');
+            const testoEsistente = btn.getAttribute('data-testo');
+
             document.getElementById('modalIdLibro').value = idLibro;
             document.getElementById('modalTitoloLibro').innerText = titoloLibro;
+            
+            const titleElem = document.getElementById('modalTitle');
+            const textArea = document.getElementById('testoRecensione');
+            
+            // Reset stelle
+            const radios = document.getElementsByName('voto');
+            for(let i=0; i<radios.length; i++) radios[i].checked = false;
+
+            if (votoEsistente && testoEsistente) {
+                // MODALITÀ MODIFICA
+                titleElem.innerText = "Modifica Recensione";
+                textArea.value = testoEsistente;
+                
+                const radioDaSelezionare = document.getElementById('star' + votoEsistente);
+                if (radioDaSelezionare) radioDaSelezionare.checked = true;
+            } else {
+                // MODALITÀ NUOVA
+                titleElem.innerText = "Scrivi Recensione";
+                textArea.value = "";
+            }
+
             document.getElementById('reviewModal').style.display = "block";
         }
 
@@ -175,14 +256,27 @@
             document.getElementById('reviewModal').style.display = "none";
         }
 
+        function apriModalElimina(idLibro) {
+            const deleteLink = document.getElementById('btnConfirmDelete');
+            deleteLink.href = "RimuoviRecensioneServlet?idLibro=" + idLibro;
+            document.getElementById('deleteModal').style.display = "block";
+        }
+
+        function chiudiModalElimina() {
+            document.getElementById('deleteModal').style.display = "none";
+        }
+
         window.onclick = function(event) {
-            const modal = document.getElementById('reviewModal');
-            if (event.target == modal) {
-                modal.style.display = "none";
+            const modalRev = document.getElementById('reviewModal');
+            const modalDel = document.getElementById('deleteModal');
+            if (event.target == modalRev) {
+                modalRev.style.display = "none";
+            }
+            if (event.target == modalDel) {
+                modalDel.style.display = "none";
             }
         }
 
-        // Funzioni Filtri
         function toggleFilters(event) {
             const dropdown = document.getElementById('filterDropdown');
             dropdown.classList.toggle('active');

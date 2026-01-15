@@ -1,4 +1,219 @@
-/* --- CARD STORICO --- */
+* {
+    box-sizing: border-box;
+}
+
+body::-webkit-scrollbar { 
+    display: none;
+}
+
+html::-webkit-scrollbar, 
+body::-webkit-scrollbar { 
+    display: none; 
+}
+
+body::before {
+    content: '';
+    background-image: url('../img/background.png'); 
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: blur(5px);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background-color: rgba(0, 0, 0, 0.4);
+    background-blend-mode: multiply;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    overflow-x: hidden;
+    -ms-overflow-style: none;  
+    scrollbar-width: none; 
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    height: 110px;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: rgba(38, 123, 188, 0.79);
+    width: 100%;
+}
+
+.header-spacer,
+.nav-buttons {
+    flex: 1;
+}
+
+.logo-container {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.logo-container img {
+    height: 150px;
+    width: auto;
+}
+
+.nav-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 15px;
+    flex-wrap: wrap; 
+}
+
+.nav-buttons .btn {
+    background-color: white;
+    color: #333;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+.nav-buttons .btn:hover {
+    background-color: #f0f0f0;
+}
+
+.blue-bar {
+    background-color: rgba(38, 123, 188, 0.79);
+    padding: 30px 0;
+    color: white;
+    width: 100%;
+}
+
+.container-inner {
+    max-width: 1200px;
+    margin: 0 auto; 
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    width: 100%;
+}
+
+.section-title {
+    margin: 0;
+    font-size: 1.8rem;
+    color: white;
+    flex: 1;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.search-wrapper {
+    flex: 2;
+    display: flex;
+    justify-content: center;
+}
+
+.search-input {
+    width: 100%;
+    max-width: 600px;
+    padding: 12px 20px;
+    padding-right: 40px; 
+    border-radius: 25px;
+    border: none;
+    outline: none;
+}
+
+.close-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    cursor: pointer;
+}
+
+.search-wrapper {
+    position: relative;
+}
+
+.filter-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    position: relative; 
+    user-select: none;
+    cursor: pointer;
+}
+
+.filter-icon {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+    cursor: pointer;
+}
+
+.filter-dropdown {
+    display: none; 
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 280px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    padding: 20px;
+    z-index: 100;
+    text-align: left;
+    margin-top: 15px;
+    cursor: default;
+}
+
+.filter-dropdown.active {
+    display: block; 
+    animation: slideDown 0.3s ease;
+}
+
+.filter-group {
+    display: grid;
+    grid-template-columns: 1fr 140px; 
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.filter-group label {
+    margin-bottom: 0;
+    font-weight: bold;
+    color: #333;
+    font-size: 0.9rem;
+    text-align: left; 
+}
+
+.filter-select {
+    width: 100%; 
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+}
+
+.book-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    display: flex;
+    flex-direction: column;
+    padding: 0 20px;
+}
+
 .history-card {
     display: flex;
     background: white;
@@ -39,14 +254,6 @@
     color: #333;
 }
 
-.desc-short {
-    color: #888;
-    font-size: 0.9rem;
-    margin-bottom: 15px;
-    display: block;
-}
-
-/* --- BOTTONI E BADGE --- */
 .btn-recensione {
     background-color: #267bbc;
     border: none;
@@ -98,10 +305,11 @@
     margin-top: 10px;
 }
 
-.bg-green { background-color: #6fdc8c; color: #000; }
-.bg-blue { background-color: #1f6fb3; }
+.badge-richiesto { background-color: #f39c12; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.9em; font-weight: bold; }
+.badge-prenotato { background-color: #8e44ad; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.9em; font-weight: bold; }
+.badge-corso { background-color: #27ae60; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.9em; font-weight: bold; }
+.badge-restituito { background-color: #3498db; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.9em; font-weight: bold; }
 
-/* --- TASTO ELIMINA RECENSIONE (CESTINO) --- */
 .btn-delete-review {
     color: #999;
     font-size: 1rem;
@@ -112,10 +320,9 @@
 }
 
 .btn-delete-review:hover {
-    color: #c0392b; /* Rosso al passaggio */
+    color: #c0392b; 
 }
 
-/* --- MODALE --- */
 .modal {
     display: none; 
     position: fixed; 
@@ -205,12 +412,11 @@
     background-color: #219150;
 }
 
-/* --- SISTEMA DI VOTO (STELLINE) --- */
 .rating-wrapper {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-direction: row-reverse; /* Fondamentale per l'effetto riempimento */
+    flex-direction: row-reverse; 
     gap: 5px;
     margin-bottom: 15px;
 }
@@ -230,11 +436,10 @@
 }
 
 .rating-wrapper label i {
-    color: #ccc; /* Grigio default */
+    color: #ccc; 
     font-size: 1.5rem;
 }
 
-/* Effetto Hover e Checked: Colora di oro */
 .rating-wrapper input:checked ~ label i,
 .rating-wrapper label:hover i,
 .rating-wrapper label:hover ~ label i {
@@ -248,9 +453,65 @@
     color: #333;
 }
 
-/* --- RESPONSIVE --- */
-@media (max-width: 768px) {
-    .history-card { flex-direction: column; text-align: center; }
-    .history-right { text-align: center; margin-left: 0; align-items: center; }
-    .status-badge { margin-left: 0; }
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media screen and (max-width: 768px) {
+    header {
+        flex-direction: column; 
+        padding: 1rem;
+        gap: 15px;
+        height: auto;
+    }
+
+    .header-spacer {
+        display: none;
+    }
+
+    .nav-buttons {
+        width: 100%;
+        justify-content: center; 
+        flex-direction: column; 
+        gap: 10px;
+    }
+    
+    .nav-buttons a.btn {
+        width: 100%; 
+        text-align: center;
+    }
+
+    .container-inner {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+
+    .section-title, .search-wrapper, .filter-wrapper {
+        width: 100%;
+        flex: auto;
+        justify-content: center;
+        text-align: center;
+    }
+    
+    .filter-wrapper {
+        justify-content: center;
+    }
+
+    .history-card { 
+        flex-direction: column; 
+        text-align: center; 
+    }
+    
+    .history-right { 
+        text-align: center; 
+        margin-left: 0; 
+        align-items: center; 
+        min-width: 100%;
+    }
+    
+    .status-badge { 
+        margin-left: 0; 
+    }
 }

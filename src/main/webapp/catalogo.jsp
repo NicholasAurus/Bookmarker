@@ -80,8 +80,8 @@
                         <div class="filter-group">
                             <label for="sortOrder">Ordina per:</label>
                             <select id="sortOrder" class="filter-select" onchange="applicaFiltri()">
+                                <option value="votoDec" selected>Valutazione (Migliori prima)</option>
                                 <option value="default">Default</option>
-                                <option value="votoDec">Valutazione (Migliori prima)</option>
                             </select>
                         </div>
                         
@@ -98,15 +98,7 @@
         <div class="book-container" id="containerLibri">
             
             <% 
-            if (elencoLibri == null) { 
-            %>
-                <div style="text-align:center; padding: 50px; background: white; border-radius: 8px;">
-                    <h3>Attenzione</h3>
-                    <p>Devi passare dalla Servlet per vedere i libri.</p>
-                    <a href="LibriServlet" class="btn-neutral">Vai al Catalogo Corretto</a>
-                </div>
-            <% 
-            } else if (elencoLibri.isEmpty()) { 
+            if (elencoLibri.isEmpty()) { 
             %>
                 <div style="text-align:center; padding: 20px; background: white;">
                     <p>Nessun libro presente nel catalogo.</p>
@@ -117,7 +109,6 @@
                     
                     boolean disponibile = libro.getDisponibilita() > 0;
                     
-                    // Colore del testo dentro il riquadro
                     String textClass = disponibile ? "text-green" : "text-red";
                     
                     String labelStato = disponibile ? "Disponibile" : "Non disponibile";
@@ -230,6 +221,8 @@
                 option.textContent = genere;
                 selectGenere.appendChild(option);
             });
+
+            applicaFiltri();
         });
 
         const searchInput = document.getElementById('searchInput');
@@ -290,12 +283,11 @@
         function resetFiltri() {
             selectGenere.value = 'all';
             selectDisp.value = 'all';
-            selectSort.value = 'default';
+            selectSort.value = 'votoDec';
             searchInput.value = '';
             applicaFiltri();
         }
 
-        // Script per il tasto Scroll Top
         const scrollBtn = document.getElementById("scrollTopBtn");
 
         window.onscroll = function() {

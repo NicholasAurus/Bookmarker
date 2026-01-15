@@ -22,7 +22,7 @@ public class CatalogoBibliotecarioServlet extends HttpServlet {
         HttpSession session = request.getSession();
         String ruolo = (String) session.getAttribute("ruoloUtente");
         if (ruolo == null || !ruolo.equalsIgnoreCase("bibliotecario")) { 
-            response.sendRedirect("index.jsp"); // Rimanda alla home se non è autorizzato
+            response.sendRedirect("index.jsp"); 
             return;
         }
 

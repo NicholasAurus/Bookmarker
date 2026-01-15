@@ -8,7 +8,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import it.bookmarker.dao.AddRecensioneDAO;
+
+import it.bookmarker.dao.RecensioneDAO;
 
 @WebServlet("/AddRecensioneServlet")
 public class AddRecensioneServlet extends HttpServlet {
@@ -37,7 +38,7 @@ public class AddRecensioneServlet extends HttpServlet {
                 int idLibro = Integer.parseInt(idLibroParam);
                 int voto = Integer.parseInt(votoParam);
 
-                AddRecensioneDAO dao = new AddRecensioneDAO();
+                RecensioneDAO dao = new RecensioneDAO();
                 boolean successo = dao.salvaRecensione(emailUtente, idLibro, testo, voto);
                 
                 if (successo) {

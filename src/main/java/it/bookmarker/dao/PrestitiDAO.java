@@ -49,7 +49,7 @@ public class PrestitiDAO {
                      "FROM prestiti p " +
                      "JOIN libri l ON p.libro_id = l.id_libro " + 
                      "WHERE p.utente_email = ? " +
-                     "ORDER BY p.data_inizio DESC";
+                     "ORDER BY p.id DESC";
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
@@ -61,7 +61,7 @@ public class PrestitiDAO {
                         p.setId(rs.getInt("id"));
                         p.setUtenteEmail(rs.getString("utente_email"));
                         p.setLibroId(rs.getInt("libro_id"));
-                        p.setDataPrenotazione(rs.getDate("data_prenotazione")); // Legge data prenotazione
+                        p.setDataPrenotazione(rs.getDate("data_prenotazione")); 
                         p.setDataInizio(rs.getDate("data_inizio"));
                         p.setDataFinePrevista(rs.getDate("data_fine_prevista"));
                         p.setDataRestituzioneEffettiva(rs.getDate("data_restituzione_effettiva"));
@@ -70,6 +70,7 @@ public class PrestitiDAO {
                         p.setAutoreLibro(rs.getString("autore"));
                         p.setCopertinaLibro(rs.getString("copertina"));
                         p.setDescrizioneLibro(rs.getString("descrizione"));
+                        
                         p.setRecensito(rs.getInt("recensioni_count") > 0);
                         lista.add(p);
                     }
@@ -94,7 +95,7 @@ public class PrestitiDAO {
                     p.setId(rs.getInt("id"));
                     p.setUtenteEmail(rs.getString("utente_email"));
                     p.setLibroId(rs.getInt("libro_id"));
-                    p.setDataPrenotazione(rs.getDate("data_prenotazione")); // Importante per visualizzare la data scelta
+                    p.setDataPrenotazione(rs.getDate("data_prenotazione")); 
                     p.setDataInizio(rs.getDate("data_inizio"));
                     p.setDataFinePrevista(rs.getDate("data_fine_prevista"));
                     p.setStato(rs.getString("stato"));
@@ -124,7 +125,6 @@ public class PrestitiDAO {
         }
     }
 
-    
     public List<Prestito> getPrestitiPrenotati() {
         List<Prestito> lista = new ArrayList<>();
         String sql = "SELECT p.*, l.titolo FROM prestiti p JOIN libri l ON p.libro_id = l.id_libro WHERE p.stato = 'prenotato'"; 
@@ -140,7 +140,6 @@ public class PrestitiDAO {
                     p.setId(rs.getInt("id"));
                     p.setUtenteEmail(rs.getString("utente_email"));
                     p.setLibroId(rs.getInt("libro_id"));
-                    
                     
                     p.setDataPrenotazione(rs.getDate("data_prenotazione"));
                     
