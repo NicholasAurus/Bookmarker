@@ -7,6 +7,7 @@ public class Prestito {
     private int id;
     private String utenteEmail;
     private int libroId;
+    private Date dataPrenotazione;
     private Date dataInizio;
     private Date dataFinePrevista;
     private Date dataRestituzioneEffettiva;
@@ -18,8 +19,9 @@ public class Prestito {
     
     private boolean recensito; 
     
-    
     private String stato;
+    
+    
 
     public Prestito() {}
 
@@ -31,6 +33,9 @@ public class Prestito {
     
     public int getLibroId() { return libroId; }
     public void setLibroId(int libroId) { this.libroId = libroId; }
+    
+    public Date getDataPrenotazione() { return dataPrenotazione; }
+    public void setDataPrenotazione(Date dataPrenotazione) { this.dataPrenotazione = dataPrenotazione; }
     
     public Date getDataInizio() { return dataInizio; }
     public void setDataInizio(Date dataInizio) { this.dataInizio = dataInizio; }

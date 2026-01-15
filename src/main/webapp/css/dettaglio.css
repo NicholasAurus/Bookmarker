@@ -185,3 +185,43 @@
         padding: 20px;
     }
 }
+
+
+.btn-prenota {
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-prenota:hover {
+    background-color: #219150;
+    transform: translateY(-2px);
+}
+
+.btn-prenota:active {
+    transform: translateY(0);
+}
+
+
+.btn-prenota-disabled {
+    background-color: #95a5a6;
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    display: inline-block;
+}
+
+.btn-prenota-disabled:hover {
+    background-color: #7f8c8d;
+}

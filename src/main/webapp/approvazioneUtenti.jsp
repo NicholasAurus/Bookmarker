@@ -97,49 +97,53 @@
                 </c:if>
             </div>
 
-            <div id="tabPrestiti" class="tab-content" style="display:none;">
-                <h3 class="section-header">Richieste di Prestito</h3>
+<div id="tabPrestiti" class="tab-content" style="display:none;">
+    <h3 class="section-header">Richieste Prestiti</h3>
 
-                <c:if test="${empty listaPrestiti}">
-                    <div class="empty-msg">Nessuna richiesta di prestito da approvare.</div>
-                </c:if>
+    <c:if test="${empty listaPrestiti}">
+        <div class="empty-msg">Nessuna richiesta di prestito da approvare.</div>
+    </c:if>
 
-                <c:if test="${not empty listaPrestiti}">
-                    <table class="styled-table">
-                        <thead>
-                            <tr>
-                                <th>Email Utente</th>
-                                <th>Libro</th>
-                                <th>Periodo Previsto</th>
-                                <th style="text-align: center;">Azioni</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <c:forEach items="${listaPrestiti}" var="p" varStatus="loop">
-                                <tr>
-                                    <td>${p.utenteEmail}</td>
-                                    <td>${p.titoloLibro}</td>
-                                    <td>Da: ${p.dataInizio} <br> A: ${p.dataFinePrevista}</td>
-                                    <td style="text-align: center; white-space: nowrap;">
-                                        <form id="form-loan-accetta-${loop.index}" action="GestioneUtentiServlet" method="post" style="display:none;">
-                                            <input type="hidden" name="tipoOperazione" value="prestito">
-                                            <input type="hidden" name="idPrestito" value="${p.id}">
-                                            <input type="hidden" name="azione" value="accetta">
-                                        </form>
-                                        <form id="form-loan-rifiuta-${loop.index}" action="GestioneUtentiServlet" method="post" style="display:none;">
-                                            <input type="hidden" name="tipoOperazione" value="prestito">
-                                            <input type="hidden" name="idPrestito" value="${p.id}">
-                                            <input type="hidden" name="azione" value="rifiuta">
-                                        </form>
-                                        <button type="button" class="btn-action btn-green" onclick="apriModal('prestito', 'accetta', 'libro #${p.libroId} per ${p.utenteEmail}', 'form-loan-accetta-${loop.index}')"><i class="fa-solid fa-check"></i> Conferma</button>
-                                        <button type="button" class="btn-action btn-red" onclick="apriModal('prestito', 'rifiuta', 'libro #${p.libroId} per ${p.utenteEmail}', 'form-loan-rifiuta-${loop.index}')"><i class="fa-solid fa-xmark"></i> Rifiuta</button>
-                                    </td>
-                                </tr>
-                            </c:forEach>
-                        </tbody>
-                    </table>
-                </c:if>
-            </div>
+    <c:if test="${not empty listaPrestiti}">
+        <table class="styled-table">
+            <thead>
+                <tr>
+                    <th>Email Utente</th>
+                    <th>Libro</th>
+                    <th>Data Ritiro Richiesta</th>
+                    <th style="text-align: center;">Azioni</th>
+                </tr>
+            </thead>
+            <tbody>
+                <c:forEach items="${listaPrestiti}" var="p" varStatus="loop">
+                    <tr>
+                        <td>${p.utenteEmail}</td>
+                        <td>${p.titoloLibro}</td>
+                        
+                        <td style="font-weight:bold; color:#2c3e50;">
+                            ${p.dataPrenotazione}
+                        </td>
+
+                        <td style="text-align: center; white-space: nowrap;">
+                            <form id="form-loan-accetta-${loop.index}" action="GestioneUtentiServlet" method="post" style="display:none;">
+                                <input type="hidden" name="tipoOperazione" value="prestito">
+                                <input type="hidden" name="idPrestito" value="${p.id}">
+                                <input type="hidden" name="azione" value="accetta">
+                            </form>
+                            <form id="form-loan-rifiuta-${loop.index}" action="GestioneUtentiServlet" method="post" style="display:none;">
+                                <input type="hidden" name="tipoOperazione" value="prestito">
+                                <input type="hidden" name="idPrestito" value="${p.id}">
+                                <input type="hidden" name="azione" value="rifiuta">
+                            </form>
+                            <button type="button" class="btn-action btn-green" onclick="apriModal('prestito', 'accetta', 'libro #${p.libroId} per ${p.utenteEmail}', 'form-loan-accetta-${loop.index}')"><i class="fa-solid fa-check"></i> Conferma</button>
+                            <button type="button" class="btn-action btn-red" onclick="apriModal('prestito', 'rifiuta', 'libro #${p.libroId} per ${p.utenteEmail}', 'form-loan-rifiuta-${loop.index}')"><i class="fa-solid fa-xmark"></i> Rifiuta</button>
+                        </td>
+                    </tr>
+                </c:forEach>
+            </tbody>
+        </table>
+    </c:if>
+</div>
 
         </div>
     </main>

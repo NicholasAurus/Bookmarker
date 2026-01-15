@@ -66,7 +66,11 @@
                                 <tr>
                                     <td>${p.utenteEmail}</td>
                                     <td>${p.titoloLibro}</td>
-                                    <td>Entro: ${p.dataFinePrevista}</td>
+                                    
+                                    <td style="font-weight: bold; color: #d35400;">
+                                        ${p.dataPrenotazione}
+                                    </td>
+                                    
                                     <td style="text-align: center; white-space: nowrap;">
                                         <form id="form-ritiro-${loop.index}" action="GestionePrestitiServlet" method="post" style="display:none;">
                                             <input type="hidden" name="idPrestito" value="${p.id}">
