@@ -72,11 +72,11 @@
             } else if (isLoggato && "MODERATORE".equals(ruolo)) { 
             %>
 
-                <a href="listaRecensioni.jsp" class="main-link">
+                <a href="CatalogoModeratoreServlet" class="main-link">
                     <div class="icon-container" style="background-color: #8e44ad;"> 
                         <i class="fa-solid fa-comments" style="font-size: 4rem; color: white;"></i>
                     </div>
-                    <p>LISTA RECENSIONI</p>
+                    <p>CATALOGO MODERATORE</p>
                 </a>
 
                 <a href="SegnalazioniServlet" class="main-link">
@@ -87,7 +87,7 @@
                 </a>
 
             <% 
-            /* SEZIONE VISTIATORE */
+            /* SEZIONE VISITATORE */
             } else { 
             %>
 

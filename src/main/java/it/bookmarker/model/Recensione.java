@@ -10,6 +10,10 @@ public class Recensione {
     private Date dataInserimento;
     private int voto; 
     private String nomeUtenteDisplay; 
+    private boolean visibile;
+    
+    
+    
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -31,4 +35,7 @@ public class Recensione {
 
     public String getNomeUtenteDisplay() { return nomeUtenteDisplay; }
     public void setNomeUtenteDisplay(String nomeUtenteDisplay) { this.nomeUtenteDisplay = nomeUtenteDisplay; }
+
+    public boolean isVisibile() { return visibile; }
+    public void setVisibile(boolean visibile) { this.visibile = visibile; }
 }

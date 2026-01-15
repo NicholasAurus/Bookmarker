@@ -39,7 +39,7 @@ public class RecensioneDAO {
                         r.setTesto(rs.getString("testo"));
                         r.setDataInserimento(rs.getDate("data_inserimento"));
                         r.setVoto(rs.getInt("voto")); 
-                        
+                        r.setVisibile(rs.getBoolean("visibile"));
                         String nomeCompleto = rs.getString("nome") + " " + rs.getString("cognome");
                         r.setNomeUtenteDisplay(nomeCompleto);
 
@@ -71,5 +71,79 @@ public class RecensioneDAO {
             e.printStackTrace();
             return false;
         }
+    }
+    
+    
+    public void deleteRecensione(int idRecensione) {
+        //QUESTO METODO è UTILIZZATO DAL MODERATORE, è diverso da elimina Recensione messo sopra.
+        String sql = "DELETE FROM recensioni WHERE id = ?";
+        
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
+                
+                ps.setInt(1, idRecensione);
+                ps.executeUpdate();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void cambiaVisibilita(int idRecensione, boolean visibile) {
+        String sql = "UPDATE recensioni SET visibile = ? WHERE id = ?";
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
+                
+                ps.setBoolean(1, visibile);
+                ps.setInt(2, idRecensione);
+                ps.executeUpdate();
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+    
+}
+    
+    public List<Recensione> getRecensioniPubbliche(int idLibro) {
+        List<Recensione> lista = new ArrayList<>();
+        
+       
+        String sql = "SELECT r.*, u.nome, u.cognome " +
+                     "FROM recensioni r " +
+                     "JOIN utenti u ON r.utente_email = u.email " +
+                     "WHERE r.libro_id = ? AND r.visibile = true " +  
+                     "ORDER BY r.data_inserimento DESC";
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
+
+                ps.setInt(1, idLibro);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        Recensione r = new Recensione();
+                        r.setId(rs.getInt("id"));
+                        r.setUtenteEmail(rs.getString("utente_email"));
+                        r.setLibroId(rs.getInt("libro_id"));
+                        r.setTesto(rs.getString("testo"));
+                        r.setDataInserimento(rs.getDate("data_inserimento"));
+                        r.setVoto(rs.getInt("voto"));
+                        r.setVisibile(rs.getBoolean("visibile")); // Leggiamo il dato anche qui
+                        
+                        String nomeCompleto = rs.getString("nome") + " " + rs.getString("cognome");
+                        r.setNomeUtenteDisplay(nomeCompleto);
+
+                        lista.add(r);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return lista;
     }
 }
