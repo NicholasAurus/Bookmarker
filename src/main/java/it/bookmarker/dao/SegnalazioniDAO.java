@@ -81,4 +81,33 @@ public class SegnalazioniDAO {
         }
         return updated;
     }
+    
+    public boolean inserisciSegnalazione(int recensioneId, String emailUtente, String motivo) {
+        String sql = "INSERT INTO segnalazioni (recensione_id, utente_email, motivo, data_segnalazione, stato) VALUES (?, ?, ?, CURDATE(), 'aperta')";
+        
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        boolean inserito = false;
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
+            
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, recensioneId);
+            pstmt.setString(2, emailUtente);
+            pstmt.setString(3, motivo);
+            
+            inserito = pstmt.executeUpdate() > 0;
+
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            try { 
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close(); 
+            } catch (SQLException e) {}
+        }
+        return inserito;
+    }
 }

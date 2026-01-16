@@ -19,80 +19,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= libro.getTitolo() %> - Dettaglio</title>
-    <link rel="stylesheet" href="css/catalogo.css"> 
-    <link rel="stylesheet" href="css/dettaglio.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <style>
-        /* CSS PER IL MODALE DI CONFERMA */
-        .modal-overlay {
-            display: none; /* Nascosto di default */
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6); /* Sfondo scuro trasparente */
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-box {
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            animation: fadeIn 0.3s ease;
-        }
-
-        .modal-title {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            color: #333;
-            font-weight: bold;
-        }
-
-        .modal-text {
-            margin-bottom: 25px;
-            color: #666;
-            font-size: 0.95rem;
-        }
-
-        .modal-buttons {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-        }
-
-        .btn-modal-cancel {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            flex: 1;
-        }
-
-        .btn-modal-confirm {
-            background-color: #27ae60;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            flex: 1;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
+    <link rel="stylesheet" href="css/catalogo.css"> 
+    <link rel="stylesheet" href="css/dettaglio.css"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
 
@@ -171,9 +100,13 @@
                         <div style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
                             <i class="fa-solid fa-check-circle"></i> Prenotazione inviata con successo!
                         </div>
+                    <% } else if ("segnalazioneOk".equals(msg)) { %>
+                        <div style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+                            <i class="fa-solid fa-flag"></i> Segnalazione inviata con successo!
+                        </div>
                     <% } else if ("db_error".equals(err)) { %>
                         <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
-                            <i class="fa-solid fa-triangle-exclamation"></i> Errore durante la prenotazione. Riprova.
+                            <i class="fa-solid fa-triangle-exclamation"></i> Errore durante l'operazione. Riprova.
                         </div>
                     <% } %>
                     
@@ -199,10 +132,20 @@
                                 <i class="fa-solid fa-user" style="margin-right: 8px; color:#888;"></i>
                                 <%= rec.getNomeUtenteDisplay() %>
                             </span>
-                            <small style="font-weight: normal; color: #999;">
-                                <%= rec.getDataInserimento() %>
-                            </small>
+                            
+                            <div class="review-meta-right">
+                                <small style="font-weight: normal; color: #999;">
+                                    <%= rec.getDataInserimento() %>
+                                </small>
+                                
+                                <% if (nomeUtente != null) { %>
+                                    <button type="button" class="btn-report" onclick="apriModalSegnalazione('<%= rec.getId() %>')">
+                                        <i class="fa-solid fa-flag"></i> Segnala
+                                    </button>
+                                <% } %>
+                            </div>
                         </div>
+                        
                         <div class="review-stars" style="color: #f1c40f; font-size: 0.9rem; margin: 8px 0;">
                             <% int voto = rec.getVoto();
                                for (int i = 0; i < 5; i++) {
@@ -236,9 +179,30 @@
         </div>
     </div>
 
+    <div id="reportModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-title" style="color:#e67e22;"><i class="fa-solid fa-triangle-exclamation"></i> Segnala Recensione</div>
+            <div class="modal-text">
+                Descrivi il motivo della segnalazione. Il testo deve contenere almeno <strong>20 caratteri</strong>.
+            </div>
+            
+            <form id="formSegnalazione" action="SegnalaRecensioneServlet" method="post" onsubmit="return validaSegnalazione()">
+                <input type="hidden" name="idLibro" value="<%= libro.getId() %>">
+                <input type="hidden" id="reportRecensioneId" name="idRecensione" value="">
+                
+                <textarea name="motivo" id="motivoSegnalazione" class="modal-textarea" placeholder="Esempio: Contenuto offensivo, spoiler non segnalato..."></textarea>
+                <div id="motivoError" class="error-text">Il motivo è troppo breve (min. 20 caratteri).</div>
+
+                <div class="modal-buttons">
+                    <button type="button" class="btn-modal-cancel" onclick="chiudiModalSegnalazione()">Annulla</button>
+                    <button type="submit" class="btn-modal-submit">Invia Segnalazione</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            // Impostazione data minima e massima (1 settimana)
             const dateInput = document.getElementById('dataRitiro');
             if (dateInput) {
                 const today = new Date();
@@ -254,7 +218,6 @@
                 dateInput.value = formatDate(today);
             }
             
-            // Gestione preferiti
             const heartBtn = document.querySelector('.favorite-btn');
             if (heartBtn) {
                 heartBtn.addEventListener('click', function() {
@@ -278,8 +241,7 @@
             }
         }
 
-        
-        
+        // --- PRENOTAZIONE ---
         function apriModal() {
             const dateInput = document.getElementById('dataRitiro');
             const dateDisplay = document.getElementById('modalDateDisplay');
@@ -288,15 +250,9 @@
                 alert("Seleziona una data valida.");
                 return;
             }
-
-            //Copia la data selezionata nel testo del modale
-            //Formattiamo la data per renderla leggibile gg/mm/yyyy
             const partiData = dateInput.value.split('-'); 
             const dataFormattata = partiData[2] + '/' + partiData[1] + '/' + partiData[0];
-            
             dateDisplay.textContent = dataFormattata;
-
-            // Mostra il modale
             document.getElementById('confirmModal').style.display = 'flex';
         }
 
@@ -305,15 +261,40 @@
         }
 
         function confermaInvio() {
-            //Invia il form vero e proprio
             document.getElementById('bookingForm').submit();
         }
 
-        // Chiudi modale se si clicca fuori dal box
+        // --- SEGNALAZIONE ---
+        function apriModalSegnalazione(idRecensione) {
+            document.getElementById('motivoSegnalazione').value = "";
+            document.getElementById('motivoError').style.display = "none";
+            document.getElementById('reportRecensioneId').value = idRecensione;
+            document.getElementById('reportModal').style.display = 'flex';
+        }
+
+        function chiudiModalSegnalazione() {
+            document.getElementById('reportModal').style.display = 'none';
+        }
+
+        function validaSegnalazione() {
+            const testo = document.getElementById('motivoSegnalazione').value.trim();
+            const errorMsg = document.getElementById('motivoError');
+            if (testo.length < 20) {
+                errorMsg.style.display = "block";
+                return false;
+            }
+            errorMsg.style.display = "none";
+            return true;
+        }
+
         window.onclick = function(event) {
-            const modal = document.getElementById('confirmModal');
-            if (event.target == modal) {
-                modal.style.display = "none";
+            const modalPrenotazione = document.getElementById('confirmModal');
+            const modalSegnalazione = document.getElementById('reportModal');
+            if (event.target == modalPrenotazione) {
+                modalPrenotazione.style.display = "none";
+            }
+            if (event.target == modalSegnalazione) {
+                chiudiModalSegnalazione();
             }
         }
     </script>
