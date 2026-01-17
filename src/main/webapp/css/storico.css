@@ -151,12 +151,27 @@ header {
     position: relative; 
     user-select: none;
     cursor: pointer;
+    align-items: center; 
+}
+
+.filter-icon-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .filter-icon {
     font-size: 1.5rem;
-    margin-bottom: 5px;
+    margin-bottom: 2px;
     cursor: pointer;
+}
+
+.filter-label {
+    font-size: 0.75rem;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
 .filter-dropdown {
@@ -309,6 +324,17 @@ header {
 .badge-prenotato { background-color: #8e44ad; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.9em; font-weight: bold; }
 .badge-corso { background-color: #27ae60; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.9em; font-weight: bold; }
 .badge-restituito { background-color: #3498db; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.9em; font-weight: bold; }
+.badge-annullato { background-color: #c0392b; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.9em; font-weight: bold; }
+
+.motivation-box {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #fce4ec;
+    border-left: 4px solid #c0392b;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: #333;
+}
 
 .btn-delete-review {
     color: #999;

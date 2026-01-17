@@ -65,13 +65,15 @@ public class GestionePrestitiServlet extends HttpServlet {
 
                 if ("ritiro".equals(azione)) {
                     dao.confermaRitiro(idPrestito);
-                    tabDaAprire = "attivi";
+                    tabDaAprire = "prenotati";
                 } else if ("annulla".equals(azione)) {
-                    dao.gestisciPrestito(idPrestito, "annullato");
+                    // Recupero la motivazione dal form
+                    String motivazione = request.getParameter("motivazione");
+                    dao.gestisciPrestito(idPrestito, "annullato", motivazione);
                     tabDaAprire = "prenotati";
                 } else if ("restituzione".equals(azione)) {
                     dao.terminaPrestito(idPrestito);
-                    tabDaAprire = "restituiti";
+                    tabDaAprire = "attivi";
                 }
             }
         } catch (NumberFormatException e) {

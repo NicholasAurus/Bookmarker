@@ -15,8 +15,6 @@
     <link rel="stylesheet" href="css/catalogo.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/approvazioneUtenti.css">
-
-
 </head>
 <body>
 
@@ -134,6 +132,7 @@
                                             <input type="hidden" name="tipoOperazione" value="prestito">
                                             <input type="hidden" name="idPrestito" value="${p.id}">
                                             <input type="hidden" name="azione" value="rifiuta">
+                                            <input type="hidden" name="motivazione" id="hidden-motivazione-${loop.index}">
                                         </form>
                                         <button type="button" class="btn-action btn-green" onclick="apriModal('prestito', 'accetta', 'libro #${p.libroId} per ${p.utenteEmail}', 'form-loan-accetta-${loop.index}')"><i class="fa-solid fa-check"></i> Conferma</button>
                                         <button type="button" class="btn-action btn-red" onclick="apriModal('prestito', 'rifiuta', 'libro #${p.libroId} per ${p.utenteEmail}', 'form-loan-rifiuta-${loop.index}')"><i class="fa-solid fa-xmark"></i> Rifiuta</button>
@@ -153,6 +152,12 @@
             <div id="modalIcon" class="modal-icon"></div>
             <h3 id="modalTitle" class="modal-title">Titolo</h3>
             <p id="modalText" class="modal-text">Messaggio di conferma</p>
+            
+            <div id="motivazioneBox" style="display:none; width: 100%; margin-bottom: 15px;">
+                <label for="motivazioneInput" style="display:block; margin-bottom: 5px; font-weight:bold;">Motivo del rifiuto:</label>
+                <textarea id="motivazioneInput" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Inserisci il motivo..."></textarea>
+            </div>
+
             <div class="modal-buttons">
                 <button class="btn-modal btn-cancel" onclick="chiudiModal('confirmationModal')">Annulla</button>
                 <button id="confirmBtn" class="btn-modal btn-confirm">Conferma</button>
@@ -177,7 +182,7 @@
             url.searchParams.set('tab', tabName);
             window.history.pushState({}, '', url);
 
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active', 'active-show'));
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
 
             document.getElementById('tab' + capitalizeFirstLetter(tabName)).classList.add('active');
@@ -188,17 +193,6 @@
             return string.charAt(0).toUpperCase() + string.slice(1);
         }
 
-        function initializeTabs() {
-            const activeTab = "${activeTab}";
-            if(activeTab === 'prestiti') {
-                 document.getElementById('tabPrestiti').style.display = 'block';
-                 document.getElementById('tabUtenti').style.display = 'none';
-            } else {
-                 document.getElementById('tabUtenti').style.display = 'block';
-                 document.getElementById('tabPrestiti').style.display = 'none';
-            }
-        }
-
         let formDaInviareId = null; 
         
         function apriModal(tipo, azione, infoOggetto, formId) {
@@ -207,7 +201,18 @@
             const testo = document.getElementById('modalText');
             const icona = document.getElementById('modalIcon');
             const btnConferma = document.getElementById('confirmBtn');
+            const boxMotivazione = document.getElementById('motivazioneBox');
+            const inputMotivazione = document.getElementById('motivazioneInput');
+
             formDaInviareId = formId;
+            inputMotivazione.value = ""; // Reset textarea
+
+            // Gestione visibilità box motivazione
+            if (tipo === 'prestito' && azione === 'rifiuta') {
+                boxMotivazione.style.display = 'block';
+            } else {
+                boxMotivazione.style.display = 'none';
+            }
 
             if (azione === 'accetta') {
                 icona.innerHTML = '<i class="fa-solid fa-circle-check" style="color: #27ae60;"></i>';
@@ -242,7 +247,22 @@
         }
 
         document.getElementById('confirmBtn').addEventListener('click', function() { 
-            if (formDaInviareId) document.getElementById(formDaInviareId).submit(); 
+            if (formDaInviareId) {
+                // Se c'è il box motivazione visibile, copio il valore nel form
+                const boxMotivazione = document.getElementById('motivazioneBox');
+                if (boxMotivazione.style.display !== 'none') {
+                    const motivazione = document.getElementById('motivazioneInput').value;
+                    if (!motivazione.trim()) {
+                        alert("Inserisci una motivazione per il rifiuto.");
+                        return;
+                    }
+                    // Trovo l'input hidden dentro il form specifico
+                    const form = document.getElementById(formDaInviareId);
+                    const hiddenInput = form.querySelector('input[name="motivazione"]');
+                    if(hiddenInput) hiddenInput.value = motivazione;
+                }
+                document.getElementById(formDaInviareId).submit(); 
+            }
         });
         
         window.onclick = function(event) { 
@@ -255,34 +275,6 @@
                 apriErrorModal("${errore}");
             });
         </c:if>
-
-        // Gestione cambio tab visivo senza ricaricare, ma aggiornando URL
-        function cambiaTab(tabName) {
-            // Aggiorna URL senza ricaricare
-            const url = new URL(window.location);
-            url.searchParams.set('tab', tabName);
-            window.history.pushState({}, '', url);
-
-            // Nascondi tutto
-            document.getElementById('tabUtenti').style.display = 'none';
-            document.getElementById('tabPrestiti').style.display = 'none';
-            
-            // Rimuovi active dai bottoni
-            const buttons = document.getElementsByClassName('tab-button');
-            for(let btn of buttons) btn.classList.remove('active');
-
-            // Mostra tab corretta
-            if(tabName === 'prestiti') {
-                document.getElementById('tabPrestiti').style.display = 'block';
-                document.getElementById('tabPrestiti').classList.add('active');
-            } else {
-                document.getElementById('tabUtenti').style.display = 'block';
-                document.getElementById('tabUtenti').classList.add('active');
-            }
-            
-            // Attiva bottone cliccato
-            event.currentTarget.classList.add('active');
-        }
     </script>
 </body>
 </html>

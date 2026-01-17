@@ -7,7 +7,6 @@
 
 <%
     List<Prestito> storico = (List<Prestito>) request.getAttribute("elencoStorico");
-    // Recupero la mappa delle recensioni
     Map<Integer, Recensione> mappaRecensioni = (Map<Integer, Recensione>) request.getAttribute("mappaRecensioni");
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 %>
@@ -19,6 +18,26 @@
     <title>Storico - BookMarker</title>
     <link rel="stylesheet" href="css/storico.css"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .badge-annullato {
+            background-color: #c0392b; 
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .motivation-box {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #fce4ec;
+            border-left: 4px solid #c0392b;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #333;
+        }
+    </style>
 </head>
 <body>
 
@@ -44,7 +63,11 @@
                 </div>
 
                 <div class="filter-wrapper" onclick="toggleFilters(event)" style="cursor: pointer;">
-                    <i class="fa-solid fa-filter filter-icon"></i>
+                    
+                    <div class="filter-icon-container">
+                        <i class="fa-solid fa-filter filter-icon"></i>
+                        <span class="filter-label">Filtri</span>
+                    </div>
                     
                     <div class="filter-dropdown" id="filterDropdown" onclick="event.stopPropagation()" style="cursor: default;">
                         <div class="filter-group">
@@ -55,6 +78,7 @@
                                 <option value="prenotato">Prenotati</option>
                                 <option value="in-corso">In corso</option>
                                 <option value="concluso">Conclusi</option>
+                                <option value="annullato">Annullati/Rifiutati</option>
                             </select>
                         </div>
                         
@@ -87,9 +111,9 @@
                     String valData1 = "";
                     String labelData2 = "";
                     String valData2 = "";
+                    String motivazione = "";
                     boolean abilitaRecensione = false;
 
-                    // Logica Stati (Invariata)
                     if (statoDB.equalsIgnoreCase("Richiesto")) {
                         badgeClass = "badge-richiesto"; labelStato = "Richiesto"; filterCategory = "richiesto";
                         labelData1 = "Data Prenotazione:"; valData1 = (p.getDataPrenotazione() != null) ? sdf.format(p.getDataPrenotazione()) : "--/--/----";
@@ -102,6 +126,11 @@
                         badgeClass = "badge-corso"; labelStato = "In Corso"; filterCategory = "in-corso"; 
                         labelData1 = "Data Inizio:"; valData1 = (p.getDataInizio() != null) ? sdf.format(p.getDataInizio()) : "--/--/----";
                         labelData2 = "Scadenza Prevista:"; valData2 = (p.getDataFinePrevista() != null) ? sdf.format(p.getDataFinePrevista()) : "--/--/----";
+                    } else if (statoDB.equalsIgnoreCase("Annullato") || statoDB.equalsIgnoreCase("Rifiutato")) {
+                        badgeClass = "badge-annullato"; labelStato = statoDB; filterCategory = "annullato";
+                        labelData1 = "Data Richiesta:"; valData1 = (p.getDataPrenotazione() != null) ? sdf.format(p.getDataPrenotazione()) : "--/--/----";
+                        labelData2 = "Esito:"; valData2 = "Non Erogato";
+                        motivazione = p.getMotivazione();
                     } else { 
                         badgeClass = "badge-restituito"; labelStato = "Restituito"; filterCategory = "concluso"; 
                         labelData1 = "Data Inizio:"; valData1 = (p.getDataInizio() != null) ? sdf.format(p.getDataInizio()) : "--/--/----";
@@ -122,6 +151,12 @@
                 <div class="history-content">
                     <h3 class="card-title"><%= p.getTitoloLibro() %></h3>
                     
+                    <% if (motivazione != null && !motivazione.trim().isEmpty()) { %>
+                        <div class="motivation-box">
+                            <strong>Motivo:</strong> <%= motivazione %>
+                        </div>
+                    <% } %>
+                    
                     <% if (abilitaRecensione) { %>
                         <% if (!p.isRecensito()) { %>
                             <button type="button" class="btn-recensione" 
@@ -131,7 +166,6 @@
                                 Lascia Recensione
                             </button>
                         <% } else { 
-                            // Recupero la recensione dalla mappa
                             Recensione rec = null;
                             if (mappaRecensioni != null) {
                                 rec = mappaRecensioni.get(p.getLibroId());
@@ -139,7 +173,7 @@
                             String testoRec = (rec != null) ? rec.getTesto() : "";
                             int votoRec = (rec != null) ? rec.getVoto() : 0;
                         %>
-                            <div style="display:flex; align-items:center; gap:15px;">
+                            <div style="display:flex; align-items:center; gap:15px; margin-top: 10px;">
                                 <button type="button" class="btn-recensione" style="background-color: #3498db;"
                                         data-id="<%= p.getLibroId() %>" 
                                         data-titolo="<%= p.getTitoloLibro().replace("\"", "&quot;") %>"
@@ -232,19 +266,16 @@
             const titleElem = document.getElementById('modalTitle');
             const textArea = document.getElementById('testoRecensione');
             
-            // Reset stelle
             const radios = document.getElementsByName('voto');
             for(let i=0; i<radios.length; i++) radios[i].checked = false;
 
             if (votoEsistente && testoEsistente) {
-                // MODALITÀ MODIFICA
                 titleElem.innerText = "Modifica Recensione";
                 textArea.value = testoEsistente;
                 
                 const radioDaSelezionare = document.getElementById('star' + votoEsistente);
                 if (radioDaSelezionare) radioDaSelezionare.checked = true;
             } else {
-                // MODALITÀ NUOVA
                 titleElem.innerText = "Scrivi Recensione";
                 textArea.value = "";
             }

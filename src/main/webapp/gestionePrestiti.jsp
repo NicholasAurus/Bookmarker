@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="css/catalogo.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/gestionePrestiti.css">
-
 </head>
 <body>
 
@@ -80,6 +79,7 @@
                                         <form id="form-annulla-${loop.index}" action="GestionePrestitiServlet" method="post" style="display:none;">
                                             <input type="hidden" name="idPrestito" value="${p.id}">
                                             <input type="hidden" name="azione" value="annulla">
+                                            <input type="hidden" name="motivazione" id="hidden-motivazione-${loop.index}">
                                         </form>
                                         <button type="button" class="btn-action btn-green" onclick="apriModal('ritiro', '${p.utenteEmail}', 'form-ritiro-${loop.index}')"><i class="fa-solid fa-check"></i> Ritiro</button>
                                         <button type="button" class="btn-action btn-red" onclick="apriModal('annulla', '${p.utenteEmail}', 'form-annulla-${loop.index}')"><i class="fa-solid fa-ban"></i> Annulla</button>
@@ -169,6 +169,12 @@
             <div id="modalIcon" class="modal-icon"></div>
             <h3 id="modalTitle" class="modal-title">Titolo</h3>
             <p id="modalText" class="modal-text">Testo</p>
+            
+            <div id="motivazioneBox" style="display:none; width: 100%; margin-bottom: 15px;">
+                <label for="motivazioneInput" style="display:block; margin-bottom: 5px; font-weight:bold;">Motivo annullamento:</label>
+                <textarea id="motivazioneInput" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Inserisci il motivo..."></textarea>
+            </div>
+
             <div class="modal-buttons">
                 <button class="btn-modal btn-cancel" onclick="chiudiModal()">Chiudi</button>
                 <button id="confirmBtn" class="btn-modal btn-confirm">Conferma</button>
@@ -201,8 +207,18 @@
             const testo = document.getElementById('modalText');
             const icona = document.getElementById('modalIcon');
             const btnConferma = document.getElementById('confirmBtn');
+            const boxMotivazione = document.getElementById('motivazioneBox');
+            const inputMotivazione = document.getElementById('motivazioneInput');
 
             formDaInviareId = formId;
+            inputMotivazione.value = ""; // Reset
+
+            // Mostra box solo per annulla
+            if (azione === 'annulla') {
+                boxMotivazione.style.display = 'block';
+            } else {
+                boxMotivazione.style.display = 'none';
+            }
 
             if (azione === 'ritiro') {
                 titolo.innerText = "Conferma Ritiro";
@@ -227,7 +243,24 @@
         }
 
         function chiudiModal() { document.getElementById('confirmationModal').style.display = 'none'; }
-        document.getElementById('confirmBtn').addEventListener('click', function() { if (formDaInviareId) document.getElementById(formDaInviareId).submit(); });
+        
+        document.getElementById('confirmBtn').addEventListener('click', function() { 
+            if (formDaInviareId) {
+                 const boxMotivazione = document.getElementById('motivazioneBox');
+                 if (boxMotivazione.style.display !== 'none') {
+                     const motivazione = document.getElementById('motivazioneInput').value;
+                     if (!motivazione.trim()) {
+                         alert("Inserisci una motivazione.");
+                         return;
+                     }
+                     const form = document.getElementById(formDaInviareId);
+                     const hiddenInput = form.querySelector('input[name="motivazione"]');
+                     if(hiddenInput) hiddenInput.value = motivazione;
+                 }
+                 document.getElementById(formDaInviareId).submit(); 
+            }
+        });
+        
         window.onclick = function(event) { if (event.target == document.getElementById('confirmationModal')) chiudiModal(); }
     </script>
 </body>

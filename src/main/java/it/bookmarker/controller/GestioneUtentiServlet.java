@@ -82,12 +82,15 @@ public class GestioneUtentiServlet extends HttpServlet {
                 PrestitiDAO dao = new PrestitiDAO();
                 
                 if ("accetta".equals(azione)) {
-                    boolean esito = dao.gestisciPrestito(idPrestito, "prenotato");
+                    
+                    boolean esito = dao.gestisciPrestito(idPrestito, "prenotato", null);
                     if (!esito) {
                         request.getSession().setAttribute("errore", "Impossibile confermare: copie esaurite.");
                     }
                 } else if ("rifiuta".equals(azione)) {
-                    dao.gestisciPrestito(idPrestito, "rifiutato");
+                    
+                    String motivazione = request.getParameter("motivazione");
+                    dao.gestisciPrestito(idPrestito, "rifiutato", motivazione);
                 }
             } catch (NumberFormatException e) {
                 e.printStackTrace();

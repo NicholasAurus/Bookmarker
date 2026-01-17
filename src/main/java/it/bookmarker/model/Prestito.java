@@ -20,6 +20,7 @@ public class Prestito {
     private boolean recensito; 
     
     private String stato;
+    private String motivazione;
     
     
 
@@ -60,8 +61,10 @@ public class Prestito {
     
     public boolean isRecensito() { return recensito; }
     public void setRecensito(boolean recensito) { this.recensito = recensito; }
-
     
     public String getStato() { return stato; }
     public void setStato(String stato) { this.stato = stato; }
+    
+    public String getMotivazione() { return motivazione; }
+    public void setMotivazione(String motivazione) { this.motivazione = motivazione; }
 }

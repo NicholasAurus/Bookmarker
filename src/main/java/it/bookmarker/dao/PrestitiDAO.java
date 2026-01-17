@@ -11,7 +11,7 @@ import it.bookmarker.model.Prestito;
 
 public class PrestitiDAO {
     
-    private String URL = "jdbc:mysql://localhost:3306/biblioteca?serverTimezone=UTC";
+    private String URL = "jdbc:mysql://localhost:3306/biblioteca?serverTimezone=UTC&useUnicode=true&characterEncoding=UTF-8";
     private String USER = "root";
     private String PASS = "Bookmarker09!";
 
@@ -66,6 +66,7 @@ public class PrestitiDAO {
                         p.setDataFinePrevista(rs.getDate("data_fine_prevista"));
                         p.setDataRestituzioneEffettiva(rs.getDate("data_restituzione_effettiva"));
                         p.setStato(rs.getString("stato"));
+                        p.setMotivazione(rs.getString("motivazione")); 
                         p.setTitoloLibro(rs.getString("titolo"));
                         p.setAutoreLibro(rs.getString("autore"));
                         p.setCopertinaLibro(rs.getString("copertina"));
@@ -109,7 +110,7 @@ public class PrestitiDAO {
         return lista;
     }
 
-    public boolean gestisciPrestito(int idPrestito, String nuovoStato) {
+    public boolean gestisciPrestito(int idPrestito, String nuovoStato, String motivazione) {
         Connection conn = null;
         PreparedStatement psCheck = null;
         PreparedStatement psUpdateLibro = null;
@@ -139,10 +140,11 @@ public class PrestitiDAO {
                         psUpdateLibro.setInt(1, idLibro);
                         psUpdateLibro.executeUpdate();
 
-                        String sqlUpdatePrestito = "UPDATE prestiti SET stato = ? WHERE id = ?";
+                        String sqlUpdatePrestito = "UPDATE prestiti SET stato = ?, motivazione = ? WHERE id = ?";
                         psUpdatePrestito = conn.prepareStatement(sqlUpdatePrestito);
                         psUpdatePrestito.setString(1, nuovoStato);
-                        psUpdatePrestito.setInt(2, idPrestito);
+                        psUpdatePrestito.setString(2, motivazione);
+                        psUpdatePrestito.setInt(3, idPrestito);
                         psUpdatePrestito.executeUpdate();
 
                         conn.commit();
@@ -153,10 +155,11 @@ public class PrestitiDAO {
                     }
                 }
             } else {
-                String sql = "UPDATE prestiti SET stato = ? WHERE id = ?";
+                String sql = "UPDATE prestiti SET stato = ?, motivazione = ? WHERE id = ?";
                 psUpdatePrestito = conn.prepareStatement(sql);
                 psUpdatePrestito.setString(1, nuovoStato);
-                psUpdatePrestito.setInt(2, idPrestito);
+                psUpdatePrestito.setString(2, motivazione);
+                psUpdatePrestito.setInt(3, idPrestito);
                 psUpdatePrestito.executeUpdate();
                 successo = true;
             }
