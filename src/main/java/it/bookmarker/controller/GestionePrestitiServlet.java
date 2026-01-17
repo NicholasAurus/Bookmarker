@@ -19,7 +19,6 @@ public class GestionePrestitiServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-      
         HttpSession session = request.getSession();
         String ruolo = (String) session.getAttribute("ruoloUtente");
         if (ruolo == null || !ruolo.equalsIgnoreCase("BIBLIOTECARIO")) {
@@ -27,13 +26,22 @@ public class GestionePrestitiServlet extends HttpServlet {
             return;
         }
 
+        String tabRichiesta = request.getParameter("tab");
+        String activeTab = "prenotati";
+
+        if ("attivi".equals(tabRichiesta)) {
+            activeTab = "attivi";
+        } else if ("restituiti".equals(tabRichiesta)) {
+            activeTab = "restituiti";
+        }
+
+        request.setAttribute("activeTab", activeTab);
+
         PrestitiDAO dao = new PrestitiDAO();
         
-      
         List<Prestito> listaPrenotati = dao.getPrestitiPrenotati();
         request.setAttribute("listaPrenotati", listaPrenotati);
 
-       
         List<Prestito> listaAttivi = dao.getPrestitiAttivi();
         request.setAttribute("listaAttivi", listaAttivi);
         
@@ -47,32 +55,29 @@ public class GestionePrestitiServlet extends HttpServlet {
             throws ServletException, IOException {
         
         String azione = request.getParameter("azione");
-        
+        String tabDaAprire = "prenotati";
+
         try {
-            
             String idStr = request.getParameter("idPrestito");
             if (idStr != null) {
                 int idPrestito = Integer.parseInt(idStr);
                 PrestitiDAO dao = new PrestitiDAO();
 
                 if ("ritiro".equals(azione)) {
-                    
                     dao.confermaRitiro(idPrestito);
-                    
+                    tabDaAprire = "attivi";
                 } else if ("annulla".equals(azione)) {
-                
                     dao.gestisciPrestito(idPrestito, "annullato");
-                    
+                    tabDaAprire = "prenotati";
                 } else if ("restituzione".equals(azione)) {
-                    
                     dao.terminaPrestito(idPrestito);
+                    tabDaAprire = "restituiti";
                 }
             }
         } catch (NumberFormatException e) {
             e.printStackTrace(); 
         }
 
-        
-        response.sendRedirect("GestionePrestitiServlet");
+        response.sendRedirect("GestionePrestitiServlet?tab=" + tabDaAprire);
     }
 }

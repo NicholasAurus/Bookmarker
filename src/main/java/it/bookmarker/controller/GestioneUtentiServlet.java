@@ -22,7 +22,6 @@ public class GestioneUtentiServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        
         HttpSession session = request.getSession();
         String ruolo = (String) session.getAttribute("ruoloUtente");
 
@@ -31,19 +30,30 @@ public class GestioneUtentiServlet extends HttpServlet {
             return;
         }
 
+        String errore = (String) session.getAttribute("errore");
+        if (errore != null) {
+            request.setAttribute("errore", errore);
+            session.removeAttribute("errore");
+        }
+
+        String tabRichiesta = request.getParameter("tab");
+        String activeTab = "utenti";
+
+        if ("prestiti".equals(tabRichiesta)) {
+            activeTab = "prestiti";
+        }
+
+        request.setAttribute("activeTab", activeTab);
 
         UtenteDAO utenteDao = new UtenteDAO();
         PrestitiDAO prestitoDao = new PrestitiDAO();
 
-        
         List<Utente> utentiInAttesa = utenteDao.getUtentiInAttesa();
         request.setAttribute("listaUtenti", utentiInAttesa);
         
-       
         List<Prestito> prestitiInAttesa = prestitoDao.getPrestitiRichiesti();
         request.setAttribute("listaPrestiti", prestitiInAttesa);
         
-     
         RequestDispatcher dispatcher = request.getRequestDispatcher("approvazioneUtenti.jsp");
         dispatcher.forward(request, response);
     }
@@ -51,11 +61,10 @@ public class GestioneUtentiServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        
         String tipoOperazione = request.getParameter("tipoOperazione"); 
         String azione = request.getParameter("azione"); 
+        String tabDaAprire = "utenti";
 
-        
         if ("utente".equals(tipoOperazione)) {
             String emailUtente = request.getParameter("emailUtente");
             UtenteDAO dao = new UtenteDAO();
@@ -65,26 +74,27 @@ public class GestioneUtentiServlet extends HttpServlet {
             } else if ("rifiuta".equals(azione)) {
                 dao.updateStato(emailUtente, "rifiutato");
             }
+            tabDaAprire = "utenti";
         } 
-       
         else if ("prestito".equals(tipoOperazione)) {
-           
             try {
                 int idPrestito = Integer.parseInt(request.getParameter("idPrestito"));
                 PrestitiDAO dao = new PrestitiDAO();
                 
                 if ("accetta".equals(azione)) {
-                  
-                    dao.gestisciPrestito(idPrestito, "prenotato");
+                    boolean esito = dao.gestisciPrestito(idPrestito, "prenotato");
+                    if (!esito) {
+                        request.getSession().setAttribute("errore", "Impossibile confermare: copie esaurite.");
+                    }
                 } else if ("rifiuta".equals(azione)) {
                     dao.gestisciPrestito(idPrestito, "rifiutato");
                 }
             } catch (NumberFormatException e) {
                 e.printStackTrace();
             }
+            tabDaAprire = "prestiti";
         }
 
-
-        response.sendRedirect("GestioneUtentiServlet");
+        response.sendRedirect("GestioneUtentiServlet?tab=" + tabDaAprire);
     }
 }

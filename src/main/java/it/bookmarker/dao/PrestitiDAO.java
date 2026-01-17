@@ -109,20 +109,69 @@ public class PrestitiDAO {
         return lista;
     }
 
-    public void gestisciPrestito(int idPrestito, String nuovoStato) {
-        
-        String sql = "UPDATE prestiti SET stato = ? WHERE id = ?";
+    public boolean gestisciPrestito(int idPrestito, String nuovoStato) {
+        Connection conn = null;
+        PreparedStatement psCheck = null;
+        PreparedStatement psUpdateLibro = null;
+        PreparedStatement psUpdatePrestito = null;
+        ResultSet rs = null;
+        boolean successo = false;
+
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
-                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setString(1, nuovoStato);
-                pstmt.setInt(2, idPrestito);
-                pstmt.executeUpdate();
+            conn = DriverManager.getConnection(URL, USER, PASS);
+
+            if ("prenotato".equals(nuovoStato)) {
+                conn.setAutoCommit(false); 
+
+                String sqlCheck = "SELECT p.libro_id, l.disponibilita FROM prestiti p JOIN libri l ON p.libro_id = l.id_libro WHERE p.id = ?";
+                psCheck = conn.prepareStatement(sqlCheck);
+                psCheck.setInt(1, idPrestito);
+                rs = psCheck.executeQuery();
+
+                if (rs.next()) {
+                    int idLibro = rs.getInt("libro_id");
+                    int disponibilita = rs.getInt("disponibilita");
+
+                    if (disponibilita > 0) {
+                        String sqlUpdateLibro = "UPDATE libri SET disponibilita = disponibilita - 1 WHERE id_libro = ?";
+                        psUpdateLibro = conn.prepareStatement(sqlUpdateLibro);
+                        psUpdateLibro.setInt(1, idLibro);
+                        psUpdateLibro.executeUpdate();
+
+                        String sqlUpdatePrestito = "UPDATE prestiti SET stato = ? WHERE id = ?";
+                        psUpdatePrestito = conn.prepareStatement(sqlUpdatePrestito);
+                        psUpdatePrestito.setString(1, nuovoStato);
+                        psUpdatePrestito.setInt(2, idPrestito);
+                        psUpdatePrestito.executeUpdate();
+
+                        conn.commit();
+                        successo = true;
+                    } else {
+                        conn.rollback();
+                        successo = false;
+                    }
+                }
+            } else {
+                String sql = "UPDATE prestiti SET stato = ? WHERE id = ?";
+                psUpdatePrestito = conn.prepareStatement(sql);
+                psUpdatePrestito.setString(1, nuovoStato);
+                psUpdatePrestito.setInt(2, idPrestito);
+                psUpdatePrestito.executeUpdate();
+                successo = true;
             }
+
         } catch (Exception e) {
+            try { if (conn != null) conn.rollback(); } catch (Exception ex) {}
             e.printStackTrace();
+        } finally {
+            try { if (rs != null) rs.close(); } catch (Exception e) {}
+            try { if (psCheck != null) psCheck.close(); } catch (Exception e) {}
+            try { if (psUpdateLibro != null) psUpdateLibro.close(); } catch (Exception e) {}
+            try { if (psUpdatePrestito != null) psUpdatePrestito.close(); } catch (Exception e) {}
+            try { if (conn != null) conn.close(); } catch (Exception e) {}
         }
+        return successo;
     }
 
     public List<Prestito> getPrestitiPrenotati() {

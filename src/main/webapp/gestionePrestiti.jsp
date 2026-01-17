@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="css/catalogo.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/gestionePrestiti.css">
+
 </head>
 <body>
 
@@ -35,18 +36,18 @@
         <div class="admin-container">
             
             <div class="tab-container">
-                <button class="tab-button active" onclick="openTab('tabPrenotati')">
+                <button class="tab-button ${activeTab == 'prenotati' ? 'active' : ''}" onclick="cambiaTab('prenotati')">
                     <i class="fa-solid fa-hand-holding-hand"></i> Da Ritirare
                 </button>
-                <button class="tab-button" onclick="openTab('tabAttivi')">
+                <button class="tab-button ${activeTab == 'attivi' ? 'active' : ''}" onclick="cambiaTab('attivi')">
                     <i class="fa-solid fa-book-open-reader"></i> In Corso
                 </button>
-                <button class="tab-button" onclick="openTab('tabRestituiti')">
+                <button class="tab-button ${activeTab == 'restituiti' ? 'active' : ''}" onclick="cambiaTab('restituiti')">
                     <i class="fa-solid fa-clock-rotate-left"></i> Storico Restituzioni
                 </button>
             </div>
 
-            <div id="tabPrenotati" class="tab-content">
+            <div id="tabPrenotati" class="tab-content ${activeTab == 'prenotati' ? 'active' : ''}">
                 <h3 class="section-header">Libri in attesa di ritiro</h3>
                 <c:if test="${empty listaPrenotati}">
                     <div class="empty-msg">Nessuna prenotazione in attesa.</div>
@@ -90,7 +91,7 @@
                 </c:if>
             </div>
 
-            <div id="tabAttivi" class="tab-content" style="display:none;">
+            <div id="tabAttivi" class="tab-content ${activeTab == 'attivi' ? 'active' : ''}">
                 <h3 class="section-header">Prestiti Attivi (Libri consegnati)</h3>
                 <c:if test="${empty listaAttivi}">
                     <div class="empty-msg">Nessun prestito attivo al momento.</div>
@@ -127,7 +128,7 @@
                 </c:if>
             </div>
 
-            <div id="tabRestituiti" class="tab-content" style="display:none;">
+            <div id="tabRestituiti" class="tab-content ${activeTab == 'restituiti' ? 'active' : ''}">
                 <h3 class="section-header">Storico Restituzioni</h3>
                 <c:if test="${empty listaRestituiti}">
                     <div class="empty-msg">Nessun prestito concluso nello storico.</div>
@@ -176,22 +177,22 @@
     </div>
 
     <script>
-        
-        function openTab(tabName) {
-            var i;
-            var x = document.getElementsByClassName("tab-content");
-            for (i = 0; i < x.length; i++) {
-                x[i].style.display = "none";  
-            }
-            var tablinks = document.getElementsByClassName("tab-button");
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].className = tablinks[i].className.replace(" active", "");
-            }
-            document.getElementById(tabName).style.display = "block";  
-            event.currentTarget.className += " active";
+        function cambiaTab(tabName) {
+            const url = new URL(window.location);
+            url.searchParams.set('tab', tabName);
+            window.history.pushState({}, '', url);
+
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
+
+            document.getElementById('tab' + capitalizeFirstLetter(tabName)).classList.add('active');
+            event.currentTarget.classList.add('active');
         }
 
-      
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
         let formDaInviareId = null; 
 
         function apriModal(azione, info, formId) {

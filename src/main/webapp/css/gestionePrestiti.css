@@ -146,3 +146,41 @@
 .table-gray thead tr {
     background-color: #7f8c8d; 
 }
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.tab-button {
+    padding: 10px 20px;
+    cursor: pointer;
+    background: #f1f1f1;
+    border: none;
+    outline: none;
+    transition: 0.3s;
+    font-size: 16px;
+    font-weight: bold;
+    color: #555;
+    border-bottom: 3px solid transparent;
+}
+
+.tab-button.active {
+    background-color: #fff;
+    color: #3498db;
+    border-bottom: 3px solid #3498db;
+}
+
+.tab-container {
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+}
