@@ -86,7 +86,6 @@
                 </div>
             <% } else { 
                 for (Segnalazione seg : elencoSegnalazioni) { 
-                    String statoClass = "status-" + seg.getStato().toLowerCase();
             %>
 
             <div class="book-card-stroke search-item" 
@@ -114,28 +113,37 @@
                         <em>"<%= seg.getMotivo() %>"</em>
                     </p>
                     
-                    <div class="button-group">
-                        <span class="btn-neutral">Stato:</span>
-                        <span class="status-value <%= statoClass %>"><%= seg.getStato() %></span>
-
-                        <% if ("Aperta".equalsIgnoreCase(seg.getStato())) { %>
-                            <div class="action-divider"></div>
-                            
-                            <form action="RisolviSegnalazioneServlet" method="POST" style="display:inline;">
-                                <input type="hidden" name="id" value="<%= seg.getId() %>">
-                                <button type="submit" class="btn-action btn-resolve" title="Risolvi">
-                                    <i class="fa-solid fa-check"></i> Risolvi
-                                </button>
-                            </form>
-                            
-                            <form action="IgnoraSegnalazioneServlet" method="POST" style="display:inline;">
-                                <input type="hidden" name="id" value="<%= seg.getId() %>">
-                                <button type="submit" class="btn-action btn-ignore" title="Ignora">
-                                    <i class="fa-solid fa-xmark"></i> Ignora
-                                </button>
-                            </form>
+                    <div class="button-group" style="margin-top: 15px;">
+                        <% if("aperta".equalsIgnoreCase(seg.getStato())) { %>
+                            <span style="background:#e74c3c; color:white; padding:5px 10px; border-radius:4px; font-weight:bold; font-size:0.85rem;">APERTA</span>
+                        <% } else { %>
+                            <span style="background:#7f8c8d; color:white; padding:5px 10px; border-radius:4px; font-weight:bold; font-size:0.85rem;">CHIUSA</span>
                         <% } %>
+                        
+                        <div style="flex-grow:1;"></div>
+
+                        <div style="display:flex; gap:10px;">
+                            
+                            <a href="DettaglioLibroModeratoreServlet?id=<%= seg.getLibroId() %>#review-<%= seg.getRecensioneId() %>" 
+                               class="btn-action-new btn-view" title="Vai alla recensione">
+                                <i class="fa-solid fa-eye"></i> Visualizza
+                            </a>
+
+                            <% if (!"chiusa".equalsIgnoreCase(seg.getStato())) { %>
+                                <button type="button" class="btn-action-new btn-close-report" 
+                                        onclick="apriModalChiusura('<%= seg.getId() %>')" title="Chiudi Segnalazione">
+                                    <i class="fa-solid fa-ban"></i> Chiudi
+                                </button>
+                            <% } %>
+                        </div>
                     </div>
+                    
+                    <% if ("chiusa".equalsIgnoreCase(seg.getStato()) && seg.getNoteChiusura() != null) { %>
+                        <div style="margin-top:10px; font-size:0.85rem; color:#666; border-top:1px dashed #ddd; padding-top:5px;">
+                            <strong>Nota Chiusura:</strong> <em><%= seg.getNoteChiusura() %></em>
+                        </div>
+                    <% } %>
+
                 </div>
             </div>
 
@@ -143,6 +151,25 @@
             
         </div>
     </main>
+
+    <div id="closeModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="margin-top:0; color:#333;">Chiudi Segnalazione</h3>
+            <p style="color:#666; margin-bottom:15px;">Inserisci una nota per l'archiviazione (es. "Risolto", "Falso positivo"):</p>
+            
+            <form action="SegnalazioniServlet" method="post">
+                <input type="hidden" name="action" value="chiudi">
+                <input type="hidden" id="idSegnalazioneChiusura" name="idSegnalazione" value="">
+                
+                <textarea name="noteChiusura" class="modal-textarea" required placeholder="Motivo della chiusura..."></textarea>
+                
+                <div style="display:flex; justify-content:center; gap:10px;">
+                    <button type="button" onclick="chiudiModal()" style="background:#ccc; border:none; padding:10px 20px; border-radius:4px; cursor:pointer; font-weight:bold;">Annulla</button>
+                    <button type="submit" style="background:#7f8c8d; color:white; border:none; padding:10px 20px; border-radius:4px; cursor:pointer; font-weight:bold;">Conferma</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script>
         function toggleFilters(event) {
@@ -203,6 +230,22 @@
             selectStato.value = 'all';
             searchInput.value = '';
             applicaFiltri();
+        }
+        
+        function apriModalChiusura(id) {
+            document.getElementById('idSegnalazioneChiusura').value = id;
+            document.getElementById('closeModal').style.display = 'flex';
+        }
+
+        function chiudiModal() {
+            document.getElementById('closeModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            var modal = document.getElementById('closeModal');
+            if (event.target == modal) {
+                chiudiModal();
+            }
         }
     </script>
 

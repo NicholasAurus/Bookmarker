@@ -1,6 +1,6 @@
 @charset "UTF-8";
 
-/* --- LAYOUT GENERALE --- */
+
 .detail-wrapper {
     display: flex;
     justify-content: center;
@@ -19,7 +19,7 @@
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
 
-/* --- HERO SECTION --- */
+
 .product-hero {
     display: flex;
     gap: 40px;
@@ -131,7 +131,7 @@
     background-color: #000;
 }
 
-/* --- RECENSIONI --- */
+
 .reviews-section {
     margin-top: 40px;
     border-top: 1px solid #eee;
@@ -169,7 +169,7 @@
     line-height: 1.5;
 }
 
-/* --- PRENOTAZIONE --- */
+
 .btn-prenota {
     background-color: #27ae60;
     color: white;
@@ -208,7 +208,7 @@
     background-color: #7f8c8d;
 }
 
-/* --- NUOVI STILI PER SEGNALAZIONE --- */
+
 .review-meta-right {
     display: flex;
     align-items: center;
@@ -233,7 +233,7 @@
     text-decoration: underline;
 }
 
-/* --- MODALI (POPUP) --- */
+
 .modal-overlay {
     display: none; 
     position: fixed;
@@ -298,7 +298,7 @@
 }
 
 .btn-modal-submit {
-    background-color: #e67e22; /* Arancione per invio segnalazione */
+    background-color: #e67e22; 
     color: white;
     border: none;
     padding: 10px 20px;
@@ -339,3 +339,7 @@
     .product-hero { flex-direction: column; }
     .white-box { padding: 20px; }
 }
+
+
+
+

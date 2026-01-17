@@ -265,3 +265,38 @@
     .product-hero { flex-direction: column; }
     .white-box { padding: 20px; }
 }
+
+
+@keyframes highlightPulse {
+    0% {
+        background-color: #f9f9f9; 
+        transform: scale(1);
+        box-shadow: 0 0 0 rgba(0,0,0,0);
+    }
+    10% {
+        background-color: #fff3cd;
+        transform: scale(1.02);
+        box-shadow: 0 0 15px rgba(243, 156, 18, 0.4);
+        border-color: #f39c12;
+    }
+    80% {
+        background-color: #fff3cd;
+        transform: scale(1.02);
+        border-color: #f39c12;
+    }
+    100% {
+        background-color: #f9f9f9;
+        transform: scale(1);
+        box-shadow: 0 0 0 rgba(0,0,0,0);
+    }
+}
+
+.highlight-target {
+    animation: highlightPulse 2.5s ease-out forwards;
+    scroll-margin-top: 150px; 
+    border: 2px solid #f39c12 !important; 
+}
+
+.review-card {
+    scroll-margin-top: 150px;
+}

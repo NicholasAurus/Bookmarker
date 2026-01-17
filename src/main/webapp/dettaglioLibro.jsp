@@ -241,7 +241,7 @@
             }
         }
 
-        // --- PRENOTAZIONE ---
+      
         function apriModal() {
             const dateInput = document.getElementById('dataRitiro');
             const dateDisplay = document.getElementById('modalDateDisplay');
@@ -264,7 +264,7 @@
             document.getElementById('bookingForm').submit();
         }
 
-        // --- SEGNALAZIONE ---
+        
         function apriModalSegnalazione(idRecensione) {
             document.getElementById('motivoSegnalazione').value = "";
             document.getElementById('motivoError').style.display = "none";

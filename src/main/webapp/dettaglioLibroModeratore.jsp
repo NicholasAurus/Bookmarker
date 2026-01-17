@@ -21,7 +21,29 @@
     <title><%= libro.getTitolo() %> - Moderazione</title>
     
     <link rel="stylesheet" href="css/catalogo.css"> 
-    <link rel="stylesheet" href="css/dettaglioModeratore.css"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/dettaglioModeratore.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        @keyframes highlightPulse {
+            0% { background-color: #f9f9f9; transform: scale(1); box-shadow: 0 0 0 rgba(0,0,0,0); }
+            15% { background-color: #fff3cd; transform: scale(1.02); box-shadow: 0 0 20px rgba(243, 156, 18, 0.5); border-color: #f39c12; }
+            80% { background-color: #fff3cd; transform: scale(1.02); border-color: #f39c12; }
+            100% { background-color: #f9f9f9; transform: scale(1); box-shadow: 0 0 0 rgba(0,0,0,0); }
+        }
+
+        .highlight-target {
+            animation: highlightPulse 3s ease-out forwards;
+            border: 2px solid #f39c12 !important;
+            z-index: 10;
+            position: relative;
+        }
+
+      
+        .review-card {
+            scroll-margin-top: 180px; 
+        }
+    </style>
 </head>
 <body>
 
@@ -89,12 +111,12 @@
                 <% 
                 } else {
                     for (Recensione rec : elencoRecensioni) {
-                        // Logica per stile "Nascosto"
                         boolean isHidden = !rec.isVisibile(); 
                         String cardClass = isHidden ? "review-card hidden" : "review-card";
                 %>
                 
-                <div class="<%= cardClass %>">
+                <div id="review-<%= rec.getId() %>" class="<%= cardClass %>">
+                    
                     <div class="review-header">
                         <span>
                             <i class="fa-solid fa-user" style="margin-right: 8px; color:#888;"></i>
@@ -160,8 +182,8 @@
                 </div>
 
                 <% 
-                    } // Fine for
-                } // Fine else
+                    }
+                } 
                 %>
             </div>
         </div>
@@ -182,6 +204,28 @@
     </div>
 
     <script>
+   
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        if (window.location.hash) {
+            const idTarget = window.location.hash.substring(1); 
+            const element = document.getElementById(idTarget);
+            
+            if (element) {
+               
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                
+                element.classList.add('highlight-target');
+                
+                
+                setTimeout(() => {
+                    element.classList.remove('highlight-target');
+                }, 3000);
+            }
+        }
+    });
+
     function scrollToReviews() {
         const reviewsSection = document.getElementById('reviewsAnchor');
         if (reviewsSection) {

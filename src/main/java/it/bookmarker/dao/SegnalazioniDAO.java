@@ -16,43 +16,56 @@ public class SegnalazioniDAO {
 
     public List<Segnalazione> getAllSegnalazioni() {
         List<Segnalazione> lista = new ArrayList<>();
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
+        
+        
+        String sql = "SELECT s.*, r.libro_id " + 
+                     "FROM segnalazioni s " +
+                     "JOIN recensioni r ON s.recensione_id = r.id " +
+                     "ORDER BY FIELD(s.stato, 'aperta', 'chiusa'), s.data_segnalazione DESC";
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
-            
-            
-            String sql = "SELECT * FROM segnalazioni ORDER BY data_segnalazione DESC";
-            pstmt = conn.prepareStatement(sql);
-            rs = pstmt.executeQuery();
+            try (Connection conn = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
+                 PreparedStatement ps = conn.prepareStatement(sql);
+                 ResultSet rs = ps.executeQuery()) {
 
-            while (rs.next()) {
-                Segnalazione s = new Segnalazione();
-                s.setId(rs.getInt("id"));
-                
-                
-                s.setUtenteEmail(rs.getString("utente_email")); 
-                
-                s.setRecensioneId(rs.getInt("recensione_id"));
-                s.setMotivo(rs.getString("motivo"));
-                s.setDataSegnalazione(rs.getDate("data_segnalazione"));
-                s.setStato(rs.getString("stato")); 
-                lista.add(s);
+                while (rs.next()) {
+                    Segnalazione s = new Segnalazione();
+                    s.setId(rs.getInt("id"));
+                    s.setUtenteEmail(rs.getString("utente_email"));
+                    s.setRecensioneId(rs.getInt("recensione_id"));
+                    s.setMotivo(rs.getString("motivo")); 
+                    s.setDataSegnalazione(rs.getDate("data_segnalazione"));
+                    s.setStato(rs.getString("stato"));
+                    s.setLibroId(rs.getInt("libro_id")); 
+                    s.setNoteChiusura(rs.getString("note_chiusura"));
+
+                    lista.add(s);
+                }
             }
-
-        } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
-        } finally {
-            try { 
-                if (rs != null) rs.close();
-                if (pstmt != null) pstmt.close();
-                if (conn != null) conn.close(); 
-            } catch (SQLException e) {}
-        }
+        } catch (Exception e) { e.printStackTrace(); }
         return lista;
+    }
+
+
+    public boolean chiudiSegnalazione(int idSegnalazione, String note) {
+
+        String sql = "UPDATE segnalazioni SET stato = 'chiusa', note_chiusura = ? WHERE id = ?";
+        
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
+                
+                ps.setString(1, note);
+                ps.setInt(2, idSegnalazione);
+                
+                return ps.executeUpdate() > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
     
     public boolean aggiornaStato(int id, String nuovoStato) {
