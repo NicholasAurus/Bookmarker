@@ -9,9 +9,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.mindrot.jbcrypt.BCrypt;
 import it.bookmarker.dao.UtenteDAO;
 import it.bookmarker.model.Utente;
+import it.bookmarker.service.UtenteService;
 
 @WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
@@ -23,51 +23,35 @@ public class LoginServlet extends HttpServlet {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
+        //Inizializza Service
         UtenteDAO dao = new UtenteDAO();
-        Utente utenteTrovato = dao.getUtenteByEmail(email);
+        UtenteService service = new UtenteService(dao);
 
-     
-        if (utenteTrovato == null || !BCrypt.checkpw(password, utenteTrovato.getPassword())) {
-            sendError(request, response, "Email o password non validi.");
-            return; 
-        }
+        try {
+            //Login
+            Utente utenteTrovato = service.login(email, password);
 
-       
-        String stato = utenteTrovato.getStato();
-        
-      
-        if (stato != null) {
-            if (stato.equals("in_attesa")) {
-                sendError(request, response, "Registrazione in attesa di approvazione da parte del bibliotecario.");
-                return;
+            HttpSession session = request.getSession();
+            
+            session.setAttribute("utenteLoggato", utenteTrovato.getNome());
+            session.setAttribute("emailUtente", utenteTrovato.getEmail());
+            session.setAttribute("utenteObj", utenteTrovato);
+            
+
+            String ruoloDB = utenteTrovato.getRuolo();
+            if (ruoloDB != null) {
+                session.setAttribute("ruoloUtente", ruoloDB.toUpperCase());
+            } else {
+                session.setAttribute("ruoloUtente", "LETTORE");
             }
             
-            if (stato.equals("rifiutato")) {
-                sendError(request, response, "La tua richiesta di iscrizione è stata rifiutata.");
-                return;
-            }
-        }
+            session.setMaxInactiveInterval(30 * 60); // 30 minuti
 
-      
-        HttpSession session = request.getSession();
-        
-        session.setAttribute("utenteLoggato", utenteTrovato.getNome());
-        session.setAttribute("emailUtente", utenteTrovato.getEmail());
-        
-       
-        session.setAttribute("utenteObj", utenteTrovato);
-        
-        String ruoloDB = utenteTrovato.getRuolo();
-        if (ruoloDB != null) {
-            session.setAttribute("ruoloUtente", ruoloDB.toUpperCase());
-        } else {
-            session.setAttribute("ruoloUtente", "UTENTE");
-        }
-        
-        session.setMaxInactiveInterval(30 * 60); 
+            response.sendRedirect("index.jsp");
 
-      
-        response.sendRedirect("index.jsp");
+        } catch (Exception e) {
+            sendError(request, response, e.getMessage());
+        }
     }
 
     private void sendError(HttpServletRequest request, HttpServletResponse response, String message) 

@@ -13,6 +13,7 @@ import javax.servlet.http.HttpSession;
 
 import it.bookmarker.dao.LibriDAO;
 import it.bookmarker.model.Libro;
+import it.bookmarker.service.LibroService;
 
 @WebServlet("/CatalogoModeratoreServlet")
 public class CatalogoModeratoreServlet extends HttpServlet {
@@ -21,23 +22,23 @@ public class CatalogoModeratoreServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        
         HttpSession session = request.getSession();
         String ruolo = (String) session.getAttribute("ruoloUtente"); 
-        
         
         if (ruolo == null || (!ruolo.equalsIgnoreCase("MODERATORE"))) {
             response.sendRedirect("login.jsp");
             return;
         }
 
-        
+        //Inizializzazione Service
         LibriDAO dao = new LibriDAO();
-        List<Libro> elencoLibri = dao.getAllLibri(); 
+        LibroService service = new LibroService(dao);
 
-       
+        //Recupero Dati
+        List<Libro> elencoLibri = service.getCatalogoCompleto(); 
+
+        //Invio alla JSP
         request.setAttribute("elencoLibri", elencoLibri);
-        
         
         RequestDispatcher dispatcher = request.getRequestDispatcher("catalogoModeratore.jsp");
         dispatcher.forward(request, response);
@@ -45,7 +46,6 @@ public class CatalogoModeratoreServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        
         doGet(request, response);
     }
 }

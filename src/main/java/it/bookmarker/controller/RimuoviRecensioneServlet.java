@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import it.bookmarker.dao.RecensioneDAO;
+import it.bookmarker.service.RecensioneService;
 
 @WebServlet("/RimuoviRecensioneServlet")
 public class RimuoviRecensioneServlet extends HttpServlet {
@@ -21,26 +22,17 @@ public class RimuoviRecensioneServlet extends HttpServlet {
         String emailUtente = (String) session.getAttribute("emailUtente");
         String idLibroParam = request.getParameter("idLibro");
 
+        // Controllo Parametri base 
         if (emailUtente == null || idLibroParam == null) {
             response.sendRedirect("StoricoServlet");
             return;
         }
 
-        try {
-            int idLibro = Integer.parseInt(idLibroParam);
-            
-            RecensioneDAO dao = new RecensioneDAO();
-            boolean eliminato = dao.eliminaRecensione(emailUtente, idLibro);
-            
-            if (eliminato) {
-                System.out.println("Recensione eliminata con successo.");
-            } else {
-                System.out.println("Nessuna recensione trovata da eliminare.");
-            }
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        // Inizializzazione Service
+        RecensioneDAO dao = new RecensioneDAO();
+        RecensioneService service = new RecensioneService(dao);
+
+        boolean eliminato = service.deleteRecensioneUtente(emailUtente, idLibroParam);
         
         response.sendRedirect("StoricoServlet");
     }

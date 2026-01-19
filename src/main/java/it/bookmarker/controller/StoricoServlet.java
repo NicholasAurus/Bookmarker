@@ -1,7 +1,6 @@
 package it.bookmarker.controller;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +15,8 @@ import it.bookmarker.dao.PrestitiDAO;
 import it.bookmarker.dao.RecensioneDAO;
 import it.bookmarker.model.Prestito;
 import it.bookmarker.model.Recensione;
+import it.bookmarker.service.PrestitoService;
+import it.bookmarker.service.RecensioneService;
 
 @WebServlet("/StoricoServlet")
 public class StoricoServlet extends HttpServlet {
@@ -32,27 +33,24 @@ public class StoricoServlet extends HttpServlet {
             return; 
         }
         
-        PrestitiDAO dao = new PrestitiDAO();
-        RecensioneDAO recDao = new RecensioneDAO();
+        // Inizializzazione Services
+        PrestitiDAO prestitoDao = new PrestitiDAO();
+        RecensioneDAO recensioneDao = new RecensioneDAO();
         
-        //Recupero lo storico
-        List<Prestito> storico = dao.getStoricoByUtente(emailUtente);
+        PrestitoService prestitoService = new PrestitoService(prestitoDao);
+        RecensioneService recensioneService = new RecensioneService(recensioneDao);
         
-        // mappa per associare ID Libro -> Oggetto Recensione
-        Map<Integer, Recensione> mappaRecensioni = new HashMap<>();
+        //Recupero Dati
         
-        //Per ogni prestito che risulta recensito, carico i dettagli della recensione
-        for (Prestito p : storico) {
-            if (p.isRecensito()) {
-                Recensione r = recDao.getRecensioneByUtenteAndLibro(emailUtente, p.getLibroId());
-                if (r != null) {
-                    mappaRecensioni.put(p.getLibroId(), r);
-                }
-            }
-        }
+        // Recupero lista dei prestiti
+        List<Prestito> storico = prestitoService.getStoricoUtente(emailUtente);
         
+        // Costruzione mappa delle recensioni usando la lista appena recuperata
+        Map<Integer, Recensione> mappaRecensioni = recensioneService.getMappaRecensioniPerStorico(emailUtente, storico);
+        
+        // Invio alla JSP
         request.setAttribute("elencoStorico", storico);
-        request.setAttribute("mappaRecensioni", mappaRecensioni); // Passo la mappa alla JSP
+        request.setAttribute("mappaRecensioni", mappaRecensioni); 
         
         request.getRequestDispatcher("storico.jsp").forward(request, response);
     }

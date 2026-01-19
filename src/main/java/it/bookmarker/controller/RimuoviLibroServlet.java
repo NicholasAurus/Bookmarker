@@ -6,7 +6,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import it.bookmarker.dao.LibriDAO;
+import it.bookmarker.service.LibroService;
 
 @WebServlet("/RimuoviLibroServlet")
 public class RimuoviLibroServlet extends HttpServlet {
@@ -16,15 +18,13 @@ public class RimuoviLibroServlet extends HttpServlet {
             throws ServletException, IOException {
         
         String idParam = request.getParameter("id");
-        if (idParam != null) {
-            try {
-                int id = Integer.parseInt(idParam);
-                LibriDAO dao = new LibriDAO();
-                dao.rimuoviLibro(id);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        
+        // Inizializzazione Service
+        LibriDAO dao = new LibriDAO();
+        LibroService service = new LibroService(dao);
+        
+        boolean eliminato = service.rimuoviLibro(idParam);
+        
         
         response.sendRedirect("CatalogoBibliotecarioServlet");
     }

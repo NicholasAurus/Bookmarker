@@ -14,6 +14,8 @@ import it.bookmarker.dao.PrestitiDAO;
 import it.bookmarker.dao.UtenteDAO;
 import it.bookmarker.model.Prestito;
 import it.bookmarker.model.Utente;
+import it.bookmarker.service.PrestitoService;
+import it.bookmarker.service.UtenteService;
 
 @WebServlet("/GestioneUtentiServlet")
 public class GestioneUtentiServlet extends HttpServlet {
@@ -30,28 +32,33 @@ public class GestioneUtentiServlet extends HttpServlet {
             return;
         }
 
+        //Gestione Messaggi di Errore 
         String errore = (String) session.getAttribute("errore");
         if (errore != null) {
             request.setAttribute("errore", errore);
             session.removeAttribute("errore");
         }
 
+        //Gestione Tab UI
         String tabRichiesta = request.getParameter("tab");
-        String activeTab = "utenti";
-
+        String activeTab = "utenti"; //Default
         if ("prestiti".equals(tabRichiesta)) {
             activeTab = "prestiti";
         }
-
         request.setAttribute("activeTab", activeTab);
 
+        //Inizializzazione Service
         UtenteDAO utenteDao = new UtenteDAO();
         PrestitiDAO prestitoDao = new PrestitiDAO();
+        
+        UtenteService utenteService = new UtenteService(utenteDao);
+        PrestitoService prestitoService = new PrestitoService(prestitoDao);
 
-        List<Utente> utentiInAttesa = utenteDao.getUtentiInAttesa();
+        //Recupero Dati
+        List<Utente> utentiInAttesa = utenteService.getUtentiDaApprovare();
         request.setAttribute("listaUtenti", utentiInAttesa);
         
-        List<Prestito> prestitiInAttesa = prestitoDao.getPrestitiRichiesti();
+        List<Prestito> prestitiInAttesa = prestitoService.getRichiesteInAttesa();
         request.setAttribute("listaPrestiti", prestitiInAttesa);
         
         RequestDispatcher dispatcher = request.getRequestDispatcher("approvazioneUtenti.jsp");
@@ -65,36 +72,38 @@ public class GestioneUtentiServlet extends HttpServlet {
         String azione = request.getParameter("azione"); 
         String tabDaAprire = "utenti";
 
+        // Inizializzazione Service
+        UtenteDAO utenteDao = new UtenteDAO();
+        PrestitiDAO prestitoDao = new PrestitiDAO();
+        UtenteService utenteService = new UtenteService(utenteDao);
+        PrestitoService prestitoService = new PrestitoService(prestitoDao);
+
+        // LOGICA UTENTI
         if ("utente".equals(tipoOperazione)) {
             String emailUtente = request.getParameter("emailUtente");
-            UtenteDAO dao = new UtenteDAO();
-
-            if ("accetta".equals(azione)) {
-                dao.updateStato(emailUtente, "attivo");
-            } else if ("rifiuta".equals(azione)) {
-                dao.updateStato(emailUtente, "rifiutato");
-            }
+            
+            // Il service traduce "accetta" in "attivo"
+            utenteService.gestisciApprovazioneUtente(emailUtente, azione);
+            
             tabDaAprire = "utenti";
         } 
+        // LOGICA PRESTITI
         else if ("prestito".equals(tipoOperazione)) {
-            try {
-                int idPrestito = Integer.parseInt(request.getParameter("idPrestito"));
-                PrestitiDAO dao = new PrestitiDAO();
+            String idPrestitoStr = request.getParameter("idPrestito");
+            
+            if ("accetta".equals(azione)) {
+                boolean esito = prestitoService.approvaRichiestaPrestito(idPrestitoStr);
                 
-                if ("accetta".equals(azione)) {
-                    
-                    boolean esito = dao.gestisciPrestito(idPrestito, "prenotato", null);
-                    if (!esito) {
-                        request.getSession().setAttribute("errore", "Impossibile confermare: copie esaurite.");
-                    }
-                } else if ("rifiuta".equals(azione)) {
-                    
-                    String motivazione = request.getParameter("motivazione");
-                    dao.gestisciPrestito(idPrestito, "rifiutato", motivazione);
+                if (!esito) {
+                    // Se il service torna false, mancano le copie
+                    request.getSession().setAttribute("errore", "Impossibile confermare: copie esaurite");
                 }
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
+                
+            } else if ("rifiuta".equals(azione)) {
+                String motivazione = request.getParameter("motivazione");
+                prestitoService.rifiutaRichiestaPrestito(idPrestitoStr, motivazione);
             }
+            
             tabDaAprire = "prestiti";
         }
 

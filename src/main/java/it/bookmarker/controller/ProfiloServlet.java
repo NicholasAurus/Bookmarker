@@ -10,6 +10,7 @@ import javax.servlet.http.HttpSession;
 
 import it.bookmarker.dao.UtenteDAO;
 import it.bookmarker.model.Utente;
+import it.bookmarker.service.UtenteService;
 
 @WebServlet("/ProfiloServlet")
 public class ProfiloServlet extends HttpServlet {
@@ -20,15 +21,20 @@ public class ProfiloServlet extends HttpServlet {
         
         HttpSession session = request.getSession();
         String emailUtente = (String) session.getAttribute("emailUtente");
-        
+
         if (emailUtente == null) {
             response.sendRedirect("login.jsp");
             return;
         }
         
+        // inizializzazione Service
         UtenteDAO dao = new UtenteDAO();
-        Utente utenteCompleto = dao.getUtenteByEmail(emailUtente);
+        UtenteService service = new UtenteService(dao);
         
+        // Recupero Dati
+        Utente utenteCompleto = service.getDatiUtente(emailUtente);
+        
+        // Invio alla JSP
         request.setAttribute("datiUtente", utenteCompleto);
         request.getRequestDispatcher("profilo.jsp").forward(request, response);
     }
