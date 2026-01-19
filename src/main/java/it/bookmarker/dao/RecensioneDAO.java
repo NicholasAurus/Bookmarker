@@ -127,7 +127,8 @@ public class RecensioneDAO {
         return lista;
     }
 
-    public boolean eliminaRecensione(String emailUtente, int idLibro) {
+    //FUNZIONE PER L'UTENTE
+    public boolean deleteRecensioneUtente(String emailUtente, int idLibro) {
         String sql = "DELETE FROM recensioni WHERE utente_email = ? AND libro_id = ?";
         
         try {
@@ -147,32 +148,42 @@ public class RecensioneDAO {
         }
     }
     
-    public void deleteRecensione(int idRecensione) {
+    //FUNZIONE PER IL MODERATORE
+    public boolean deleteRecensioneModeratore(int idRecensione) {
         String sql = "DELETE FROM recensioni WHERE id = ?";
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
                  PreparedStatement ps = conn.prepareStatement(sql)) {
+                
                 ps.setInt(1, idRecensione);
-                ps.executeUpdate();
+                int rows = ps.executeUpdate();
+                return rows > 0; // Ritorna true se ha cancellato
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
     }
     
-    public void cambiaVisibilita(int idRecensione, boolean visibile) {
+    public boolean cambiaVisibilita(int idRecensione, boolean visibile) {
         String sql = "UPDATE recensioni SET visibile = ? WHERE id = ?";
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
                  PreparedStatement ps = conn.prepareStatement(sql)) {
+                
                 ps.setBoolean(1, visibile);
                 ps.setInt(2, idRecensione);
-                ps.executeUpdate();
+                
+                int rows = ps.executeUpdate();
+                
+                // Se rows > 0 ha trovato la recensione e aggiornato lo stato
+                return rows > 0;
             }
         } catch (Exception e) { 
             e.printStackTrace(); 
+            return false;
         }
     }
     

@@ -7,7 +7,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
 import it.bookmarker.dao.RecensioneDAO;
+import it.bookmarker.service.RecensioneService;
 
 @WebServlet("/GestioneRecensioniServlet")
 public class GestioneRecensioniServlet extends HttpServlet {
@@ -15,46 +17,41 @@ public class GestioneRecensioniServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-  
         
         HttpSession session = request.getSession();
         String ruolo = (String) session.getAttribute("ruoloUtente");
-        if (ruolo == null || (!ruolo.equalsIgnoreCase("MODERATORE") && !ruolo.equalsIgnoreCase("BIBLIOTECARIO"))) {
+        
+        if (ruolo == null || (!ruolo.equalsIgnoreCase("MODERATORE"))) {
             response.sendRedirect("login.jsp");
             return;
         }
 
-       
+        //Recupero Parametri
         String azione = request.getParameter("azione");
         String idRecensioneStr = request.getParameter("idRecensione");
         String idLibroStr = request.getParameter("idLibro");
 
-       
-        if (idRecensioneStr != null) {
-            try {
-                int idRecensione = Integer.parseInt(idRecensioneStr);
-                RecensioneDAO dao = new RecensioneDAO();
+        //Inizializzazione Service
+        RecensioneDAO dao = new RecensioneDAO();
+        RecensioneService service = new RecensioneService(dao);
 
-                if ("rimuovi".equals(azione)) {
-                  
-                    dao.deleteRecensione(idRecensione);
-                } 
-                else if ("nascondi".equals(azione)) {
-                    
-                    dao.cambiaVisibilita(idRecensione, false);
-                } 
-                else if ("mostra".equals(azione)) {
-                  
-                    dao.cambiaVisibilita(idRecensione, true);
-                }
-
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
+        //Esecuzione Azione
+        if (idRecensioneStr != null && azione != null) {
+            
+            if ("rimuovi".equals(azione)) {
+                service.deleteRecensioneModeratore(idRecensioneStr);
+                
+            } else if ("nascondi".equals(azione)) {
+                service.impostaVisibilita(idRecensioneStr, false); // false = nascondi
+                
+            } else if ("mostra".equals(azione)) {
+                service.impostaVisibilita(idRecensioneStr, true);  // true = mostra
             }
         }
 
-    
-        if (idLibroStr != null) {
+        // Se eravamo dentro la pagina di un libro specifico, torniamo lì
+        // altrimenti torniamo al catalogo
+        if (idLibroStr != null && !idLibroStr.isEmpty()) {
             response.sendRedirect("DettaglioLibroModeratoreServlet?id=" + idLibroStr);
         } else {
             response.sendRedirect("CatalogoModeratoreServlet");

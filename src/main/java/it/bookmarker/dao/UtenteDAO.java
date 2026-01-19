@@ -45,6 +45,31 @@ public class UtenteDAO {
         }
     }
     
+    public boolean esisteEmail(String email) {
+        boolean esiste = false;
+        String sql = "SELECT 1 FROM utenti WHERE email = ?"; 
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(url, user, pass);
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+                pstmt.setString(1, email);
+
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        esiste = true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            
+        }
+        
+        return esiste;
+    }
+    
     public boolean esisteCodiceFiscale(String codiceFiscale) {
         boolean esiste = false;
         String sql = "SELECT 1 FROM utenti WHERE codice_fiscale = ?"; 

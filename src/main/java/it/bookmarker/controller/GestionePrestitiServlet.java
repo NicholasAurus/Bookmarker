@@ -11,6 +11,7 @@ import javax.servlet.http.HttpSession;
 
 import it.bookmarker.dao.PrestitiDAO;
 import it.bookmarker.model.Prestito;
+import it.bookmarker.service.PrestitoService;
 
 @WebServlet("/GestionePrestitiServlet")
 public class GestionePrestitiServlet extends HttpServlet {
@@ -21,31 +22,35 @@ public class GestionePrestitiServlet extends HttpServlet {
         
         HttpSession session = request.getSession();
         String ruolo = (String) session.getAttribute("ruoloUtente");
+        
         if (ruolo == null || !ruolo.equalsIgnoreCase("BIBLIOTECARIO")) {
             response.sendRedirect("login.jsp");
             return;
         }
 
+        //Gestione Tab Attivo
         String tabRichiesta = request.getParameter("tab");
-        String activeTab = "prenotati";
+        String activeTab = "prenotati"; //default
 
         if ("attivi".equals(tabRichiesta)) {
             activeTab = "attivi";
         } else if ("restituiti".equals(tabRichiesta)) {
             activeTab = "restituiti";
         }
-
         request.setAttribute("activeTab", activeTab);
 
+        //Inizializzazione Service
         PrestitiDAO dao = new PrestitiDAO();
+        PrestitoService service = new PrestitoService(dao);
         
-        List<Prestito> listaPrenotati = dao.getPrestitiPrenotati();
+        //Recupero Dati tramite Service
+        List<Prestito> listaPrenotati = service.getPrenotati();
+        List<Prestito> listaAttivi = service.getAttivi();
+        List<Prestito> listaRestituiti = service.getRestituiti();
+        
+        //Invio alla JSP
         request.setAttribute("listaPrenotati", listaPrenotati);
-
-        List<Prestito> listaAttivi = dao.getPrestitiAttivi();
         request.setAttribute("listaAttivi", listaAttivi);
-        
-        List<Prestito> listaRestituiti = dao.getPrestitiRestituiti();
         request.setAttribute("listaRestituiti", listaRestituiti);
         
         request.getRequestDispatcher("gestionePrestiti.jsp").forward(request, response);
@@ -54,30 +59,31 @@ public class GestionePrestitiServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
+        //Parametri per il dispatching
         String azione = request.getParameter("azione");
-        String tabDaAprire = "prenotati";
+        String idStr = request.getParameter("idPrestito");
+        String tabDaAprire = "prenotati"; // Default redirect
 
-        try {
-            String idStr = request.getParameter("idPrestito");
-            if (idStr != null) {
-                int idPrestito = Integer.parseInt(idStr);
-                PrestitiDAO dao = new PrestitiDAO();
+        //Service
+        PrestitiDAO dao = new PrestitiDAO();
+        PrestitoService service = new PrestitoService(dao);
 
-                if ("ritiro".equals(azione)) {
-                    dao.confermaRitiro(idPrestito);
-                    tabDaAprire = "prenotati";
-                } else if ("annulla".equals(azione)) {
-                    // Recupero la motivazione dal form
-                    String motivazione = request.getParameter("motivazione");
-                    dao.gestisciPrestito(idPrestito, "annullato", motivazione);
-                    tabDaAprire = "prenotati";
-                } else if ("restituzione".equals(azione)) {
-                    dao.terminaPrestito(idPrestito);
-                    tabDaAprire = "attivi";
-                }
+        //Logica azioni
+        if (idStr != null && azione != null) {
+            
+            if ("ritiro".equals(azione)) {
+                service.confermaRitiro(idStr);
+                tabDaAprire = "prenotati"; //Rimaniamo qui per vederne altri
+                
+            } else if ("annulla".equals(azione)) {
+                String motivazione = request.getParameter("motivazione");
+                service.annullaPrestito(idStr, motivazione);
+                tabDaAprire = "prenotati";
+                
+            } else if ("restituzione".equals(azione)) {
+                service.registraRestituzione(idStr);
+                tabDaAprire = "attivi"; //per tornare agli attivi dopo una restituzione
             }
-        } catch (NumberFormatException e) {
-            e.printStackTrace(); 
         }
 
         response.sendRedirect("GestionePrestitiServlet?tab=" + tabDaAprire);
