@@ -48,7 +48,7 @@ public class DettaglioLibroModeratoreServlet extends HttpServlet {
                 
                 //Recupero Dati dai Service
                 Libro libro = libroService.getDettaglioLibro(id);
-                List<Recensione> recensioni = recService.getRecensioniPerLibro(id);
+                List<Recensione> recensioni = recService.getRecensioniPerModeratore(id);
                 
 
                 request.setAttribute("libroDettaglio", libro);

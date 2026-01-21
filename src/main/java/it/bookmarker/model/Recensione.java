@@ -11,7 +11,7 @@ public class Recensione {
     private int voto; 
     private String nomeUtenteDisplay; 
     private boolean visibile;
-    
+    private boolean eliminata;
     
     
 
@@ -38,4 +38,6 @@ public class Recensione {
 
     public boolean isVisibile() { return visibile; }
     public void setVisibile(boolean visibile) { this.visibile = visibile; }
+    public boolean isEliminata() { return eliminata; }
+    public void setEliminata(boolean eliminata) { this.eliminata = eliminata; }
 }

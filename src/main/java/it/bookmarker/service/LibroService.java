@@ -19,8 +19,8 @@ public class LibroService {
         	
             // Parsing dei dati (da Stringa a Tipi corretti)
             int copie = Integer.parseInt(copieStr);
-            Date dataPub = Date.valueOf(dataPubStr); //Formato atteso: yyyy-mm-dd
-
+            Date dataPub = Date.valueOf(dataPubStr); //Formato atteso: yyyy-mm-dd 
+            //aggiungere controllo anno
             //Creazione dell'oggetto Libro
             Libro nuovo = new Libro();
             nuovo.setTitolo(titolo);

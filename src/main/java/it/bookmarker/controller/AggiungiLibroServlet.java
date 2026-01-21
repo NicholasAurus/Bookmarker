@@ -35,6 +35,6 @@ public class AggiungiLibroServlet extends HttpServlet {
         //Chiamata al Service
         boolean successo = service.aggiungiLibro(titolo, autore, genere, copieStr, dataPubStr, copertina, descrizione);
 
-        response.sendRedirect("BibliotecarioServlet");
+        response.sendRedirect("CatalogoBibliotecarioServlet");
     }
 }

@@ -5,9 +5,7 @@ import java.util.List;
 import it.bookmarker.model.Recensione;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.List;
 import it.bookmarker.model.Prestito;
-
 
 public class RecensioneService {
 
@@ -18,19 +16,17 @@ public class RecensioneService {
     }
 
     public boolean aggiungiRecensione(String emailUtente, String idLibroStr, String testo, String votoStr) {
-    	
-        //Controlla che i parametri fondamentali non siano nulli
+        // Controlla che i parametri fondamentali non siano nulli
         if (idLibroStr != null && votoStr != null) {
             try {
-                //Parsing
+                // Parsing
                 int idLibro = Integer.parseInt(idLibroStr);
                 int voto = Integer.parseInt(votoStr);
 
-                //Chiamata al DAO
+                // Chiamata al DAO
                 return recensioneDAO.salvaRecensione(emailUtente, idLibro, testo, voto);
                 
             } catch (Exception e) {
-                
                 e.printStackTrace();
                 return false;
             }
@@ -38,12 +34,19 @@ public class RecensioneService {
         return false;
     }
     
+    // Metodo generico (puoi lasciarlo per compatibilità o rimuoverlo se non usato)
     public List<Recensione> getRecensioniPerLibro(int idLibro) {
         return recensioneDAO.getRecensioniByLibro(idLibro);
     }
     
+    // METODO PER L'UTENTE (Solo recensioni attive) 
     public List<Recensione> getRecensioniPubbliche(int idLibro) {
         return recensioneDAO.getRecensioniPubbliche(idLibro);
+    }
+
+    //  METODO PER IL MODERATORE (Tutte le recensioni, anche eliminate)
+    public List<Recensione> getRecensioniPerModeratore(int idLibro) {
+        return recensioneDAO.getAllRecensioniPerModeratore(idLibro);
     }
     
     public Map<Integer, Recensione> getMappaRecensioniPerStorico(String email, List<Prestito> storico) {
@@ -71,7 +74,7 @@ public class RecensioneService {
             
             int idLibro = Integer.parseInt(idLibroStr);
             
-            // Chiama il metodo "sicuro" del DAO che controlla l'email
+          
             return recensioneDAO.deleteRecensioneUtente(emailUtente, idLibro);
             
         } catch (Exception e) {
@@ -80,14 +83,14 @@ public class RecensioneService {
         }
     }
 
-    // --- METODO PER IL MODERATORE (Cancella QUALSIASI recensione) ---
+    // METODO PER IL MODERATORE (Cancella QUALSIASI recensione) 
     public boolean deleteRecensioneModeratore(String idRecensioneStr) {
         try {
             if (idRecensioneStr == null) return false;
 
             int idRecensione = Integer.parseInt(idRecensioneStr);
             
-            // Chiama il metodo "potente" del DAO che usa l'ID primario
+           
             return recensioneDAO.deleteRecensioneModeratore(idRecensione);
             
         } catch (Exception e) {

@@ -4,6 +4,7 @@ import java.sql.Date;
 import java.util.List;
 import it.bookmarker.dao.PrestitiDAO;
 import it.bookmarker.model.Prestito;
+import java.time.LocalDate;
 
 public class PrestitoService {
 
@@ -45,17 +46,24 @@ public class PrestitoService {
                 return false;
             }
 
-            //Parsing dei dati
+            // Parsing dei dati
             int idLibro = Integer.parseInt(idLibroStr);
-            Date dataRitiro = Date.valueOf(dataRitiroStr); // Formato yyyy-mm-dd
+            
+            
+            LocalDate dataScelta = LocalDate.parse(dataRitiroStr);
+            LocalDate oggi = LocalDate.now();
 
-            //Controllo validità data 
-            if (dataRitiro.before(new java.util.Date())) {
+            // Se la data scelta è IERI o prima, errore. (Oggi è accettato)
+            if (dataScelta.isBefore(oggi)) {
                  return false; 
             }
 
-            //Chiamata al DAO
-            return prestitiDAO.prenotaLibro(emailUtente, idLibro, dataRitiro);
+            
+            Date dataRitiroSQL = Date.valueOf(dataScelta);
+            // --------------------
+
+            // Chiamata al DAO
+            return prestitiDAO.prenotaLibro(emailUtente, idLibro, dataRitiroSQL);
 
         } catch (IllegalArgumentException | NullPointerException e) {
             // Cattura errori di formato data o numero

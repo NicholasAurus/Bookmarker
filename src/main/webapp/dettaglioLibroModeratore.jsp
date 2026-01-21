@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.List" %>
 <%@ page import="it.bookmarker.model.Libro" %>
-<%@ page import="it.bookmarker.model.Recensione" %> 
+<%@ page import="it.bookmarker.model.Recensione" %>
 
 <%
     Libro libro = (Libro) request.getAttribute("libroDettaglio");
@@ -39,9 +39,26 @@
             position: relative;
         }
 
-      
         .review-card {
             scroll-margin-top: 180px; 
+        }
+
+        .review-card.deleted {
+            border-left: 4px solid #c0392b;
+            background-color: #fff5f5;
+            opacity: 0.8;
+        }
+
+        .deleted-badge {
+            background-color: #c0392b;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
     </style>
 </head>
@@ -111,8 +128,15 @@
                 <% 
                 } else {
                     for (Recensione rec : elencoRecensioni) {
+                        boolean isEliminata = rec.isEliminata();
                         boolean isHidden = !rec.isVisibile(); 
-                        String cardClass = isHidden ? "review-card hidden" : "review-card";
+                        
+                        String cardClass = "review-card";
+                        if (isEliminata) {
+                            cardClass += " deleted";
+                        } else if (isHidden) {
+                            cardClass += " hidden";
+                        }
                 %>
                 
                 <div id="review-<%= rec.getId() %>" class="<%= cardClass %>">
@@ -122,7 +146,9 @@
                             <i class="fa-solid fa-user" style="margin-right: 8px; color:#888;"></i>
                             <%= rec.getNomeUtenteDisplay() %>
                             
-                            <% if (isHidden) { %>
+                            <% if (isEliminata) { %>
+                                <span class="deleted-badge"><i class="fa-solid fa-trash-can"></i> Eliminata</span>
+                            <% } else if (isHidden) { %>
                                 <span class="hidden-badge"><i class="fa-solid fa-eye-slash"></i> Nascosta</span>
                             <% } %>
                         </span>
@@ -132,33 +158,35 @@
                                 <%= rec.getDataInserimento() %>
                             </small>
 
-                            <form action="GestioneRecensioniServlet" method="post">
-                                <input type="hidden" name="idRecensione" value="<%= rec.getId() %>">
-                                <input type="hidden" name="idLibro" value="<%= libro.getId() %>">
-                                
-                                <% if (isHidden) { %>
-                                    <input type="hidden" name="azione" value="mostra">
-                                    <button type="submit" class="btn-toggle-vis" title="Rendi visibile">
-                                        <i class="fa-solid fa-eye"></i> Mostra
-                                    </button>
-                                <% } else { %>
-                                    <input type="hidden" name="azione" value="nascondi">
-                                    <button type="submit" class="btn-toggle-vis" title="Nascondi agli utenti">
-                                        <i class="fa-solid fa-eye-slash"></i> Nascondi
-                                    </button>
-                                <% } %>
-                            </form>
+                            <% if (!isEliminata) { %>
+                                <form action="GestioneRecensioniServlet" method="post">
+                                    <input type="hidden" name="idRecensione" value="<%= rec.getId() %>">
+                                    <input type="hidden" name="idLibro" value="<%= libro.getId() %>">
+                                    
+                                    <% if (isHidden) { %>
+                                        <input type="hidden" name="azione" value="mostra">
+                                        <button type="submit" class="btn-toggle-vis" title="Rendi visibile">
+                                            <i class="fa-solid fa-eye"></i> Mostra
+                                        </button>
+                                    <% } else { %>
+                                        <input type="hidden" name="azione" value="nascondi">
+                                        <button type="submit" class="btn-toggle-vis" title="Nascondi agli utenti">
+                                            <i class="fa-solid fa-eye-slash"></i> Nascondi
+                                        </button>
+                                    <% } %>
+                                </form>
 
-                            <form id="form-del-<%= rec.getId() %>" action="GestioneRecensioniServlet" method="post">
-                                <input type="hidden" name="azione" value="rimuovi">
-                                <input type="hidden" name="idRecensione" value="<%= rec.getId() %>">
-                                <input type="hidden" name="idLibro" value="<%= libro.getId() %>">
-                                
-                                <button type="button" class="btn-delete-review" title="Elimina Recensione" 
-                                        onclick="apriModalElimina('form-del-<%= rec.getId() %>')">
-                                    <i class="fa-solid fa-trash"></i> Elimina
-                                </button>
-                            </form>
+                                <form id="form-del-<%= rec.getId() %>" action="GestioneRecensioniServlet" method="post">
+                                    <input type="hidden" name="azione" value="rimuovi">
+                                    <input type="hidden" name="idRecensione" value="<%= rec.getId() %>">
+                                    <input type="hidden" name="idLibro" value="<%= libro.getId() %>">
+                                    
+                                    <button type="button" class="btn-delete-review" title="Elimina Recensione" 
+                                            onclick="apriModalElimina('form-del-<%= rec.getId() %>')">
+                                        <i class="fa-solid fa-trash"></i> Elimina
+                                    </button>
+                                </form>
+                            <% } %>
                         </div>
                     </div>
 
@@ -204,7 +232,7 @@
     </div>
 
     <script>
-   
+    
     document.addEventListener("DOMContentLoaded", function() {
         
         if (window.location.hash) {
@@ -212,7 +240,7 @@
             const element = document.getElementById(idTarget);
             
             if (element) {
-               
+                
                 element.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 
                 
