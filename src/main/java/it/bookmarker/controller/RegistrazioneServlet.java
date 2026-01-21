@@ -25,13 +25,14 @@ public class RegistrazioneServlet extends HttpServlet {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
         String confirmPassword = request.getParameter("conferma_password");
-
+        String domanda = request.getParameter("domanda");
+        String risposta = request.getParameter("risposta");
         
         UtenteDAO dao = new UtenteDAO(); 
         UtenteService service = new UtenteService(dao);
 
         //chiama il Service
-        String errore = service.registraUtente(nome, cognome, codiceFiscale, email, password, confirmPassword);
+        String errore = service.registraUtente(nome, cognome, codiceFiscale, email, password, confirmPassword, domanda, risposta);
 
         
         if (errore == null) {

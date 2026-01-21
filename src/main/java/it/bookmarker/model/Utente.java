@@ -1,18 +1,19 @@
 package it.bookmarker.model;
 
-import java.sql.Date; 
+import java.sql.Date;
 
 public class Utente {
     private String nome;
     private String cognome;
     private String codiceFiscale;
-    private String recapito;       
-    private String email;          
-    private String password;       
+    private String recapito;
+    private String email;
+    private String password;
     private String ruolo;
     private Date data_registrazione;
     private String stato;
-    
+    private String domandaSicurezza;
+    private String rispostaSicurezza;
     
     public Utente() {
         this.ruolo = "lettore";
@@ -61,4 +62,10 @@ public class Utente {
 
     public String getStato() { return stato;}
     public void setStato(String stato) {this.stato = stato;}
+
+    public String getDomandaSicurezza() { return domandaSicurezza; }
+    public void setDomandaSicurezza(String domandaSicurezza) { this.domandaSicurezza = domandaSicurezza; }
+
+    public String getRispostaSicurezza() { return rispostaSicurezza; }
+    public void setRispostaSicurezza(String rispostaSicurezza) { this.rispostaSicurezza = rispostaSicurezza; }
 }

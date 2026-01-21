@@ -10,28 +10,7 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <style>
-        .error-message {
-            color: #D8000C;
-            background-color: #FFD2D2;
-            border: 1px solid #D8000C;
-            padding: 10px;
-            border-radius: 5px;
-            text-align: center;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-        .success-message {
-            color: #4F8A10;
-            background-color: #DFF2BF;
-            border: 1px solid #4F8A10;
-            padding: 10px;
-            border-radius: 5px;
-            text-align: center;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-    </style>
+    
 </head>
 <body>
 
@@ -51,17 +30,27 @@
         <div class="registration-card" id="login-card">
             <h2>Login</h2>
             
-            <%-- Blocco per mostrare messaggio di REGISTRAZIONE AVVENUTA --%>
+         
             <% 
                 String regSuccess = request.getParameter("reg");
                 if ("success".equals(regSuccess)) {
             %>
-                <div class="success-message">Richiesta di registrazione inviata!</div>
+                <div class="success-message">Richiesta di registrazione inviata! In attesa di approvazione.</div>
             <% 
                 } 
             %>
 
-            <%-- Blocco per mostrare messaggi di ERRORE LOGIN --%>
+     
+            <% 
+                String msg = request.getParameter("msg");
+                if ("resetSuccess".equals(msg)) {
+            %>
+                <div class="success-message">Password reimpostata con successo! Accedi ora.</div>
+            <% 
+                } 
+            %>
+
+         
             <% 
                 String errorMessage = (String) request.getAttribute("errorMessage");
                 if (errorMessage != null) {
@@ -80,11 +69,17 @@
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" placeholder="password" required>
                 </div>
+
+                <div style="text-align: right; margin-top: 5px; margin-bottom: 15px;">
+                    <a href="RecuperoPasswordServlet" style="color: #267bbc; font-size: 0.9em; text-decoration: none;">
+                        Hai dimenticato la password?
+                    </a>
+                </div>
+
                 <button type="submit" class="submit-btn">Login</button>
             </form>
             
             <div class="form-links">
-                
                 <a href="registrazione.jsp">Non hai un account? Registrati</a>
             </div>
             

@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import it.bookmarker.model.Utente;
 
 public class UtenteDAO {
@@ -17,9 +16,8 @@ public class UtenteDAO {
     private String user = "root";
     private String pass = "Bookmarker09!";
 
-
     public boolean registraUtente(Utente utente) throws SQLException {
-        String sql = "INSERT INTO utenti (nome, cognome, codice_fiscale, email, password, stato) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO utenti (nome, cognome, codice_fiscale, email, password, ruolo, stato, data_registrazione, domanda_sicurezza, risposta_sicurezza) VALUES (?, ?, ?, ?, ?, ?, 'in_attesa', CURDATE(), ?, ?)";
         
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -36,10 +34,10 @@ public class UtenteDAO {
             pstmt.setString(3, utente.getCodiceFiscale());
             pstmt.setString(4, utente.getEmail());
             pstmt.setString(5, utente.getPassword());
+            pstmt.setString(6, utente.getRuolo()); 
+            pstmt.setString(7, utente.getDomandaSicurezza());
+            pstmt.setString(8, utente.getRispostaSicurezza());
             
-           
-            pstmt.setString(6, "in_attesa"); 
-
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
         }
@@ -64,7 +62,6 @@ public class UtenteDAO {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            
         }
         
         return esiste;
@@ -94,7 +91,6 @@ public class UtenteDAO {
         return esiste;
     }
     
-
     public Utente getUtenteByEmail(String email) {
         Utente utente = null;
         String query = "SELECT * FROM utenti WHERE email = ?";
@@ -118,9 +114,13 @@ public class UtenteDAO {
                         utente.setPassword(rs.getString("password"));
                         utente.setCodiceFiscale(rs.getString("codice_fiscale"));
                         utente.setDataRegistrazione(rs.getDate("data_registrazione"));
-                        
-                       
                         utente.setStato(rs.getString("stato"));
+                        
+                        // Opzionale: caricare anche domanda/risposta se servono nel model completo
+                        if (hasColumn(rs, "domanda_sicurezza")) {
+                            utente.setDomandaSicurezza(rs.getString("domanda_sicurezza"));
+                            utente.setRispostaSicurezza(rs.getString("risposta_sicurezza"));
+                        }
                     }
                 }
             }
@@ -131,7 +131,6 @@ public class UtenteDAO {
         return utente; 
     }
 
-   
     public boolean updateStato(String email, String nuovoStato) {
         String sql = "UPDATE utenti SET stato = ? WHERE email = ?";
         
@@ -177,5 +176,77 @@ public class UtenteDAO {
             e.printStackTrace();
         }
         return lista;
+    }
+
+    public String getDomandaSicurezza(String email) {
+        String sql = "SELECT domanda_sicurezza FROM utenti WHERE email = ?";
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(url, user, pass);
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
+                
+                ps.setString(1, email);
+                
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getString("domanda_sicurezza");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public String getRispostaSicurezza(String email) {
+        String sql = "SELECT risposta_sicurezza FROM utenti WHERE email = ?";
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(url, user, pass);
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
+                
+                ps.setString(1, email);
+                
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getString("risposta_sicurezza");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean updatePassword(String email, String nuovaPasswordHash) {
+        String sql = "UPDATE utenti SET password = ? WHERE email = ?";
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(url, user, pass);
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
+                
+                ps.setString(1, nuovaPasswordHash);
+                ps.setString(2, email);
+                
+                return ps.executeUpdate() > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Metodo helper per evitare SQLException se la colonna non esiste in vecchie versioni del DB
+    private boolean hasColumn(ResultSet rs, String columnName) throws SQLException {
+        java.sql.ResultSetMetaData rsmd = rs.getMetaData();
+        int columns = rsmd.getColumnCount();
+        for (int x = 1; x <= columns; x++) {
+            if (columnName.equals(rsmd.getColumnName(x))) {
+                return true;
+            }
+        }
+        return false;
     }
 }

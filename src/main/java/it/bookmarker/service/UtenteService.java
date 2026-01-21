@@ -22,7 +22,7 @@ public class UtenteService {
         this.utenteDAO = utenteDAO;
     }
 
-    public String registraUtente(String nome, String cognome, String cf, String email, String password, String confirmPassword) {
+    public String registraUtente(String nome, String cognome, String cf, String email, String password, String confirmPassword, String domanda, String risposta) {
         
         // Controllo Corrispondenza Password
         if (password == null || !password.equals(confirmPassword)) {
@@ -49,6 +49,14 @@ public class UtenteService {
         if (!isPasswordForte(password)) {
             return "La password deve contenere almeno 8 caratteri, una maiuscola, un numero e un simbolo.";
         }
+        
+        if (domanda == null || domanda.trim().isEmpty()) {
+            return "Seleziona una domanda di sicurezza.";
+        }
+
+        if (risposta == null || risposta.trim().isEmpty()) {
+            return "La risposta alla domanda di sicurezza è obbligatoria.";
+        }
 
         try {
             //Controlli sul Database (Unicità email)
@@ -64,6 +72,8 @@ public class UtenteService {
             //Se arriviamo qui, è tutto OK
             String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
             Utente nuovoUtente = new Utente(nome, cognome, cf, email, hashedPassword);
+            nuovoUtente.setDomandaSicurezza(domanda);
+            nuovoUtente.setRispostaSicurezza(risposta);
             
             boolean salvato = utenteDAO.registraUtente(nuovoUtente);
             
@@ -79,7 +89,7 @@ public class UtenteService {
         }
     }
     
-    	public Utente login(String email, String password) throws Exception {
+    public Utente login(String email, String password) throws Exception {
         
         //Cerca l'utente nel DB
         Utente utente = utenteDAO.getUtenteByEmail(email);
@@ -100,7 +110,7 @@ public class UtenteService {
         //arrivati qui, è ok
         return utente;
     }
-    	
+    
     public Utente getDatiUtente(String email) {
         if (email == null) return null;
         return utenteDAO.getUtenteByEmail(email);
@@ -125,7 +135,33 @@ public class UtenteService {
 
         return utenteDAO.updateStato(email, nuovoStato);
     }
-    
+
+    public String recuperaDomanda(String email) {
+        if (email == null || email.trim().isEmpty()) return null;
+        return utenteDAO.getDomandaSicurezza(email);
+    }
+
+    public boolean verificaRispostaSicurezza(String email, String rispostaUtente) {
+        if (email == null || rispostaUtente == null) return false;
+        
+        String rispostaCorretta = utenteDAO.getRispostaSicurezza(email);
+        
+        if (rispostaCorretta == null) return false;
+        
+        return rispostaCorretta.trim().equalsIgnoreCase(rispostaUtente.trim());
+    }
+
+    public boolean resetPassword(String email, String nuovaPassword, String confermaPassword) {
+        if (email == null || nuovaPassword == null) return false;
+        
+        if (!nuovaPassword.equals(confermaPassword)) return false;
+        
+        if (!isPasswordForte(nuovaPassword)) return false;
+
+        String hashedPassword = BCrypt.hashpw(nuovaPassword, BCrypt.gensalt());
+        
+        return utenteDAO.updatePassword(email, hashedPassword);
+    }
     
     //Metodi utili
     
