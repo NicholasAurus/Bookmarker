@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import it.bookmarker.dao.LibriDAO;
 import it.bookmarker.dao.PrestitiDAO;
 import it.bookmarker.dao.UtenteDAO;
 import it.bookmarker.model.Prestito;
@@ -21,40 +22,39 @@ import it.bookmarker.service.UtenteService;
 public class GestioneUtentiServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
+  
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        HttpSession session = request.getSession();
-        String ruolo = (String) session.getAttribute("ruoloUtente");
-
-        if (ruolo == null || !ruolo.equalsIgnoreCase("BIBLIOTECARIO")) {
+       
+        if (!isBibliotecario(request)) {
             response.sendRedirect("login.jsp"); 
             return;
         }
 
-        //Gestione Messaggi di Errore 
+        HttpSession session = request.getSession();
+
+       
         String errore = (String) session.getAttribute("errore");
         if (errore != null) {
             request.setAttribute("errore", errore);
             session.removeAttribute("errore");
         }
 
-        //Gestione Tab UI
+      
         String tabRichiesta = request.getParameter("tab");
-        String activeTab = "utenti"; //Default
-        if ("prestiti".equals(tabRichiesta)) {
-            activeTab = "prestiti";
-        }
+        String activeTab = "prestiti".equals(tabRichiesta) ? "prestiti" : "utenti";
         request.setAttribute("activeTab", activeTab);
 
-        //Inizializzazione Service
+       
         UtenteDAO utenteDao = new UtenteDAO();
         PrestitiDAO prestitoDao = new PrestitiDAO();
+        LibriDAO libriDAO = new LibriDAO();
         
         UtenteService utenteService = new UtenteService(utenteDao);
-        PrestitoService prestitoService = new PrestitoService(prestitoDao);
+        PrestitoService prestitoService = new PrestitoService(prestitoDao, libriDAO);
 
-        //Recupero Dati
         List<Utente> utentiInAttesa = utenteService.getUtentiDaApprovare();
         request.setAttribute("listaUtenti", utentiInAttesa);
         
@@ -68,36 +68,47 @@ public class GestioneUtentiServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
+        // controllo ruolo
+        if (!isBibliotecario(request)) {
+            response.sendRedirect("login.jsp"); 
+            return;
+        }
+        
         String tipoOperazione = request.getParameter("tipoOperazione"); 
         String azione = request.getParameter("azione"); 
-        String tabDaAprire = "utenti";
+        String tabDaAprire = "utenti"; // Default fallback
 
         // Inizializzazione Service
         UtenteDAO utenteDao = new UtenteDAO();
         PrestitiDAO prestitoDao = new PrestitiDAO();
+        LibriDAO libriDAO = new LibriDAO();
         UtenteService utenteService = new UtenteService(utenteDao);
-        PrestitoService prestitoService = new PrestitoService(prestitoDao);
+        PrestitoService prestitoService = new PrestitoService(prestitoDao, libriDAO);
 
-        // LOGICA UTENTI
+       
         if ("utente".equals(tipoOperazione)) {
             String emailUtente = request.getParameter("emailUtente");
             
-            // Il service traduce "accetta" in "attivo"
-            utenteService.gestisciApprovazioneUtente(emailUtente, azione);
+            
+            if ("accetta".equals(azione)) {
+                utenteService.accettaUtente(emailUtente);
+            } else if ("rifiuta".equals(azione)) {
+                utenteService.rifiutaUtente(emailUtente);
+            }
+            
             
             tabDaAprire = "utenti";
         } 
-        // LOGICA PRESTITI
+       
         else if ("prestito".equals(tipoOperazione)) {
             String idPrestitoStr = request.getParameter("idPrestito");
             
             if ("accetta".equals(azione)) {
-                boolean esito = prestitoService.approvaRichiestaPrestito(idPrestitoStr);
+                String esito = prestitoService.approvaRichiestaPrestito(idPrestitoStr);
                 
-                if (!esito) {
-                    // Se il service torna false, mancano le copie
-                    request.getSession().setAttribute("errore", "Impossibile confermare: copie esaurite");
-                }
+
+                    request.getSession().setAttribute("errore", esito);
+
                 
             } else if ("rifiuta".equals(azione)) {
                 String motivazione = request.getParameter("motivazione");
@@ -107,6 +118,16 @@ public class GestioneUtentiServlet extends HttpServlet {
             tabDaAprire = "prestiti";
         }
 
+        // Redirect per evitare il "Resubmit form" al refresh
         response.sendRedirect("GestioneUtentiServlet?tab=" + tabDaAprire);
+    }
+    
+    
+    private boolean isBibliotecario(HttpServletRequest request) {
+        HttpSession session = request.getSession(false); // false: non creare sessione se non esiste
+        if (session == null) return false;
+        
+        String ruolo = (String) session.getAttribute("ruoloUtente");
+        return ruolo != null && ruolo.equalsIgnoreCase("BIBLIOTECARIO");
     }
 }

@@ -22,14 +22,14 @@ public class ModificaLibroServlet extends HttpServlet {
         
         if (idParam != null) {
             try {
-                //Parsing ID
+
                 int id = Integer.parseInt(idParam);
                 
-                //Service
+                // Service
                 LibriDAO dao = new LibriDAO();
                 LibroService service = new LibroService(dao);
                 
-                //Recupero Dati, metodo per il dettaglio
+                // Recupero Dati
                 Libro libro = service.getDettaglioLibro(id);
                 
                 request.setAttribute("libroDaModificare", libro);
@@ -45,7 +45,6 @@ public class ModificaLibroServlet extends HttpServlet {
         }
     }
 
-
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
@@ -60,8 +59,16 @@ public class ModificaLibroServlet extends HttpServlet {
             String idStr = request.getParameter("id");
             String quantitaStr = request.getParameter("quantita");
 
-            boolean aggiornato = service.aggiornaDisponibilita(idStr, quantitaStr);
             
+            String errore = service.aggiornaDisponibilita(idStr, quantitaStr);
+            
+            if (errore == null) {
+                // SUCCESSO
+                request.getSession().setAttribute("successMessage", "Quantità aggiornata con successo.");
+            } else {
+                // ERRORE
+                request.getSession().setAttribute("errorMessage", errore);
+            }
         } 
         
         response.sendRedirect("CatalogoBibliotecarioServlet");

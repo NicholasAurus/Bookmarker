@@ -11,11 +11,11 @@ public class UtenteService {
 
     private UtenteDAO utenteDAO;
 
-    // Pattern per le Espressioni Regolari (definiti una volta sola per efficienza)
-    // Spiegazione: ^ = inizio stringa, $ = fine stringa, + = uno o più caratteri
+    // Pattern per le Espressioni Regolari 
+    // ^ = inizio stringa, $ = fine stringa, + = uno o più caratteri
     private static final Pattern NOME_PATTERN = Pattern.compile("^[a-zA-Z\\s]+$"); // Solo lettere e spazi
     private static final Pattern CF_PATTERN = Pattern.compile("^[A-Z0-9]{16}$"); // Alfanumerico esatto 16 caratteri
-    // Password complessa: (?=.*[0-9]) deve esserci un numero, (?=.*[A-Z]) una maiuscola, ecc.
+    // Password: (?=.*[0-9]) deve esserci un numero, (?=.*[A-Z]) una maiuscola, etc.
     private static final Pattern PASS_PATTERN = Pattern.compile("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!._-]).{8,}$");
 
     public UtenteService(UtenteDAO utenteDAO) {
@@ -120,20 +120,31 @@ public class UtenteService {
         return utenteDAO.getUtentiInAttesa();
     }
 
-    public boolean gestisciApprovazioneUtente(String email, String azione) {
-        if (email == null || azione == null) return false;
-
-
-        String nuovoStato;
-        if ("accetta".equals(azione)) {
-            nuovoStato = "attivo";
-        } else if ("rifiuta".equals(azione)) {
-            nuovoStato = "rifiutato"; 
-        } else {
-            return false; //Azione non riconosciuta
+    public boolean accettaUtente(String email) {
+        if (email == null) return false;
+        
+        
+        Utente u = utenteDAO.getUtenteByEmail(email);
+        
+        // Se l'utente non esiste O non è in stato "in_attesa"
+        if (u == null || !"in_attesa".equals(u.getStato())) {
+            return false; 
         }
+        
+        return utenteDAO.updateStato(email, "attivo");
+    }
 
-        return utenteDAO.updateStato(email, nuovoStato);
+    public boolean rifiutaUtente(String email) {
+        if (email == null) return false;
+        
+        Utente u = utenteDAO.getUtenteByEmail(email);
+        
+     // Se l'utente non esiste O non è in stato "in_attesa"
+        if (u == null || !"in_attesa".equals(u.getStato())) {
+            return false;
+        }
+        
+        return utenteDAO.deleteUtente(email);
     }
 
     public String recuperaDomanda(String email) {

@@ -12,7 +12,8 @@ public class Libro {
     private Date dataRientro; 
     private Date dataPubblicazione; 
     private String descrizione; 
-    private String copertina; 
+    private String copertina;
+    private boolean attivo;
     private double mediaVoti; 
 
     public Libro() {}
@@ -36,6 +37,8 @@ public class Libro {
     public void setDescrizione(String descrizione) { this.descrizione = descrizione; }
     public String getCopertina() { return copertina; }
     public void setCopertina(String copertina) { this.copertina = copertina; }
+    public boolean isAttivo() { return attivo; }
+    public void setAttivo(boolean attivo) { this.attivo = attivo; }
     
   
     public double getMediaVoti() { return mediaVoti; }

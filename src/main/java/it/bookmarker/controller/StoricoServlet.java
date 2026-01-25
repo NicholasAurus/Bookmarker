@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import it.bookmarker.dao.LibriDAO;
 import it.bookmarker.dao.PrestitiDAO;
 import it.bookmarker.dao.RecensioneDAO;
 import it.bookmarker.model.Prestito;
@@ -34,10 +35,11 @@ public class StoricoServlet extends HttpServlet {
         }
         
         // Inizializzazione Services
-        PrestitiDAO prestitoDao = new PrestitiDAO();
+        PrestitiDAO prestitoDAO = new PrestitiDAO();
+        LibriDAO libriDAO = new LibriDAO();
         RecensioneDAO recensioneDao = new RecensioneDAO();
         
-        PrestitoService prestitoService = new PrestitoService(prestitoDao);
+        PrestitoService prestitoService = new PrestitoService(prestitoDAO, libriDAO);
         RecensioneService recensioneService = new RecensioneService(recensioneDao);
         
         //Recupero Dati

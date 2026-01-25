@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import it.bookmarker.dao.LibriDAO;
 import it.bookmarker.dao.PrestitiDAO;
 import it.bookmarker.service.PrestitoService;
 
@@ -26,23 +27,25 @@ public class PrenotaServlet extends HttpServlet {
             return;
         }
 
-        // Recupero Parametri
         String idLibroStr = request.getParameter("idLibro");
         String dataRitiroStr = request.getParameter("dataRitiro");
         
-        // Inizializzazione Service
-        PrestitiDAO dao = new PrestitiDAO();
-        PrestitoService service = new PrestitoService(dao);
+        PrestitiDAO prestitiDAO = new PrestitiDAO();
+        LibriDAO libriDAO = new LibriDAO();
+        PrestitoService service = new PrestitoService(prestitiDAO, libriDAO);
         
-        // Esecuzione Logica
-        boolean successo = service.prenotaLibro(emailUtente, idLibroStr, dataRitiroStr);
+        
+        String errore = service.prenotaLibro(emailUtente, idLibroStr, dataRitiroStr);
 
-        if (successo) {
+        if (errore == null) {
+            //Successo
             response.sendRedirect("DettaglioLibroServlet?id=" + idLibroStr + "&msg=prenotazione_ok");
         } else {
-  
+            //Errore: salviamo il messaggio in sessione per mostrarlo nella JSP
+            session.setAttribute("errorePrenotazione", errore);
+            
             if (idLibroStr != null && idLibroStr.matches("\\d+")) {
-                response.sendRedirect("DettaglioLibroServlet?id=" + idLibroStr + "&error=db_error");
+                response.sendRedirect("DettaglioLibroServlet?id=" + idLibroStr);
             } else {
                 response.sendRedirect("LibriServlet");
             }

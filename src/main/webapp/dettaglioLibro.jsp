@@ -1,17 +1,27 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.List" %>
 <%@ page import="it.bookmarker.model.Libro" %>
-<%@ page import="it.bookmarker.model.Recensione" %> 
+<%@ page import="it.bookmarker.model.Recensione" %>
+<%@ page import="java.time.LocalDate" %>
+<%@ page import="java.time.format.DateTimeFormatter" %>
 
 <%
     Libro libro = (Libro) request.getAttribute("libroDettaglio");
     String nomeUtente = (String) session.getAttribute("utenteLoggato");
     List<Recensione> elencoRecensioni = (List<Recensione>) request.getAttribute("listaRecensioni");
     
+    String errorePrenotazione = (String) session.getAttribute("errorePrenotazione");
+    if (errorePrenotazione != null) {
+        session.removeAttribute("errorePrenotazione");
+    }
+    
     if (libro == null) { 
         response.sendRedirect("LibriServlet"); 
         return; 
     }
+    
+    LocalDate today = LocalDate.now();
+    DateTimeFormatter formatterVisivo = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 %>
 <!DOCTYPE html>
 <html lang="it">
@@ -21,7 +31,8 @@
     <title><%= libro.getTitolo() %> - Dettaglio</title>
     
     <link rel="stylesheet" href="css/catalogo.css"> 
-    <link rel="stylesheet" href="css/dettaglio.css"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/dettaglio.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
 
@@ -44,6 +55,7 @@
         <div class="white-box">
             <div class="product-hero">
                 <div class="hero-image-container">
+               <%--Funzionalità dei preferiti ancora non implementata, priority LOW --%>
                     <button class="favorite-btn" title="Aggiungi ai preferiti">
                         <i class="fa-regular fa-heart"></i>
                     </button>
@@ -62,25 +74,61 @@
                         <strong>Genere:</strong> <%= libro.getGenere() %><br>
                         <strong>Data Pubblicazione:</strong> <%= libro.getDataPubblicazione() %><br><br>
                         
+                        <% String msg = request.getParameter("msg"); 
+                           String err = request.getParameter("error"); %>
+
+                        <% if ("prenotazione_ok".equals(msg)) { %>
+                            <div style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin-bottom: 15px; border-left: 5px solid #28a745;">
+                                <i class="fa-solid fa-check-circle"></i> Prenotazione inviata con successo!
+                            </div>
+                        <% } else if (errorePrenotazione != null) { %>
+                            <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px; border-left: 5px solid #dc3545;">
+                                <i class="fa-solid fa-circle-exclamation"></i> <%= errorePrenotazione %>
+                            </div>
+                        <% } else if ("db_error".equals(err)) { %>
+                            <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px; border-left: 5px solid #dc3545;">
+                                <i class="fa-solid fa-triangle-exclamation"></i> Errore. Riprova più tardi.
+                            </div>
+                        <% } %>
+
                         <% if(libro.getDisponibilita() > 0) { %>
                             <span style="color: green; font-weight:bold; font-size:1.1rem; display:block; margin-bottom: 15px;">
                                 <i class="fa-solid fa-check"></i> Disponibile (<%= libro.getDisponibilita() %> copie)
                             </span>
 
                             <% if (nomeUtente != null) { %>
-                                <form id="bookingForm" action="PrenotaServlet" method="post" style="margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 5px;">
+                                <form id="bookingForm" action="PrenotaServlet" method="post" style="margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 5px; border: 1px solid #e9ecef;">
                                     <input type="hidden" name="idLibro" value="<%= libro.getId() %>">
                                     
-                                    <label for="dataRitiro" style="display:block; margin-bottom:5px; font-weight:bold;">Seleziona data ritiro:</label>
-                                    <input type="date" id="dataRitiro" name="dataRitiro" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 10px; width: 100%;">
+                                    <label for="dataRitiro" style="display:block; margin-bottom:5px; font-weight:bold; color: #333;">Quando vuoi ritirarlo?</label>
                                     
-                                    <button type="button" class="btn-prenota" onclick="apriModal()" style="width: 100%; background-color: #27ae60; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer;">
-                                        Prenota
+                                    <select id="dataRitiro" name="dataRitiro" class="custom-select">
+                                        <option value="" disabled selected>-- Seleziona una data --</option>
+                                        
+                                        <option value="<%= today.toString() %>">
+                                            Oggi (<%= today.format(formatterVisivo) %>)
+                                        </option>
+                                        
+                                        <option value="<%= today.plusDays(1).toString() %>">
+                                            Domani (<%= today.plusDays(1).format(formatterVisivo) %>)
+                                        </option>
+                                        
+                                        <option value="<%= today.plusDays(2).toString() %>">
+                                            Dopodomani (<%= today.plusDays(2).format(formatterVisivo) %>)
+                                        </option>
+                                    </select>
+                                    
+                                    <div id="msgErroreData" class="error-msg-data">
+                                        <i class="fa-solid fa-circle-exclamation"></i> Selezionare una data
+                                    </div>
+                                    
+                                    <button type="button" class="btn-prenota" onclick="apriModal()" style="width: 100%; background-color: #27ae60; color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; font-weight: bold; transition: background 0.3s;">
+                                        Prenota Ora
                                     </button>
                                 </form>
                             <% } else { %>
                                 <div style="margin-bottom: 20px;">
-                                    <a href="login.jsp" class="btn-prenota-disabled" style="background-color: #95a5a6; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">Accedi per prenotare</a>
+                                    <a href="login.jsp" class="btn-prenota-disabled" style="background-color: #95a5a6; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; display:inline-block;">Accedi per prenotare</a>
                                 </div>
                             <% } %>
 
@@ -93,22 +141,6 @@
                             <% } %>
                         <% } %>
                     </div>
-
-                    <% String msg = request.getParameter("msg"); 
-                       String err = request.getParameter("error");
-                       if ("prenotazione_ok".equals(msg)) { %>
-                        <div style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
-                            <i class="fa-solid fa-check-circle"></i> Prenotazione inviata con successo!
-                        </div>
-                    <% } else if ("segnalazioneOk".equals(msg)) { %>
-                        <div style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
-                            <i class="fa-solid fa-flag"></i> Segnalazione inviata con successo!
-                        </div>
-                    <% } else if ("db_error".equals(err)) { %>
-                        <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
-                            <i class="fa-solid fa-triangle-exclamation"></i> Errore durante l'operazione. Riprova.
-                        </div>
-                    <% } %>
                     
                     <p class="description-text">
                         <%= (libro.getDescrizione() != null) ? libro.getDescrizione() : "Nessuna descrizione disponibile per questo libro." %>
@@ -169,8 +201,8 @@
         <div class="modal-box">
             <div class="modal-title">Conferma Prenotazione</div>
             <div class="modal-text">
-                Vuoi confermare la prenotazione del libro per il giorno <br>
-                <strong id="modalDateDisplay" style="color:#27ae60; font-size: 1.1em;"></strong>?
+                Vuoi confermare la prenotazione del libro per il giorno: <br>
+                <strong id="modalDateDisplay" style="color:#27ae60; font-size: 1.2em;"></strong>?
             </div>
             <div class="modal-buttons">
                 <button class="btn-modal-cancel" onclick="chiudiModal()">Annulla</button>
@@ -203,21 +235,6 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            const dateInput = document.getElementById('dataRitiro');
-            if (dateInput) {
-                const today = new Date();
-                const nextWeek = new Date();
-                nextWeek.setDate(today.getDate() + 7);
-
-                const formatDate = (date) => {
-                    return date.toISOString().split('T')[0];
-                };
-
-                dateInput.setAttribute('min', formatDate(today));
-                dateInput.setAttribute('max', formatDate(nextWeek));
-                dateInput.value = formatDate(today);
-            }
-            
             const heartBtn = document.querySelector('.favorite-btn');
             if (heartBtn) {
                 heartBtn.addEventListener('click', function() {
@@ -241,18 +258,23 @@
             }
         }
 
-      
         function apriModal() {
-            const dateInput = document.getElementById('dataRitiro');
+            const dateSelect = document.getElementById('dataRitiro');
             const dateDisplay = document.getElementById('modalDateDisplay');
+            const msgErrore = document.getElementById('msgErroreData');
             
-            if (!dateInput.value) {
-                alert("Seleziona una data valida.");
+            if (!dateSelect.value) {
+                msgErrore.style.display = 'block';
+                dateSelect.classList.add('input-error-border');
                 return;
             }
-            const partiData = dateInput.value.split('-'); 
-            const dataFormattata = partiData[2] + '/' + partiData[1] + '/' + partiData[0];
-            dateDisplay.textContent = dataFormattata;
+
+            msgErrore.style.display = 'none';
+            dateSelect.classList.remove('input-error-border');
+
+            const selectedText = dateSelect.options[dateSelect.selectedIndex].text;
+            
+            dateDisplay.textContent = selectedText;
             document.getElementById('confirmModal').style.display = 'flex';
         }
 
@@ -264,7 +286,6 @@
             document.getElementById('bookingForm').submit();
         }
 
-        
         function apriModalSegnalazione(idRecensione) {
             document.getElementById('motivoSegnalazione').value = "";
             document.getElementById('motivoError').style.display = "none";

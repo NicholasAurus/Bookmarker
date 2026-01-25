@@ -4,8 +4,24 @@
 <%@ page import="it.bookmarker.model.Libro" %>
 
 <%
+    // Recupero la lista dei libri
     List<Libro> elencoLibri = (List<Libro>) request.getAttribute("elencoLibri");
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+
+    String successMsg = (String) request.getAttribute("successMessage");
+    String errorMsg = (String) request.getAttribute("errorMessage");
+
+
+    if (successMsg == null) {
+        successMsg = (String) session.getAttribute("successMessage");
+        if (successMsg != null) session.removeAttribute("successMessage"); 
+    }
+
+    if (errorMsg == null) {
+        errorMsg = (String) session.getAttribute("errorMessage");
+        if (errorMsg != null) session.removeAttribute("errorMessage"); 
+    }
 %>
 
 <!DOCTYPE html>
@@ -16,42 +32,26 @@
     <title>Gestione Catalogo - BookMarker</title>
     <link rel="stylesheet" href="css/catalogoBibliotecario.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <style>
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            justify-content: center; align-items: center;
-            animation: fadeIn 0.3s;
-        }
-        .modal-box {
-            background: white; padding: 30px; border-radius: 8px;
-            width: 400px; text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3); animation: slideUp 0.3s;
-        }
-        .modal-icon { font-size: 3rem; margin-bottom: 15px; }
-        .modal-title { font-size: 1.2rem; margin-bottom: 10px; color: #333; }
-        .modal-text { color: #666; margin-bottom: 25px; }
-        .modal-buttons { display: flex; justify-content: center; gap: 15px; }
-        .btn-modal { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; }
-        .btn-cancel { background-color: #e0e0e0; color: #333; }
-        .btn-confirm { background-color: #c0392b; color: white; }
-        .btn-save { background-color: #27ae60; color: white; } /* Verde per salvare */
-
-        /* Stili specifici per l'input modifica */
-        .modal-input-group { margin: 20px 0; text-align: left; }
-        .modal-label { display: block; margin-bottom: 8px; font-weight: bold; color: #333; font-size: 0.9rem;}
-        .modal-input { width: 100%; padding: 10px; font-size: 1.2rem; border: 1px solid #ccc; border-radius: 5px; text-align: center; }
-        .book-title-preview { font-style: italic; color: #267bbc; margin-bottom: 15px; font-weight: 600; font-size: 1.1rem;}
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(20px); } to { transform: translateY(0); } }
-    </style>
 </head>
 <body>
+
+    <div class="toast-container" id="toastContainer">
+        <% if (successMsg != null && !successMsg.isEmpty()) { %>
+            <div class="toast success">
+                <i class="fa-solid fa-circle-check toast-icon"></i>
+                <div class="toast-message"><%= successMsg %></div>
+                <i class="fa-solid fa-xmark toast-close" onclick="this.parentElement.style.display='none'"></i>
+            </div>
+        <% } %>
+
+        <% if (errorMsg != null && !errorMsg.isEmpty()) { %>
+            <div class="toast error">
+                <i class="fa-solid fa-circle-exclamation toast-icon"></i>
+                <div class="toast-message"><%= errorMsg %></div>
+                <i class="fa-solid fa-xmark toast-close" onclick="this.parentElement.style.display='none'"></i>
+            </div>
+        <% } %>
+    </div>
 
     <header>
         <div class="header-spacer"></div>
@@ -66,7 +66,7 @@
 
     <main>
         <section class="blue-bar">
-            <div class="container-inner">
+             <div class="container-inner">
                 <div class="title-wrapper">
                     <h2 class="section-title">Catalogo</h2>
                     <a href="aggiungiLibro.jsp" class="btn-add-small" title="Aggiungi Nuovo Libro">
@@ -74,7 +74,7 @@
                     </a>
                 </div>
                 
-                <div class="search-wrapper">
+                 <div class="search-wrapper">
                     <div class="search-box-inner">
                         <input type="text" id="searchInput" placeholder="Cerca per titolo o autore..." class="search-input">
                         <i class="fa-solid fa-xmark close-icon" onclick="resetSearch()"></i>
@@ -82,13 +82,13 @@
                 </div>
 
                 <div class="filter-wrapper" onclick="toggleFilters(event)">
-                    <div class="filter-trigger">
+                     <div class="filter-trigger">
                         <i class="fa-solid fa-filter filter-icon"></i>
                         <span>Filtri</span>
                     </div>
                     
                     <div class="filter-dropdown" id="filterDropdown" onclick="event.stopPropagation()">
-                        <div class="filter-group">
+                         <div class="filter-group">
                             <label for="filterGenere">Genere:</label>
                             <select id="filterGenere" class="filter-select" onchange="applicaFiltri()">
                                 <option value="all">Tutti</option>
@@ -109,7 +109,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+             </div>
         </section>
 
         <div class="book-container" id="containerLibri">
@@ -118,7 +118,6 @@
                 for (Libro libro : elencoLibri) {
                     boolean hasImg = (libro.getCopertina() != null && !libro.getCopertina().isEmpty());
                     boolean disponibile = libro.getDisponibilita() > 0;
-                    // Escaping del titolo per evitare problemi col JS
                     String titoloSafe = libro.getTitolo().replace("'", "\\'");
             %>
 
@@ -130,14 +129,18 @@
                     <% if (hasImg) { %>
                         <img src="<%= libro.getCopertina() %>" alt="Cover">
                     <% } else { %>
-                        <i class="fa-regular fa-image"></i>
+                        <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #eee; color: #aaa;">
+                            <i class="fa-regular fa-image" style="font-size: 2rem;"></i>
+                        </div>
                     <% } %>
                 </div>
 
                 <div class="book-content">
                     <h3 class="book-title"><%= libro.getTitolo() %></h3>
                     <p class="book-author" style="font-weight:bold; color:#555;"><%= libro.getAutore() %></p>
-                    <p style="color: #777; font-size: 0.9rem; margin-bottom: 15px;"><%= libro.getDescrizione() != null ? libro.getDescrizione() : "Nessuna descrizione." %></p>
+                    <p style="color: #777; font-size: 0.9rem; margin-bottom: 15px;">
+                        <%= (libro.getDescrizione() != null && !libro.getDescrizione().isEmpty()) ? libro.getDescrizione() : "Nessuna descrizione." %>
+                    </p>
 
                     <div class="status-row">
                         <span class="label-gray">Copie:</span> 
@@ -172,13 +175,12 @@
                 } 
             } else {
             %>
-                <div style="text-align:center; padding: 50px; background: white; border-radius: 8px;">
+                <div style="text-align:center; padding: 50px; background: white; border-radius: 8px; width: 100%;">
                     <p>Nessun libro trovato nel catalogo.</p>
                 </div>
             <% } %>
         </div>
     </main>
-
 
     <div id="deleteModal" class="modal-overlay">
         <div class="modal-box">
@@ -194,25 +196,23 @@
         </div>
     </div>
 
-
     <div id="editModal" class="modal-overlay">
         <div class="modal-box">
             <div class="modal-icon">
                 <i class="fa-solid fa-boxes-stacked" style="color: #267bbc;"></i>
             </div>
             <h3 class="modal-title">Aggiorna Copie</h3>
-            
             <p id="editBookTitle" class="book-title-preview">Titolo Libro</p>
-
+            
             <form action="ModificaLibroServlet" method="post">
                 <input type="hidden" name="id" id="editBookId">
                 <input type="hidden" name="azione" value="aggiornaQuantita">
-
+                
                 <div class="modal-input-group">
                     <label class="modal-label">Numero di Copie:</label>
-                    <input type="number" name="quantita" id="editBookQty" class="modal-input" min="0" required>
+                    <input type="number" name="quantita" id="editBookQty" class="modal-input" required>
                 </div>
-
+                
                 <div class="modal-buttons">
                     <button type="button" class="btn-modal btn-cancel" onclick="chiudiModal('editModal')">Annulla</button>
                     <button type="submit" class="btn-modal btn-save">Salva Modifiche</button>
@@ -221,9 +221,7 @@
         </div>
     </div>
 
-
     <script>
-        
         let urlCancellazione = "";
 
         function apriModalEliminazione(idLibro) {
@@ -231,37 +229,30 @@
             document.getElementById('deleteModal').style.display = 'flex';
         }
 
-        
         function apriModalModifica(id, titolo, quantitaAttuale) {
-          
             document.getElementById('editBookId').value = id;
             document.getElementById('editBookTitle').innerText = titolo;
             document.getElementById('editBookQty').value = quantitaAttuale;
-            
-            
             document.getElementById('editModal').style.display = 'flex';
         }
 
-        
         function chiudiModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
             if(modalId === 'deleteModal') urlCancellazione = "";
         }
 
-        
         document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
             if (urlCancellazione) {
                 window.location.href = urlCancellazione;
             }
         });
 
-      
+        // Chiude la modale cliccando fuori
         window.onclick = function(event) {
             if (event.target.classList.contains('modal-overlay')) {
                 event.target.style.display = 'none';
             }
-            
-         
+            // Chiude il dropdown filtri
             const wrapper = document.querySelector('.filter-wrapper');
             const menu = document.getElementById('filterDropdown');
             if (wrapper && !wrapper.contains(event.target) && menu && menu.classList.contains('active')) {
@@ -269,7 +260,6 @@
             }
         }
 
-     
         function toggleFilters(event) {
             const menu = document.getElementById('filterDropdown');
             menu.classList.toggle('active');
@@ -277,6 +267,7 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
+            // Popola Select Generi dinamicamente
             const cards = document.querySelectorAll('.search-item');
             const selectGenere = document.getElementById('filterGenere');
             const generiTrovati = new Set(); 
@@ -289,8 +280,20 @@
                 option.value = genere; option.textContent = genere;
                 selectGenere.appendChild(option);
             });
+
+            // Animazione sparizione Toast
+            const toasts = document.querySelectorAll('.toast');
+            if (toasts.length > 0) {
+                setTimeout(() => {
+                    toasts.forEach(toast => {
+                        toast.style.animation = 'fadeOut 1s forwards';
+                        setTimeout(() => toast.remove(), 1000);
+                    });
+                }, 5000); // Spariscono dopo 5 secondi
+            }
         });
 
+        // Logica di Ricerca e Filtri
         const searchInput = document.getElementById('searchInput');
         const selectGenere = document.getElementById('filterGenere');
         const selectDisp = document.getElementById('filterDisp');

@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import it.bookmarker.dao.LibriDAO;
 import it.bookmarker.dao.PrestitiDAO;
 import it.bookmarker.model.Prestito;
 import it.bookmarker.service.PrestitoService;
@@ -40,8 +41,9 @@ public class GestionePrestitiServlet extends HttpServlet {
         request.setAttribute("activeTab", activeTab);
 
         //Inizializzazione Service
-        PrestitiDAO dao = new PrestitiDAO();
-        PrestitoService service = new PrestitoService(dao);
+        PrestitiDAO prestitiDAO = new PrestitiDAO();
+        LibriDAO libriDAO = new LibriDAO();
+        PrestitoService service = new PrestitoService(prestitiDAO, libriDAO);
         
         //Recupero Dati tramite Service
         List<Prestito> listaPrenotati = service.getPrenotati();
@@ -65,8 +67,9 @@ public class GestionePrestitiServlet extends HttpServlet {
         String tabDaAprire = "prenotati"; // Default redirect
 
         //Service
-        PrestitiDAO dao = new PrestitiDAO();
-        PrestitoService service = new PrestitoService(dao);
+        PrestitiDAO prestitiDAO = new PrestitiDAO();
+        LibriDAO libriDAO = new LibriDAO();
+        PrestitoService service = new PrestitoService(prestitiDAO, libriDAO);
 
         //Logica azioni
         if (idStr != null && azione != null) {

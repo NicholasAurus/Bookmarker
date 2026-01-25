@@ -15,6 +15,89 @@ public class PrestitiDAO {
     private String USER = "root";
     private String PASS = "Bookmarker09!";
 
+    public Prestito getPrestitoById(int id) {
+        Prestito p = null;
+
+        String sql = "SELECT p.*, l.titolo, l.autore, l.copertina, l.descrizione " +
+                     "FROM prestiti p " +
+                     "JOIN libri l ON p.libro_id = l.id_libro " +
+                     "WHERE p.id = ?";
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
+
+                ps.setInt(1, id);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        p = new Prestito();
+                        p.setId(rs.getInt("id"));
+                        p.setUtenteEmail(rs.getString("utente_email"));
+                        p.setLibroId(rs.getInt("libro_id"));
+                        p.setDataPrenotazione(rs.getDate("data_prenotazione"));
+                        p.setDataInizio(rs.getDate("data_inizio"));
+                        p.setDataFinePrevista(rs.getDate("data_fine_prevista"));
+                        p.setDataRestituzioneEffettiva(rs.getDate("data_restituzione_effettiva"));
+                        p.setStato(rs.getString("stato"));
+                        p.setMotivazione(rs.getString("motivazione"));
+
+                        //dati del libro 
+                        p.setTitoloLibro(rs.getString("titolo"));
+                        p.setAutoreLibro(rs.getString("autore"));
+                        p.setCopertinaLibro(rs.getString("copertina"));
+                        p.setDescrizioneLibro(rs.getString("descrizione"));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return p;
+    }
+    
+    public int contaPrestitiPendenti(String emailUtente) {
+        String sql = "SELECT COUNT(*) FROM prestiti WHERE utente_email = ? AND stato IN ('Richiesto', 'prenotato')";
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
+                
+                ps.setString(1, emailUtente);
+                
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getInt(1);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public boolean isLibroGiaRichiesto(String emailUtente, int idLibro) {
+        String sql = "SELECT 1 FROM prestiti WHERE utente_email = ? AND libro_id = ? AND stato IN ('Richiesto', 'prenotato', 'In Corso')";
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
+                
+                ps.setString(1, emailUtente);
+                ps.setInt(2, idLibro);
+                
+                try (ResultSet rs = ps.executeQuery()) {
+                    return rs.next();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public boolean prenotaLibro(String emailUtente, int idLibro, Date dataSceltaDallUtente) {
         String sql = "INSERT INTO prestiti (utente_email, libro_id, data_prenotazione, stato) VALUES (?, ?, ?, 'Richiesto')";
         
@@ -286,5 +369,26 @@ public class PrestitiDAO {
             e.printStackTrace();
         }
         return lista;
+    }
+
+    //verificare se ci sono prestiti attivi prima della cancellazione
+    public boolean esistonoPrestitiAttiviPerLibro(int idLibro) {
+        String sql = "SELECT 1 FROM prestiti WHERE libro_id = ? AND stato IN ('Richiesto', 'prenotato', 'In Corso')";
+        
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
+                
+                ps.setInt(1, idLibro);
+                
+                try (ResultSet rs = ps.executeQuery()) {
+                    return rs.next();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

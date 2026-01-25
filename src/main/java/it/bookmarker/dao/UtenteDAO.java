@@ -115,12 +115,9 @@ public class UtenteDAO {
                         utente.setCodiceFiscale(rs.getString("codice_fiscale"));
                         utente.setDataRegistrazione(rs.getDate("data_registrazione"));
                         utente.setStato(rs.getString("stato"));
+                        utente.setDomandaSicurezza(rs.getString("domanda_sicurezza"));
+                        utente.setRispostaSicurezza(rs.getString("risposta_sicurezza"));
                         
-                        // Opzionale: caricare anche domanda/risposta se servono nel model completo
-                        if (hasColumn(rs, "domanda_sicurezza")) {
-                            utente.setDomandaSicurezza(rs.getString("domanda_sicurezza"));
-                            utente.setRispostaSicurezza(rs.getString("risposta_sicurezza"));
-                        }
                     }
                 }
             }
@@ -238,15 +235,22 @@ public class UtenteDAO {
         }
     }
 
-    // Metodo helper per evitare SQLException se la colonna non esiste in vecchie versioni del DB
-    private boolean hasColumn(ResultSet rs, String columnName) throws SQLException {
-        java.sql.ResultSetMetaData rsmd = rs.getMetaData();
-        int columns = rsmd.getColumnCount();
-        for (int x = 1; x <= columns; x++) {
-            if (columnName.equals(rsmd.getColumnName(x))) {
-                return true;
+    public boolean deleteUtente(String email) {
+        String sql = "DELETE FROM utenti WHERE email = ?";
+        
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(url, user, pass);
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
+                
+                ps.setString(1, email);
+                
+                int rowsAffected = ps.executeUpdate();
+                return rowsAffected > 0;
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
-        return false;
     }
 }
