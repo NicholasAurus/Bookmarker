@@ -10,6 +10,7 @@ import javax.servlet.http.HttpSession;
 
 import it.bookmarker.dao.UtenteDAO;
 import it.bookmarker.service.UtenteService;
+import it.bookmarker.service.exception.UtenteServiceException.*;
 
 @WebServlet("/RecuperoPasswordServlet")
 public class RecuperoPasswordServlet extends HttpServlet {
@@ -24,57 +25,69 @@ public class RecuperoPasswordServlet extends HttpServlet {
         UtenteService service = new UtenteService(dao);
         HttpSession session = request.getSession();
         
-       
         if ("cercaEmail".equals(action)) {
             String email = request.getParameter("email");
-            String domanda = service.recuperaDomanda(email);
-            
-            if (domanda != null) {
-                // Trovato! Salviamo l'email in sessione per sicurezza e andiamo allo step 2
+            try {
+                String domanda = service.recuperaDomanda(email);
                 session.setAttribute("emailRecupero", email);
                 request.setAttribute("domanda", domanda);
                 request.getRequestDispatcher("recupero_domanda.jsp").forward(request, response);
-            } else {
-                request.setAttribute("error", "Email non trovata.");
+
+            } catch (UtenteNonTrovatoException e) {
+                request.setAttribute("error", e.getMessage());
                 request.getRequestDispatcher("recupero_email.jsp").forward(request, response);
             }
         }
         
-      
         else if ("verificaRisposta".equals(action)) {
             String email = (String) session.getAttribute("emailRecupero");
             String risposta = request.getParameter("risposta");
             
-            if (email != null && service.verificaRispostaSicurezza(email, risposta)) {
-                // Risposta corretta! Andiamo allo step 3
+            try {
+                service.verificaRispostaSicurezza(email, risposta);
+                
+                session.setAttribute("rispostaRecupero", risposta);
                 request.getRequestDispatcher("recupero_reset.jsp").forward(request, response);
-            } else {
-                // Errore: ricarichiamo la domanda per riprovare
-                String domanda = service.recuperaDomanda(email);
-                request.setAttribute("domanda", domanda);
-                request.setAttribute("error", "Risposta errata. Riprova.");
+
+            } catch (UtenteNonTrovatoException | RispostaSicurezzaErrataException e) {
+                try {
+                    String domanda = service.recuperaDomanda(email);
+                    request.setAttribute("domanda", domanda);
+                } catch (UtenteNonTrovatoException ex) {
+                    
+                }
+                request.setAttribute("error", e.getMessage());
                 request.getRequestDispatcher("recupero_domanda.jsp").forward(request, response);
             }
         }
         
-  
         else if ("resetFinale".equals(action)) {
             String email = (String) session.getAttribute("emailRecupero");
+            String risposta = (String) session.getAttribute("rispostaRecupero");
             String pwd = request.getParameter("password");
             String confPwd = request.getParameter("conferma_password");
             
-            if (email != null && service.resetPassword(email, pwd, confPwd)) {
-                // Successo: puliamo la sessione e mandiamo al login
+            try {
+                service.resetPassword(email, risposta, pwd, confPwd);
+                
                 session.removeAttribute("emailRecupero");
+                session.removeAttribute("rispostaRecupero");
                 response.sendRedirect("login.jsp?msg=resetSuccess");
-            } else {
-                request.setAttribute("error", "Errore: password non valida o non coincidenti.");
+
+            } catch (UtenteNonTrovatoException | RispostaSicurezzaErrataException | 
+                     FormatoPasswordNonValidoException | PasswordNonCorrispondentiException e) {
+                
+                request.setAttribute("error", e.getMessage());
+                request.getRequestDispatcher("recupero_reset.jsp").forward(request, response);
+                
+            } catch (Exception e) {
+                e.printStackTrace();
+                request.setAttribute("error", "Errore di sistema.");
                 request.getRequestDispatcher("recupero_reset.jsp").forward(request, response);
             }
         }
     }
     
-    // Gestione GET per caricare la pagina iniziale
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         request.getRequestDispatcher("recupero_email.jsp").forward(request, response);

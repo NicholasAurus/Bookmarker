@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import it.bookmarker.dao.UtenteDAO;
 import it.bookmarker.service.UtenteService;
+import it.bookmarker.service.exception.GenericException.*;
+import it.bookmarker.service.exception.UtenteServiceException.*;
 
 @WebServlet("/RegistrazioneServlet")
 public class RegistrazioneServlet extends HttpServlet {
@@ -18,7 +20,6 @@ public class RegistrazioneServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        //parametri
         String nome = request.getParameter("nome");
         String cognome = request.getParameter("cognome");
         String codiceFiscale = request.getParameter("codice_fiscale");
@@ -31,16 +32,32 @@ public class RegistrazioneServlet extends HttpServlet {
         UtenteDAO dao = new UtenteDAO(); 
         UtenteService service = new UtenteService(dao);
 
-        //chiama il Service
-        String errore = service.registraUtente(nome, cognome, codiceFiscale, email, password, confirmPassword, domanda, risposta);
+        try {
+            service.registraUtente(nome, cognome, codiceFiscale, email, password, confirmPassword, domanda, risposta);
 
-        
-        if (errore == null) {
-            //ok
             response.sendRedirect("login.jsp?reg=success");
-        } else {
-            //fail
-            request.setAttribute("errorMessage", errore);
+
+        } catch (FormatoDatiNonValidoException | FormatoPasswordNonValidoException | PasswordNonCorrispondentiException | EmailGiaRegistrataException | CodiceFiscaleGiaRegistratoException e) {
+            
+            request.setAttribute("errorMessage", e.getMessage());
+            request.setAttribute("oldNome", nome);
+            request.setAttribute("oldCognome", cognome);
+            request.setAttribute("oldCodiceFiscale", codiceFiscale);
+            request.setAttribute("oldEmail", email);
+            
+            RequestDispatcher rd = request.getRequestDispatcher("registrazione.jsp");
+            rd.forward(request, response);
+
+        } catch (Exception e) {
+            
+            e.printStackTrace();
+            request.setAttribute("errorMessage", "Errore tecnico del sistema. Riprova più tardi.");
+            
+            request.setAttribute("oldNome", nome);
+            request.setAttribute("oldCognome", cognome);
+            request.setAttribute("oldCodiceFiscale", codiceFiscale);
+            request.setAttribute("oldEmail", email);
+
             RequestDispatcher rd = request.getRequestDispatcher("registrazione.jsp");
             rd.forward(request, response);
         }

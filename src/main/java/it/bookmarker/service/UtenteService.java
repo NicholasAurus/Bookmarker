@@ -6,6 +6,8 @@ import java.util.regex.Pattern;
 import org.mindrot.jbcrypt.BCrypt;
 import it.bookmarker.dao.UtenteDAO;
 import it.bookmarker.model.Utente;
+import it.bookmarker.service.exception.GenericException.*;
+import it.bookmarker.service.exception.UtenteServiceException.*;
 
 public class UtenteService {
 
@@ -22,92 +24,76 @@ public class UtenteService {
         this.utenteDAO = utenteDAO;
     }
 
-    public String registraUtente(String nome, String cognome, String cf, String email, String password, String confirmPassword, String domanda, String risposta) {
-        
-        // Controllo Corrispondenza Password
-        if (password == null || !password.equals(confirmPassword)) {
-            return "Le password non corrispondono.";
-        }
+    public void registraUtente(String nome, String cognome, String cf, String email, String password, String confirmPassword, String domanda, String risposta) 
+    		throws FormatoDatiNonValidoException,FormatoPasswordNonValidoException, PasswordNonCorrispondentiException, EmailGiaRegistrataException, CodiceFiscaleGiaRegistratoException, SQLException {
 
-        //Controlli di Formato (usando i metodi privati)
-        if (!isNomeValido(nome)) {
-            return "Il nome deve contenere solo lettere.";
-        }
-        
-        if (!isNomeValido(cognome)) { // Riusiamo lo stesso metodo del nome
-            return "Il cognome deve contenere solo lettere.";
-        }
+		if (password == null || !password.equals(confirmPassword)) {
+		throw new PasswordNonCorrispondentiException("Le password non corrispondono.");
+		}
+		
+		if (!isNomeValido(nome)) {
+		throw new FormatoDatiNonValidoException("Il nome deve contenere solo lettere.");
+		}
+		
+		if (!isNomeValido(cognome)) {
+		throw new FormatoDatiNonValidoException("Il cognome deve contenere solo lettere.");
+		}
+		
+		if (!isCodiceFiscaleValido(cf)) {
+		throw new FormatoDatiNonValidoException("Il Codice Fiscale deve essere di 16 caratteri alfanumerici.");
+		}
+		
+		if (!isEmailFormatoValido(email)) {
+		throw new FormatoDatiNonValidoException("Inserisci un indirizzo email valido (con @ e .).");
+		}
+		
+		if (!isPasswordValida(password)) {
+		throw new FormatoPasswordNonValidoException("La password deve contenere almeno 8 caratteri, una maiuscola, un numero e un simbolo.");
+		}
+		
+		if (domanda == null || domanda.trim().isEmpty()) {
+		throw new FormatoDatiNonValidoException("Seleziona una domanda di sicurezza.");
+		}
+		
+		if (risposta == null || risposta.trim().isEmpty()) {
+		throw new FormatoDatiNonValidoException("La risposta alla domanda di sicurezza è obbligatoria.");
+		}
+		
+		if (utenteDAO.esisteEmail(email)) {
+		throw new EmailGiaRegistrataException("L'email inserita è già registrata.");
+		}
+		
+		if (utenteDAO.esisteCodiceFiscale(cf)) {
+		throw new CodiceFiscaleGiaRegistratoException("Il Codice Fiscale inserito è già registrato.");
+		}
+		
+		String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+		Utente nuovoUtente = new Utente(nome, cognome, cf, email, hashedPassword);
+		nuovoUtente.setDomandaSicurezza(domanda);
+		nuovoUtente.setRispostaSicurezza(risposta);
+		
+		utenteDAO.registraUtente(nuovoUtente);
+		
+		}
 
-        if (!isCodiceFiscaleValido(cf)) {
-            return "Il Codice Fiscale deve essere di 16 caratteri alfanumerici.";
-        }
 
-        if (!isEmailFormatoValido(email)) {
-            return "Inserisci un indirizzo email valido (con @ e .).";
-        }
 
-        if (!isPasswordForte(password)) {
-            return "La password deve contenere almeno 8 caratteri, una maiuscola, un numero e un simbolo.";
-        }
-        
-        if (domanda == null || domanda.trim().isEmpty()) {
-            return "Seleziona una domanda di sicurezza.";
-        }
-
-        if (risposta == null || risposta.trim().isEmpty()) {
-            return "La risposta alla domanda di sicurezza è obbligatoria.";
-        }
-
-        try {
-            //Controlli sul Database (Unicità email)
-            if (utenteDAO.esisteEmail(email)) {
-                return "L'email inserita è già registrata.";
-            }
-
-            //Il CF esiste già nel DB
-            if (utenteDAO.esisteCodiceFiscale(cf)) {
-                return "Il Codice Fiscale inserito è già registrato.";
-            }
-
-            //Se arriviamo qui, è tutto OK
-            String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-            Utente nuovoUtente = new Utente(nome, cognome, cf, email, hashedPassword);
-            nuovoUtente.setDomandaSicurezza(domanda);
-            nuovoUtente.setRispostaSicurezza(risposta);
-            
-            boolean salvato = utenteDAO.registraUtente(nuovoUtente);
-            
-            if (salvato) {
-                return null; //OK
-            } else { //Fail
-                return "Errore generico durante il salvataggio.";
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return "Errore tecnico del database: " + e.getMessage();
-        }
-    }
     
-    public Utente login(String email, String password) throws Exception {
+    public Utente login(String email, String password) throws CredenzialiNonValideException, UtenteNonAbilitatoException {
         
-        //Cerca l'utente nel DB
         Utente utente = utenteDAO.getUtenteByEmail(email);
 
-        //Controllo Esistenza e Password (BCrypt)
         if (utente == null || !BCrypt.checkpw(password, utente.getPassword())) {
-            throw new Exception("Email o password non validi.");
+            throw new CredenzialiNonValideException("Email o password non validi.");
         }
 
-        //Controllo Stati Account
         String stato = utente.getStato();
         if (stato != null) {
             if ("in_attesa".equals(stato)) {
-                throw new Exception("Registrazione in attesa di approvazione da parte del bibliotecario.");
+                throw new UtenteNonAbilitatoException("Registrazione in attesa di approvazione da parte del bibliotecario.");
             }
         }
 
-        //arrivati qui, è ok
         return utente;
     }
     
@@ -120,58 +106,91 @@ public class UtenteService {
         return utenteDAO.getUtentiInAttesa();
     }
 
-    public boolean accettaUtente(String email) {
-        if (email == null) return false;
+    public void accettaUtente(String email) 
+            throws FormatoDatiNonValidoException, UtenteNonTrovatoException, StatoUtenteNonValidoException {
         
+        if (email == null) {
+            throw new FormatoDatiNonValidoException("Email null.");
+        }
         
         Utente u = utenteDAO.getUtenteByEmail(email);
         
-        // Se l'utente non esiste O non è in stato "in_attesa"
-        if (u == null || !"in_attesa".equals(u.getStato())) {
-            return false; 
+        if (u == null) {
+            throw new UtenteNonTrovatoException("Email non valida.");
+        }
+
+        if (!"in_attesa".equals(u.getStato())) {
+            throw new StatoUtenteNonValidoException("L'utente non è In Attesa.");
         }
         
-        return utenteDAO.updateStato(email, "attivo");
+        utenteDAO.updateStato(email, "attivo");
     }
 
-    public boolean rifiutaUtente(String email) {
-        if (email == null) return false;
+    public void rifiutaUtente(String email) 
+            throws FormatoDatiNonValidoException, UtenteNonTrovatoException, StatoUtenteNonValidoException {
+        
+        if (email == null) {
+            throw new FormatoDatiNonValidoException("Email null.");
+        }
         
         Utente u = utenteDAO.getUtenteByEmail(email);
         
-     // Se l'utente non esiste O non è in stato "in_attesa"
-        if (u == null || !"in_attesa".equals(u.getStato())) {
-            return false;
+        if (u == null) {
+            throw new UtenteNonTrovatoException("Email non valida.");
+        }
+
+        if (!"in_attesa".equals(u.getStato())) {
+            throw new StatoUtenteNonValidoException("L'utente non è In Attesa.");
         }
         
-        return utenteDAO.deleteUtente(email);
+        utenteDAO.deleteUtente(email);
     }
 
-    public String recuperaDomanda(String email) {
-        if (email == null || email.trim().isEmpty()) return null;
-        return utenteDAO.getDomandaSicurezza(email);
+    public String recuperaDomanda(String email) throws UtenteNonTrovatoException {
+        Utente utente = utenteDAO.getUtenteByEmail(email);
+        if (utente == null) {
+            throw new UtenteNonTrovatoException("Email non trovata.");
+        }
+        return utente.getDomandaSicurezza();
     }
 
-    public boolean verificaRispostaSicurezza(String email, String rispostaUtente) {
-        if (email == null || rispostaUtente == null) return false;
+    public void verificaRispostaSicurezza(String email, String risposta) 
+            throws UtenteNonTrovatoException, RispostaSicurezzaErrataException {
         
-        String rispostaCorretta = utenteDAO.getRispostaSicurezza(email);
+        Utente utente = utenteDAO.getUtenteByEmail(email);
+        if (utente == null) {
+            throw new UtenteNonTrovatoException("Email non trovata.");
+        }
         
-        if (rispostaCorretta == null) return false;
-        
-        return rispostaCorretta.trim().equalsIgnoreCase(rispostaUtente.trim());
+        if (!utente.getRispostaSicurezza().equalsIgnoreCase(risposta)) {
+            throw new RispostaSicurezzaErrataException("Risposta di sicurezza errata.");
+        }
     }
 
-    public boolean resetPassword(String email, String nuovaPassword, String confermaPassword) {
-        if (email == null || nuovaPassword == null) return false;
-        
-        if (!nuovaPassword.equals(confermaPassword)) return false;
-        
-        if (!isPasswordForte(nuovaPassword)) return false;
+    public void resetPassword(String email, String rispostaSicurezza, String nuovaPassword, String confermaPassword) 
+            throws UtenteNonTrovatoException, RispostaSicurezzaErrataException, 
+                   FormatoPasswordNonValidoException, PasswordNonCorrispondentiException {
+
+        Utente utente = utenteDAO.getUtenteByEmail(email);
+
+        if (utente == null) {
+            throw new UtenteNonTrovatoException("Email non trovata.");
+        }
+
+        if (!utente.getRispostaSicurezza().equalsIgnoreCase(rispostaSicurezza)) {
+            throw new RispostaSicurezzaErrataException("Risposta di sicurezza errata.");
+        }
+
+        if (!isPasswordValida(nuovaPassword)) {
+            throw new FormatoPasswordNonValidoException("La password non rispetta il formato richiesto.");
+        }
+
+        if (!nuovaPassword.equals(confermaPassword)) {
+            throw new PasswordNonCorrispondentiException("I campi password e conferma password non corrispondono.");
+        }
 
         String hashedPassword = BCrypt.hashpw(nuovaPassword, BCrypt.gensalt());
-        
-        return utenteDAO.updatePassword(email, hashedPassword);
+        utenteDAO.updatePassword(email, hashedPassword);
     }
     
     //Metodi utili
@@ -198,7 +217,7 @@ public class UtenteService {
     }
 
     // Controlla la complessità della Password
-    private boolean isPasswordForte(String password) {
+    private boolean isPasswordValida(String password) {
         if (password == null) return false;
         // Controlla: 8 chars, 1 Maiusc, 1 Numero, 1 Simbolo
         return PASS_PATTERN.matcher(password).matches();

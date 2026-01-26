@@ -37,30 +37,30 @@
             %>
             
             <form action="RegistrazioneServlet" method="POST"> 
-                <div class="form-group">
-                    <label for="nome">Nome</label>
-                    <input type="text" id="nome" name="nome" placeholder="Nome" required>
-                </div>
-                <div class="form-group">
-                    <label for="cognome">Cognome</label>
-                    <input type="text" id="cognome" name="cognome" placeholder="Cognome" required>
-                </div>
-                <div class="form-group">
-                    <label for="codice_fiscale">Codice Fiscale</label>
-                    <input type="text" id="codice_fiscale" name="codice_fiscale" placeholder="Es. RSSMRA80A01H501U" maxlength="16" style="text-transform: uppercase;" required>
-                </div>
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" placeholder="example@mail.com" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" placeholder="password" required>
-                </div>
-                <div class="form-group">
-                    <label for="conferma_password">Conferma password</label>
-                    <input type="password" id="conferma_password" name="conferma_password" placeholder="conferma password" required>
-                </div>
+				<div class="form-group">
+			        <label for="nome">Nome</label>
+			        <input type="text" id="nome" name="nome" placeholder="Nome" value="${oldNome}" required>
+			    </div>
+			    <div class="form-group">
+			        <label for="cognome">Cognome</label>
+			        <input type="text" id="cognome" name="cognome" placeholder="Cognome" value="${oldCognome}" required>
+			    </div>
+			    <div class="form-group">
+			        <label for="codice_fiscale">Codice Fiscale</label>
+			        <input type="text" id="codice_fiscale" name="codice_fiscale" placeholder="Es. RSSMRA80A01H501U" maxlength="16" style="text-transform: uppercase;" value="${oldCodiceFiscale}" required>
+			    </div>
+			    <div class="form-group">
+			        <label for="email">Email</label>
+			        <input type="email" id="email" name="email" placeholder="example@mail.com" value="${oldEmail}" required>
+			    </div>
+			    <div class="form-group">
+			        <label for="password">Password</label>
+			        <input type="password" id="password" name="password" placeholder="password" required>
+			    </div>
+			    <div class="form-group">
+			        <label for="conferma_password">Conferma password</label>
+			        <input type="password" id="conferma_password" name="conferma_password" placeholder="conferma password" required>
+			    </div>
 
                 <div class="form-group">
                     <label for="domanda">Domanda di Sicurezza</label>

@@ -7,6 +7,8 @@ import java.util.List;
 import it.bookmarker.dao.LibriDAO;
 import it.bookmarker.dao.PrestitiDAO;
 import it.bookmarker.model.Libro;
+import it.bookmarker.service.exception.GenericException.*;
+import it.bookmarker.service.exception.LibroServiceException.*;
 
 public class LibroService {
 
@@ -19,111 +21,102 @@ public class LibroService {
     }
 
 
-    public String aggiungiLibro(String titolo, String autore, String genere, String copieStr, String dataPubStr, String copertina, String descrizione) {
+    public void aggiungiLibro(String titolo, String autore, String genere, String copieStr, String dataPubStr, String copertina, String descrizione) 
+            throws FormatoDatiNonValidoException, DataNonValidaException, CopieNegativeException {
         
-        //CONTROLLO CAMPI OBBLIGATORI (Stringhe vuote o null)
         if (titolo == null || titolo.trim().isEmpty()) {
-            return "Il titolo è obbligatorio.";
+            throw new FormatoDatiNonValidoException("Il titolo è obbligatorio.");
         }
         if (autore == null || autore.trim().isEmpty()) {
-            return "L'autore è obbligatorio.";
+            throw new FormatoDatiNonValidoException("L'autore è obbligatorio.");
         }
         if (genere == null || genere.trim().isEmpty()) {
-            return "Il genere è obbligatorio.";
+            throw new FormatoDatiNonValidoException("Il genere è obbligatorio.");
         }
         if (copieStr == null || copieStr.trim().isEmpty()) {
-            return "Il numero di copie è obbligatorio.";
+            throw new FormatoDatiNonValidoException("Il numero di copie è obbligatorio.");
         }
         if (dataPubStr == null || dataPubStr.trim().isEmpty()) {
-            return "La data di pubblicazione è obbligatoria.";
+            throw new FormatoDatiNonValidoException("La data di pubblicazione è obbligatoria.");
         }
         if (copertina == null || copertina.trim().isEmpty()) {
-            return "La copertina è obbligatoria.";
+            throw new FormatoDatiNonValidoException("La copertina è obbligatoria.");
         }
         if(descrizione == null || descrizione.trim().isEmpty()) {
-        	return "La descrizione è obbligatoria.";
+            throw new FormatoDatiNonValidoException("La descrizione è obbligatoria.");
         }
         
         String copertinaLower = copertina.toLowerCase();
         if (!copertinaLower.endsWith(".jpg") && 
             !copertinaLower.endsWith(".jpeg") && 
             !copertinaLower.endsWith(".png")) {
-            return "Il file della copertina deve essere nei seguenti formati: jpg, png, jpeg";
+            throw new FormatoDatiNonValidoException("Il file della copertina deve essere nei seguenti formati: jpg, png, jpeg");
         }
 
-            //CONTROLLO NUMERICO COPIE
-            int copie;
-            try {
-                copie = Integer.parseInt(copieStr);
-            } catch (NumberFormatException e) {
-                return "Il campo 'Copie' deve contenere un numero intero valido.";
-            }
+        int copie;
+        try {
+            copie = Integer.parseInt(copieStr);
+        } catch (NumberFormatException e) {
+            throw new FormatoDatiNonValidoException("Il campo 'Copie' deve contenere un numero intero valido.");
+        }
 
-            if (copie < 0) {
-                return "Il numero di copie non può essere negativo.";
-            }
+        if (copie < 0) {
+            throw new CopieNegativeException("Il numero di copie non può essere negativo.");
+        }
 
-            //CONTROLLO DATA
-            Date dataPub;
-            try {
-                dataPub = Date.valueOf(dataPubStr); // Formato yyyy-mm-dd
-            } catch (IllegalArgumentException e) {
-                return "Formato data non valido.";
-            }
-            
-            //Data futura prevista: al massimo un anno (magari si deve inserire un libro che uscirà poi)
-            LocalDate localDataPub = dataPub.toLocalDate();
-            if (localDataPub.getYear() > LocalDate.now().getYear()) {
-                return "L'anno di pubblicazione non è valido";
-            }
+        Date dataPub;
+        try {
+            dataPub = Date.valueOf(dataPubStr);
+        } catch (IllegalArgumentException e) {
+            throw new DataNonValidaException("Formato data non valido.");
+        }
+        
+        LocalDate localDataPub = dataPub.toLocalDate();
+        if (localDataPub.getYear() > LocalDate.now().getYear()) {
+            throw new DataNonValidaException("L'anno di pubblicazione non è valido");
+        }
 
-            
-            Libro libro = new Libro();
-            libro.setTitolo(titolo);
-            libro.setAutore(autore);
-            libro.setGenere(genere);
-            libro.setDisponibilita(copie);
-            libro.setDataPubblicazione(dataPub);
-            libro.setCopertina(copertina);
-            libro.setDescrizione(descrizione);
+        Libro libro = new Libro();
+        libro.setTitolo(titolo);
+        libro.setAutore(autore);
+        libro.setGenere(genere);
+        libro.setDisponibilita(copie);
+        libro.setDataPubblicazione(dataPub);
+        libro.setCopertina(copertina);
+        libro.setDescrizione(descrizione);
 
-            //Chiamata al DAO
-            boolean esito = libriDAO.inserisciLibro(libro); 
-
-            if (esito) {
-                return null; // Ritorna null per indicare "Nessun Errore"
-            } else {
-                return "Errore durante il salvataggio nel database.";
-            }
-
+        libriDAO.inserisciLibro(libro); 
     }
     
-    public String aggiornaDisponibilita(String idStr, String quantitaStr) {
-            if (idStr == null || idStr.trim().isEmpty()) return "ID libro mancante.";
-            if (quantitaStr == null || quantitaStr.trim().isEmpty()) return "Quantità mancante.";
+    public void aggiornaDisponibilita(String idStr, String quantitaStr) 
+            throws FormatoDatiNonValidoException, CopieNegativeException, LibroNonTrovatoException {
             
-            int id;
-            int nuoveCopie;
+        if (idStr == null || idStr.trim().isEmpty()) {
+            throw new FormatoDatiNonValidoException("ID libro mancante.");
+        }
+        if (quantitaStr == null || quantitaStr.trim().isEmpty()) {
+            throw new FormatoDatiNonValidoException("Quantità mancante.");
+        }
+        
+        int id;
+        int nuoveCopie;
 
-            try {
-                id = Integer.parseInt(idStr.trim());
-                nuoveCopie = Integer.parseInt(quantitaStr.trim());
-            } catch (NumberFormatException e) {
-                return "Devi inserire un numero intero valido.";
-            }
+        try {
+            id = Integer.parseInt(idStr.trim());
+            nuoveCopie = Integer.parseInt(quantitaStr.trim());
+        } catch (NumberFormatException e) {
+            throw new FormatoDatiNonValidoException("Devi inserire un numero intero valido.");
+        }
 
-            if (nuoveCopie < 0) {
-                return "La disponibilità non può essere negativa.";
-            }
-            
-            boolean esito = libriDAO.aggiornaDisponibilita(id, nuoveCopie);
+        if (nuoveCopie < 0) {
+            throw new CopieNegativeException("La disponibilità non può essere negativa.");
+        }
+        
+        boolean esito = libriDAO.aggiornaDisponibilita(id, nuoveCopie);
 
-            if (esito) {
-                return null; // successo
-            } else {
-                return "Errore nel salvataggio sul database.";
-            }
-
+        if (!esito) {
+            throw new LibroNonTrovatoException("Errore: Impossibile aggiornare, libro non trovato.");
+        }
     }
     
     public String rimuoviLibro(String idStr) {

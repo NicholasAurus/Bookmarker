@@ -6,10 +6,14 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import it.bookmarker.dao.LibriDAO;
 import it.bookmarker.model.Libro;
 import it.bookmarker.service.LibroService;
+import it.bookmarker.service.exception.GenericException.FormatoDatiNonValidoException;
+import it.bookmarker.service.exception.LibroServiceException.CopieNegativeException;
+import it.bookmarker.service.exception.LibroServiceException.LibroNonTrovatoException;
 
 @WebServlet("/ModificaLibroServlet")
 public class ModificaLibroServlet extends HttpServlet {
@@ -22,25 +26,20 @@ public class ModificaLibroServlet extends HttpServlet {
         
         if (idParam != null) {
             try {
-
                 int id = Integer.parseInt(idParam);
                 
-                // Service
                 LibriDAO dao = new LibriDAO();
                 LibroService service = new LibroService(dao);
-                
-                // Recupero Dati
+
                 Libro libro = service.getDettaglioLibro(id);
                 
                 request.setAttribute("libroDaModificare", libro);
                 request.getRequestDispatcher("modificaLibro.jsp").forward(request, response);
                 
             } catch (NumberFormatException e) {
-                // ID non valido
                 response.sendRedirect("CatalogoBibliotecarioServlet");
             }
         } else {
-            // ID mancante
             response.sendRedirect("CatalogoBibliotecarioServlet");
         }
     }
@@ -50,24 +49,24 @@ public class ModificaLibroServlet extends HttpServlet {
         
         String azione = request.getParameter("azione");
         
-        // Inizializzazione Service
         LibriDAO dao = new LibriDAO();
         LibroService service = new LibroService(dao);
+        HttpSession session = request.getSession();
 
-        // Gestione Azioni
         if ("aggiornaQuantita".equals(azione)) {
             String idStr = request.getParameter("id");
             String quantitaStr = request.getParameter("quantita");
 
-            
-            String errore = service.aggiornaDisponibilita(idStr, quantitaStr);
-            
-            if (errore == null) {
-                // SUCCESSO
-                request.getSession().setAttribute("successMessage", "Quantità aggiornata con successo.");
-            } else {
-                // ERRORE
-                request.getSession().setAttribute("errorMessage", errore);
+            try {
+                service.aggiornaDisponibilita(idStr, quantitaStr);
+                session.setAttribute("successMessage", "Quantità aggiornata con successo.");
+                
+            } catch (FormatoDatiNonValidoException | CopieNegativeException | LibroNonTrovatoException e) {
+                session.setAttribute("errorMessage", e.getMessage());
+                
+            } catch (Exception e) {
+                e.printStackTrace();
+                session.setAttribute("errorMessage", "Errore tecnico durante l'aggiornamento.");
             }
         } 
         

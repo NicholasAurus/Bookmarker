@@ -13,6 +13,10 @@ import it.bookmarker.dao.LibriDAO;
 import it.bookmarker.dao.PrestitiDAO;
 import it.bookmarker.model.Prestito;
 import it.bookmarker.service.PrestitoService;
+import it.bookmarker.service.exception.GenericException.FormatoDatiNonValidoException;
+import it.bookmarker.service.exception.LibroServiceException.LibroNonTrovatoException;
+import it.bookmarker.service.exception.PrestitoServiceException.PrestitoNonTrovatoException;
+import it.bookmarker.service.exception.PrestitoServiceException.StatoPrestitoNonValidoException;
 
 @WebServlet("/GestionePrestitiServlet")
 public class GestionePrestitiServlet extends HttpServlet {
@@ -29,9 +33,16 @@ public class GestionePrestitiServlet extends HttpServlet {
             return;
         }
 
-        //Gestione Tab Attivo
+        // Gestione Messaggi di Errore da Redirect (doPost)
+        String errore = (String) session.getAttribute("errore");
+        if (errore != null) {
+            request.setAttribute("errore", errore);
+            session.removeAttribute("errore");
+        }
+
+        // Gestione Tab Attivo
         String tabRichiesta = request.getParameter("tab");
-        String activeTab = "prenotati"; //default
+        String activeTab = "prenotati"; // default
 
         if ("attivi".equals(tabRichiesta)) {
             activeTab = "attivi";
@@ -40,17 +51,17 @@ public class GestionePrestitiServlet extends HttpServlet {
         }
         request.setAttribute("activeTab", activeTab);
 
-        //Inizializzazione Service
+        // Inizializzazione Service
         PrestitiDAO prestitiDAO = new PrestitiDAO();
         LibriDAO libriDAO = new LibriDAO();
         PrestitoService service = new PrestitoService(prestitiDAO, libriDAO);
         
-        //Recupero Dati tramite Service
+        // Recupero Dati tramite Service
         List<Prestito> listaPrenotati = service.getPrenotati();
         List<Prestito> listaAttivi = service.getAttivi();
         List<Prestito> listaRestituiti = service.getRestituiti();
         
-        //Invio alla JSP
+        // Invio alla JSP
         request.setAttribute("listaPrenotati", listaPrenotati);
         request.setAttribute("listaAttivi", listaAttivi);
         request.setAttribute("listaRestituiti", listaRestituiti);
@@ -61,31 +72,55 @@ public class GestionePrestitiServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        //Parametri per il dispatching
         String azione = request.getParameter("azione");
         String idStr = request.getParameter("idPrestito");
-        String tabDaAprire = "prenotati"; // Default redirect
+        String tabDaAprire = "prenotati"; 
 
-        //Service
         PrestitiDAO prestitiDAO = new PrestitiDAO();
         LibriDAO libriDAO = new LibriDAO();
         PrestitoService service = new PrestitoService(prestitiDAO, libriDAO);
+        HttpSession session = request.getSession();
 
-        //Logica azioni
         if (idStr != null && azione != null) {
             
             if ("ritiro".equals(azione)) {
-                service.confermaRitiro(idStr);
-                tabDaAprire = "prenotati"; //Rimaniamo qui per vederne altri
+                try {
+                    service.confermaRitiro(idStr);
+                } catch (FormatoDatiNonValidoException | PrestitoNonTrovatoException | StatoPrestitoNonValidoException e) {
+                    session.setAttribute("errore", e.getMessage());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    session.setAttribute("errore", "Errore di sistema durante la conferma del ritiro.");
+                }
+                tabDaAprire = "prenotati"; 
                 
             } else if ("annulla".equals(azione)) {
                 String motivazione = request.getParameter("motivazione");
-                service.annullaPrestito(idStr, motivazione);
+                
+                try {
+                    service.annullaPrestito(idStr, motivazione);
+                } catch (FormatoDatiNonValidoException | PrestitoNonTrovatoException | 
+                         StatoPrestitoNonValidoException | LibroNonTrovatoException e) {
+                    session.setAttribute("errore", e.getMessage());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    session.setAttribute("errore", "Errore di sistema durante l'annullamento.");
+                }
+                
                 tabDaAprire = "prenotati";
                 
             } else if ("restituzione".equals(azione)) {
-                service.registraRestituzione(idStr);
-                tabDaAprire = "attivi"; //per tornare agli attivi dopo una restituzione
+                try {
+                    service.registraRestituzione(idStr);
+                } catch (FormatoDatiNonValidoException | PrestitoNonTrovatoException | 
+                         StatoPrestitoNonValidoException | LibroNonTrovatoException e) {
+                    session.setAttribute("errore", e.getMessage());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    session.setAttribute("errore", "Errore di sistema durante la registrazione della restituzione.");
+                }
+                
+                tabDaAprire = "attivi"; 
             }
         }
 

@@ -11,6 +11,8 @@ import javax.servlet.http.HttpSession;
 import it.bookmarker.dao.LibriDAO;
 import it.bookmarker.dao.PrestitiDAO;
 import it.bookmarker.service.PrestitoService;
+import it.bookmarker.service.exception.GenericException.*;
+import it.bookmarker.service.exception.PrestitoServiceException.*;
 
 @WebServlet("/PrenotaServlet")
 public class PrenotaServlet extends HttpServlet {
@@ -34,21 +36,29 @@ public class PrenotaServlet extends HttpServlet {
         LibriDAO libriDAO = new LibriDAO();
         PrestitoService service = new PrestitoService(prestitiDAO, libriDAO);
         
-        
-        String errore = service.prenotaLibro(emailUtente, idLibroStr, dataRitiroStr);
+        try {
+            service.prenotaLibro(emailUtente, idLibroStr, dataRitiroStr);
 
-        if (errore == null) {
-            //Successo
             response.sendRedirect("DettaglioLibroServlet?id=" + idLibroStr + "&msg=prenotazione_ok");
-        } else {
-            //Errore: salviamo il messaggio in sessione per mostrarlo nella JSP
-            session.setAttribute("errorePrenotazione", errore);
+
+        } catch (FormatoDatiNonValidoException | DataNonValidaException | 
+                 LimitePrestitiSuperatoException | PrestitoGiaEsistenteException e) {
             
-            if (idLibroStr != null && idLibroStr.matches("\\d+")) {
-                response.sendRedirect("DettaglioLibroServlet?id=" + idLibroStr);
-            } else {
-                response.sendRedirect("LibriServlet");
-            }
+            session.setAttribute("errorePrenotazione", e.getMessage());
+            handleErrorRedirect(response, idLibroStr);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            session.setAttribute("errorePrenotazione", "Errore tecnico durante la prenotazione.");
+            handleErrorRedirect(response, idLibroStr);
+        }
+    }
+
+    private void handleErrorRedirect(HttpServletResponse response, String idLibroStr) throws IOException {
+        if (idLibroStr != null && idLibroStr.matches("\\d+")) {
+            response.sendRedirect("DettaglioLibroServlet?id=" + idLibroStr);
+        } else {
+            response.sendRedirect("LibriServlet");
         }
     }
 }

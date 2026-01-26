@@ -1,11 +1,16 @@
 package it.bookmarker.service;
 
 import java.sql.Date;
+import java.sql.SQLException;
 import java.util.List;
 
 import it.bookmarker.dao.LibriDAO;
 import it.bookmarker.dao.PrestitiDAO;
 import it.bookmarker.model.Prestito;
+import it.bookmarker.service.exception.GenericException.*;
+import it.bookmarker.service.exception.PrestitoServiceException.*;
+import it.bookmarker.service.exception.LibroServiceException.*;
+
 import java.time.LocalDate;
 
 public class PrestitoService {
@@ -31,103 +36,90 @@ public class PrestitoService {
         return prestitiDAO.getPrestitiRestituiti();
     }
 
-    public String prenotaLibro(String emailUtente, String idLibroStr, String dataRitiroStr) {
-        try {
-            if (emailUtente == null || idLibroStr == null) {
-                return "Dati mancanti.";
-            }
-
-            if (dataRitiroStr == null || dataRitiroStr.trim().isEmpty()) {
-                return "Devi selezionare una data per il ritiro.";
-            }
-
-            int idLibro;
-            try {
-                idLibro = Integer.parseInt(idLibroStr);
-            } catch (NumberFormatException e) {
-                return "ID libro non valido.";
-            }
-
-            LocalDate dataScelta;
-            try {
-                dataScelta = LocalDate.parse(dataRitiroStr);
-            } catch (Exception e) {
-                return "Formato data non valido.";
-            }
-
-            LocalDate today = LocalDate.now();
-            LocalDate limiteMassimo = today.plusDays(2);
-
-            if (dataScelta.isBefore(today)) {
-                 return "Non puoi selezionare una data passata."; 
-            }
-            
-            if (dataScelta.isAfter(limiteMassimo)) {
-                 return "Puoi prenotare il ritiro solo entro i prossimi 2 giorni.";
-            }
-
-            if (prestitiDAO.contaPrestitiPendenti(emailUtente) >= 3) {
-                return "Hai raggiunto il limite massimo di 3 prenotazioni attive.";
-            }
-
-            if (prestitiDAO.isLibroGiaRichiesto(emailUtente, idLibro)) {
-                return "Hai già richiesto o hai già in prestito questo libro";
-            }
-            
-            Date dataRitiroSQL = Date.valueOf(dataScelta);
-
-            boolean esito = prestitiDAO.prenotaLibro(emailUtente, idLibro, dataRitiroSQL);
-            
-            if (esito) {
-                return null; // SUCCESSO
-            } else {
-                return "Errore generico nel database durante la prenotazione.";
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "Errore tecnico del server.";
+    public void prenotaLibro(String emailUtente, String idLibroStr, String dataRitiroStr) 
+            throws FormatoDatiNonValidoException, DataNonValidaException, LimitePrestitiSuperatoException, 
+                   PrestitoGiaEsistenteException, SQLException {
+        
+        if (emailUtente == null) {
+            throw new FormatoDatiNonValidoException("Dati mancanti.");
         }
+        
+        if (idLibroStr == null) {
+            throw new FormatoDatiNonValidoException("Dati mancanti.");
+        }
+
+        if (dataRitiroStr == null || dataRitiroStr.trim().isEmpty()) {
+            throw new DataNonValidaException("Devi selezionare una data per il ritiro.");
+        }
+
+        int idLibro;
+        try {
+            idLibro = Integer.parseInt(idLibroStr);
+        } catch (NumberFormatException e) {
+            throw new FormatoDatiNonValidoException("ID libro non valido.");
+        }
+
+        LocalDate dataScelta;
+        try {
+            dataScelta = LocalDate.parse(dataRitiroStr);
+        } catch (Exception e) {
+            throw new DataNonValidaException("Formato data non valido.");
+        }
+
+        LocalDate today = LocalDate.now();
+        LocalDate limiteMassimo = today.plusDays(2);
+
+        if (dataScelta.isBefore(today)) {
+             throw new DataNonValidaException("Non puoi selezionare una data passata."); 
+        }
+        
+        if (dataScelta.isAfter(limiteMassimo)) {
+             throw new DataNonValidaException("Puoi prenotare il ritiro solo entro i prossimi 2 giorni.");
+        }
+        
+        if (prestitiDAO.contaPrestitiPendenti(emailUtente) >= 3) {
+            throw new LimitePrestitiSuperatoException("Hai raggiunto il limite massimo di 3 prenotazioni attive.");
+        }
+
+        if (prestitiDAO.isLibroGiaRichiesto(emailUtente, idLibro)) {
+            throw new PrestitoGiaEsistenteException("Hai già richiesto o hai già in prestito questo libro");
+        }
+        
+        Date dataRitiroSQL = Date.valueOf(dataScelta);
+
+        prestitiDAO.prenotaLibro(emailUtente, idLibro, dataRitiroSQL);
     }
     
-    public String approvaRichiestaPrestito(String idStr) {
-        
+    public void approvaRichiestaPrestito(String idStr) 
+            throws FormatoDatiNonValidoException, PrestitoNonTrovatoException, 
+                   StatoPrestitoNonValidoException, CopieNonDisponibiliException {
+
         if (idStr == null || idStr.trim().isEmpty()) {
-            return "ID mancante.";
+            throw new FormatoDatiNonValidoException("ID mancante.");
         }
 
         int idPrestito;
         try {
             idPrestito = Integer.parseInt(idStr);
         } catch (NumberFormatException e) {
-            return "Formato ID non valido.";
+            throw new FormatoDatiNonValidoException("Formato ID non valido.");
         }
 
-        // Esistenza Prestito 
         Prestito p = prestitiDAO.getPrestitoById(idPrestito);
         if (p == null) {
-            return "Prestito non trovato.";
+            throw new PrestitoNonTrovatoException("Prestito non trovato.");
         }
 
-        // Controllo Stato("Richiesto")
         if (!"Richiesto".equals(p.getStato())) {
-            return "Impossibile approvare: la richiesta non è in stato 'Richiesto' (Stato attuale: " + p.getStato() + ")";
+            throw new StatoPrestitoNonValidoException("Impossibile approvare: la richiesta non è in stato 'Richiesto'.");
         }
 
-        // Controllo Disponibilità Libro
         int copieDisponibili = libriDAO.getCopieDisponibili(p.getLibroId());
         if (copieDisponibili <= 0) {
-            return "Impossibile approvare: non ci sono copie disponibili per questo libro.";
+            throw new CopieNonDisponibiliException("Impossibile approvare: non ci sono copie disponibili per questo libro.");
         }
         
-        boolean esito = prestitiDAO.gestisciPrestito(idPrestito, "prenotato", null);
-        
-        
-        if (esito) {
-            return null;
-        } else {
-            return "Errore durante l'aggiornamento del prestito.";
-        }
+        prestitiDAO.gestisciPrestito(idPrestito, "prenotato", null);
     }
 
     public boolean rifiutaRichiestaPrestito(String idStr, String motivazione) {
@@ -140,118 +132,106 @@ public class PrestitoService {
         }
     }
     
-    public String confermaRitiro(String idStr) {
-        
+    public void confermaRitiro(String idStr) 
+            throws FormatoDatiNonValidoException, PrestitoNonTrovatoException, StatoPrestitoNonValidoException {
+
         if (idStr == null || idStr.trim().isEmpty()) {
-            return "ID mancante.";
+            throw new FormatoDatiNonValidoException("ID mancante.");
         }
 
         int idPrestito;
         try {
             idPrestito = Integer.parseInt(idStr);
         } catch (NumberFormatException e) {
-            return "Formato ID non valido.";
+            throw new FormatoDatiNonValidoException("Formato ID non valido.");
         }
 
-        // Esistenza Prestito
         Prestito p = prestitiDAO.getPrestitoById(idPrestito);
         if (p == null) {
-            return "Prestito non trovato.";
+            throw new PrestitoNonTrovatoException("Prestito non trovato.");
         }
 
-        // Controllo Stato
         if (!"prenotato".equals(p.getStato())) {
-            return "Impossibile confermare il ritiro: il prestito non è in stato 'prenotato'.";
+            throw new StatoPrestitoNonValidoException("Impossibile confermare il ritiro: il prestito non è in stato 'prenotato'.");
         }
 
         prestitiDAO.confermaRitiro(idPrestito);
-        
-       
-        return null;
     }
 
-    public String annullaPrestito(String idStr, String motivazione) {
+    public void annullaPrestito(String idStr, String motivazione) 
+            throws FormatoDatiNonValidoException, PrestitoNonTrovatoException, 
+                   StatoPrestitoNonValidoException, LibroNonTrovatoException {
         
         if (idStr == null || idStr.trim().isEmpty()) {
-            return "ID mancante.";
+            throw new FormatoDatiNonValidoException("ID mancante.");
         }
+
         int idPrestito;
         try {
             idPrestito = Integer.parseInt(idStr);
         } catch (NumberFormatException e) {
-            return "Formato ID non valido.";
+            throw new FormatoDatiNonValidoException("Formato ID non valido.");
         }
 
-        // Validità Motivazione
         if (motivazione == null || motivazione.trim().length() < 10) {
-            return "La motivazione è obbligatoria e deve contenere almeno 10 caratteri.";
+            throw new FormatoDatiNonValidoException("La motivazione è obbligatoria e deve contenere almeno 10 caratteri.");
         }
 
-        // Controllo Esistenza Prestito
         Prestito p = prestitiDAO.getPrestitoById(idPrestito);
         if (p == null) {
-            return "Prestito non trovato.";
+            throw new PrestitoNonTrovatoException("Prestito non trovato.");
         }
 
-        // Controllo Stato
         String statoAttuale = p.getStato();
         if (!"Richiesto".equals(statoAttuale) && !"prenotato".equals(statoAttuale)) {
-            return "Impossibile annullare: il prestito si trova nello stato '" + statoAttuale + "'.";
+            throw new StatoPrestitoNonValidoException("Impossibile annullare: il prestito si trova nello stato '" + statoAttuale + "'.");
         }
 
-        // Gestione Copie
         if ("prenotato".equals(statoAttuale)) {
-            try {
-                int copieAttuali = libriDAO.getCopieDisponibili(p.getLibroId());
-                if (copieAttuali >= 0) {
-                    libriDAO.aggiornaDisponibilita(p.getLibroId(), copieAttuali + 1);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+            int copieAttuali = libriDAO.getCopieDisponibili(p.getLibroId());
+            
+            if (copieAttuali == -1) { 
+                throw new LibroNonTrovatoException("Il libro associato al prestito non esiste.");
             }
+
+            libriDAO.aggiornaDisponibilita(p.getLibroId(), copieAttuali + 1);
         }
 
         prestitiDAO.gestisciPrestito(idPrestito, "annullato", motivazione);
-        
-       
-        return null;
     }
 
-    public String registraRestituzione(String idStr) {
+    public void registraRestituzione(String idStr) 
+            throws FormatoDatiNonValidoException, PrestitoNonTrovatoException, 
+                   StatoPrestitoNonValidoException, LibroNonTrovatoException {
         
         if (idStr == null || idStr.trim().isEmpty()) {
-            return "ID mancante.";
+            throw new FormatoDatiNonValidoException("ID mancante.");
         }
+        
         int idPrestito;
         try {
             idPrestito = Integer.parseInt(idStr);
         } catch (NumberFormatException e) {
-            return "Formato ID non valido.";
+            throw new FormatoDatiNonValidoException("Formato ID non valido.");
         }
 
-        // Controllo prestito
         Prestito p = prestitiDAO.getPrestitoById(idPrestito);
         if (p == null) {
-            return "Prestito non trovato.";
+            throw new PrestitoNonTrovatoException("Prestito non trovato.");
         }
 
-        // Controllo Stato
         if (!"In Corso".equals(p.getStato())) {
-            return "Impossibile registrare restituzione: il prestito non è 'In Corso'. Stato attuale: " + p.getStato();
+            throw new StatoPrestitoNonValidoException("Impossibile registrare restituzione: il prestito non è 'In Corso'.");
         }
 
-         // Chiude il prestito
-         prestitiDAO.terminaPrestito(idPrestito);
-            
-         // Incrementa le copie disponibili del libro
-         int copieAttuali = libriDAO.getCopieDisponibili(p.getLibroId());
-         // Se libro esiste
-         if (copieAttuali >= 0) {
-             libriDAO.aggiornaDisponibilita(p.getLibroId(), copieAttuali + 1);
-         }
-            
+        int copieAttuali = libriDAO.getCopieDisponibili(p.getLibroId());
         
-         return null;
+        if (copieAttuali == -1) {
+            throw new LibroNonTrovatoException("Il libro associato al prestito non esiste.");
+        }
+
+        prestitiDAO.terminaPrestito(idPrestito);
+        libriDAO.aggiornaDisponibilita(p.getLibroId(), copieAttuali + 1);
     }
     
     public List<Prestito> getStoricoUtente(String email) {

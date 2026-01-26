@@ -14,6 +14,9 @@ import javax.servlet.http.Part;
 
 import it.bookmarker.dao.LibriDAO;
 import it.bookmarker.service.LibroService;
+import it.bookmarker.service.exception.GenericException.*;
+import it.bookmarker.service.exception.LibroServiceException.*;
+
 
 @WebServlet("/AggiungiLibroServlet")
 @MultipartConfig(
@@ -45,7 +48,6 @@ public class AggiungiLibroServlet extends HttpServlet {
             
             String cleanFileName = System.currentTimeMillis() + "_" + fileName.replaceAll("\\s+", "_");
             
-            // Percorso assoluto della cartella 'img' nel server
             String uploadPath = getServletContext().getRealPath("") + File.separator + "img";
             
             File uploadDir = new File(uploadPath);
@@ -53,7 +55,7 @@ public class AggiungiLibroServlet extends HttpServlet {
 
             try {
                 filePart.write(uploadPath + File.separator + cleanFileName);
-                nomeFileImmagine = "img/" + cleanFileName; // Percorso relativo per il DB
+                nomeFileImmagine = "img/" + cleanFileName; 
             } catch (IOException e) {
                 e.printStackTrace();
                 nomeFileImmagine = ""; 
@@ -62,17 +64,21 @@ public class AggiungiLibroServlet extends HttpServlet {
 
         LibriDAO dao = new LibriDAO();
         LibroService service = new LibroService(dao);
-        
-        //percorso dell'immagine salvata
-        String esito = service.aggiungiLibro(titolo, autore, genere, copieStr, dataPubStr, nomeFileImmagine, descrizione);
-
         HttpSession session = request.getSession();
-
-        if (esito == null) {
+        
+        try {
+            service.aggiungiLibro(titolo, autore, genere, copieStr, dataPubStr, nomeFileImmagine, descrizione);
+            
             session.setAttribute("successMessage", "Nuovo libro aggiunto con successo al catalogo.");
             response.sendRedirect("CatalogoBibliotecarioServlet");
-        } else {
-            session.setAttribute("errorMessage", esito);
+
+        } catch (FormatoDatiNonValidoException | DataNonValidaException | CopieNegativeException e) {
+            session.setAttribute("errorMessage", e.getMessage());
+            response.sendRedirect("aggiungiLibro.jsp");
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            session.setAttribute("errorMessage", "Errore tecnico durante il salvataggio del libro.");
             response.sendRedirect("aggiungiLibro.jsp");
         }
     }

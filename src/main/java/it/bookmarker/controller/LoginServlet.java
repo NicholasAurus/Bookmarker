@@ -12,6 +12,7 @@ import javax.servlet.http.HttpSession;
 import it.bookmarker.dao.UtenteDAO;
 import it.bookmarker.model.Utente;
 import it.bookmarker.service.UtenteService;
+import it.bookmarker.service.exception.UtenteServiceException.*;
 
 @WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
@@ -23,12 +24,10 @@ public class LoginServlet extends HttpServlet {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
-        //Inizializza Service
         UtenteDAO dao = new UtenteDAO();
         UtenteService service = new UtenteService(dao);
 
         try {
-            //Login
             Utente utenteTrovato = service.login(email, password);
 
             HttpSession session = request.getSession();
@@ -37,7 +36,6 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("emailUtente", utenteTrovato.getEmail());
             session.setAttribute("utenteObj", utenteTrovato);
             
-
             String ruoloDB = utenteTrovato.getRuolo();
             if (ruoloDB != null) {
                 session.setAttribute("ruoloUtente", ruoloDB.toUpperCase());
@@ -45,12 +43,15 @@ public class LoginServlet extends HttpServlet {
                 session.setAttribute("ruoloUtente", "LETTORE");
             }
             
-            session.setMaxInactiveInterval(30 * 60); // 30 minuti
+            session.setMaxInactiveInterval(30 * 60);
 
             response.sendRedirect("index.jsp");
 
-        } catch (Exception e) {
+        } catch (CredenzialiNonValideException | UtenteNonAbilitatoException e) {
             sendError(request, response, e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendError(request, response, "Si è verificato un errore di sistema.");
         }
     }
 
