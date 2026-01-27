@@ -6,9 +6,9 @@ import java.sql.SQLException;
 
 public class DBUtil {
     // Database reale (default)
-    private static String URL = "jdbc:mysql://localhost:3306/bookmarker";
+    private static String URL = "jdbc:mysql://localhost:3306/biblioteca?serverTimezone=UTC&useUnicode=true&characterEncoding=UTF-8";
     private static String USER = "root";
-    private static String PASSWORD = "password"; // Metti la tua
+    private static String PASSWORD = "Bookmarker09!";
     private static String DRIVER = "com.mysql.cj.jdbc.Driver";
 
     // Database testing
