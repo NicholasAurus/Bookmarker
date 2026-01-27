@@ -1,7 +1,6 @@
 package it.bookmarker.dao;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,13 +9,9 @@ import java.util.List;
 import it.bookmarker.model.Segnalazione;
 
 public class SegnalazioniDAO {
-    private String jdbcURL = "jdbc:mysql://localhost:3306/biblioteca?serverTimezone=UTC";
-    private String jdbcUsername = "root";
-    private String jdbcPassword = "Bookmarker09!";
 
     public List<Segnalazione> getAllSegnalazioni() {
         List<Segnalazione> lista = new ArrayList<>();
-        
         
         String sql = "SELECT s.*, r.libro_id " + 
                      "FROM segnalazioni s " +
@@ -24,8 +19,8 @@ public class SegnalazioniDAO {
                      "ORDER BY FIELD(s.stato, 'aperta', 'chiusa'), s.data_segnalazione DESC";
 
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
+
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sql);
                  ResultSet rs = ps.executeQuery()) {
 
@@ -53,8 +48,8 @@ public class SegnalazioniDAO {
         String sql = "UPDATE segnalazioni SET stato = 'chiusa', note_chiusura = ? WHERE id = ?";
         
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
+
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sql)) {
                 
                 ps.setString(1, note);
@@ -74,8 +69,8 @@ public class SegnalazioniDAO {
         boolean updated = false;
         
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
+
+            conn = DBUtil.getConnection();
             
             String sql = "UPDATE segnalazioni SET stato = ? WHERE id = ?";
             pstmt = conn.prepareStatement(sql);
@@ -84,7 +79,7 @@ public class SegnalazioniDAO {
             
             updated = pstmt.executeUpdate() > 0;
             
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             try { 
@@ -103,8 +98,8 @@ public class SegnalazioniDAO {
         boolean inserito = false;
 
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
+  
+            conn = DBUtil.getConnection();
             
             pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, recensioneId);
@@ -113,7 +108,7 @@ public class SegnalazioniDAO {
             
             inserito = pstmt.executeUpdate() > 0;
 
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             try { 

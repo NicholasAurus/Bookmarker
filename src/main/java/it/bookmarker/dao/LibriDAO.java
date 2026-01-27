@@ -1,7 +1,6 @@
 package it.bookmarker.dao;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -10,17 +9,13 @@ import it.bookmarker.model.Libro;
 
 public class LibriDAO {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/biblioteca?serverTimezone=UTC";
-    private static final String USER = "root";
-    private static final String PASS = "Bookmarker09!";
 
     public Libro getLibroById(int id) {
         Libro libro = null;
         String sql = "SELECT * FROM libri WHERE id_libro = ?"; 
         
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sql)) {
                 
                 ps.setInt(1, id);
@@ -56,8 +51,7 @@ public class LibriDAO {
                        "GROUP BY l.id_libro";
 
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(query);
                  ResultSet rs = stmt.executeQuery()) {
 
@@ -89,8 +83,7 @@ public class LibriDAO {
         String sql = "UPDATE libri SET attivo = 0 WHERE id_libro = ?";
         
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sql)) {
                 
                 ps.setInt(1, idLibro);
@@ -104,11 +97,10 @@ public class LibriDAO {
     }
 
     public boolean inserisciLibro(Libro l) {
-        String sql = "INSERT INTO libri (titolo, autore, genere, disponibilita, data_pubblicazione, descrizione, copertina) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        
+        String sql = "INSERT INTO libri (titolo, autore, genere, disponibilita, data_pubblicazione, descrizione, copertina, attivo) VALUES (?, ?, ?, ?, ?, ?, ?, 1)";
+
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sql)) {
                 
                 ps.setString(1, l.getTitolo());
@@ -130,8 +122,8 @@ public class LibriDAO {
     public boolean aggiornaDisponibilita(int id_libro, int nuoveCopie) {
         String sql = "UPDATE libri SET disponibilita = ? WHERE id_libro = ?";
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+            // MODIFICATO: Usa DBUtil.getConnection()
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sql)) {
                 
                 ps.setInt(1, nuoveCopie);
@@ -149,8 +141,7 @@ public class LibriDAO {
         String sql = "SELECT disponibilita FROM libri WHERE id_libro = ?";
         
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sql)) {
                 
                 ps.setInt(1, idLibro);

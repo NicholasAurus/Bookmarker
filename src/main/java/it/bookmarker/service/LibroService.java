@@ -73,7 +73,7 @@ public class LibroService {
         
         LocalDate localDataPub = dataPub.toLocalDate();
         if (localDataPub.getYear() > LocalDate.now().getYear()) {
-            throw new DataNonValidaException("L'anno di pubblicazione non è valido");
+            throw new DataNonValidaException("La data di pubblicazione non è valida");
         }
 
         Libro libro = new Libro();
@@ -109,7 +109,7 @@ public class LibroService {
         }
 
         if (nuoveCopie < 0) {
-            throw new CopieNegativeException("La disponibilità non può essere negativa.");
+            throw new CopieNegativeException("Il numero di copie non può essere negativo.");
         }
         
         boolean esito = libriDAO.aggiornaDisponibilita(id, nuoveCopie);

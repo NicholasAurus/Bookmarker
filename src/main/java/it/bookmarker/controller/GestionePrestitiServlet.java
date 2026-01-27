@@ -71,6 +71,14 @@ public class GestionePrestitiServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
+    	
+    	HttpSession session = request.getSession();
+        String ruolo = (String) session.getAttribute("ruoloUtente");
+        
+        if (ruolo == null || !ruolo.equalsIgnoreCase("BIBLIOTECARIO")) {
+            response.sendRedirect("login.jsp");
+            return;
+        }
         
         String azione = request.getParameter("azione");
         String idStr = request.getParameter("idPrestito");
@@ -79,7 +87,6 @@ public class GestionePrestitiServlet extends HttpServlet {
         PrestitiDAO prestitiDAO = new PrestitiDAO();
         LibriDAO libriDAO = new LibriDAO();
         PrestitoService service = new PrestitoService(prestitiDAO, libriDAO);
-        HttpSession session = request.getSession();
 
         if (idStr != null && azione != null) {
             

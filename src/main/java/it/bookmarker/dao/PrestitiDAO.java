@@ -2,7 +2,6 @@ package it.bookmarker.dao;
 
 import java.sql.Connection;
 import java.sql.Date;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -11,9 +10,6 @@ import it.bookmarker.model.Prestito;
 
 public class PrestitiDAO {
     
-    private String URL = "jdbc:mysql://localhost:3306/biblioteca?serverTimezone=UTC&useUnicode=true&characterEncoding=UTF-8";
-    private String USER = "root";
-    private String PASS = "Bookmarker09!";
 
     public Prestito getPrestitoById(int id) {
         Prestito p = null;
@@ -24,8 +20,8 @@ public class PrestitiDAO {
                      "WHERE p.id = ?";
 
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+             
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sql)) {
 
                 ps.setInt(1, id);
@@ -43,7 +39,7 @@ public class PrestitiDAO {
                         p.setStato(rs.getString("stato"));
                         p.setMotivazione(rs.getString("motivazione"));
 
-                        //dati del libro 
+                        // dati del libro 
                         p.setTitoloLibro(rs.getString("titolo"));
                         p.setAutoreLibro(rs.getString("autore"));
                         p.setCopertinaLibro(rs.getString("copertina"));
@@ -60,8 +56,8 @@ public class PrestitiDAO {
     public int contaPrestitiPendenti(String emailUtente) {
         String sql = "SELECT COUNT(*) FROM prestiti WHERE utente_email = ? AND stato IN ('Richiesto', 'prenotato')";
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+             
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sql)) {
                 
                 ps.setString(1, emailUtente);
@@ -81,8 +77,8 @@ public class PrestitiDAO {
     public boolean isLibroGiaRichiesto(String emailUtente, int idLibro) {
         String sql = "SELECT 1 FROM prestiti WHERE utente_email = ? AND libro_id = ? AND stato IN ('Richiesto', 'prenotato', 'In Corso')";
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+             
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sql)) {
                 
                 ps.setString(1, emailUtente);
@@ -100,13 +96,13 @@ public class PrestitiDAO {
 
     public boolean prenotaLibro(String emailUtente, int idLibro, Date dataSceltaDallUtente) {
         String sql = "INSERT INTO prestiti (utente_email, libro_id, data_prenotazione, stato) VALUES (?, ?, ?, 'Richiesto')";
-        
+
         Connection conn = null;
         PreparedStatement pstmt = null;
 
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection(URL, USER, PASS);
+             
+            conn = DBUtil.getConnection();
             pstmt = conn.prepareStatement(sql);
             
             pstmt.setString(1, emailUtente);
@@ -134,8 +130,8 @@ public class PrestitiDAO {
                      "WHERE p.utente_email = ? " +
                      "ORDER BY p.id DESC";
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+             
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, emailUtente);
                 try (ResultSet rs = ps.executeQuery()) {
@@ -170,8 +166,8 @@ public class PrestitiDAO {
         List<Prestito> lista = new ArrayList<>();
         String sql = "SELECT p.*, l.titolo FROM prestiti p JOIN libri l ON p.libro_id = l.id_libro WHERE p.stato = 'Richiesto'";
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+             
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement pstmt = conn.prepareStatement(sql);
                  ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -202,8 +198,8 @@ public class PrestitiDAO {
         boolean successo = false;
 
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection(URL, USER, PASS);
+             
+            conn = DBUtil.getConnection();
 
             if ("prenotato".equals(nuovoStato)) {
                 conn.setAutoCommit(false); 
@@ -265,8 +261,8 @@ public class PrestitiDAO {
         String sql = "SELECT p.*, l.titolo FROM prestiti p JOIN libri l ON p.libro_id = l.id_libro WHERE p.stato = 'prenotato'"; 
 
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+             
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement pstmt = conn.prepareStatement(sql);
                  ResultSet rs = pstmt.executeQuery()) {
 
@@ -292,10 +288,10 @@ public class PrestitiDAO {
     }
 
     public void confermaRitiro(int idPrestito) {
-        String sql = "UPDATE prestiti SET stato = 'In Corso', data_inizio = CURDATE(), data_fine_prevista = DATE_ADD(CURDATE(), INTERVAL 30 DAY) WHERE id = ?";
+        String sql = "UPDATE prestiti SET stato = 'In Corso', data_inizio = CURDATE(), data_fine_prevista = TIMESTAMPADD(DAY, 30, CURDATE()) WHERE id = ?";
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+             
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setInt(1, idPrestito);
                 pstmt.executeUpdate();
@@ -309,8 +305,8 @@ public class PrestitiDAO {
         List<Prestito> lista = new ArrayList<>();
         String sql = "SELECT p.*, l.titolo FROM prestiti p JOIN libri l ON p.libro_id = l.id_libro WHERE p.stato = 'In Corso'";
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+             
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement pstmt = conn.prepareStatement(sql);
                  ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -334,8 +330,8 @@ public class PrestitiDAO {
     public void terminaPrestito(int idPrestito) {
         String sql = "UPDATE prestiti SET stato = 'Restituito', data_restituzione_effettiva = CURDATE() WHERE id = ?";
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+             
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setInt(1, idPrestito);
                 pstmt.executeUpdate();
@@ -349,8 +345,8 @@ public class PrestitiDAO {
         List<Prestito> lista = new ArrayList<>();
         String sql = "SELECT p.*, l.titolo FROM prestiti p JOIN libri l ON p.libro_id = l.id_libro WHERE p.stato = 'Restituito' ORDER BY data_restituzione_effettiva DESC";
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+             
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement pstmt = conn.prepareStatement(sql);
                  ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -376,8 +372,8 @@ public class PrestitiDAO {
         String sql = "SELECT 1 FROM prestiti WHERE libro_id = ? AND stato IN ('Richiesto', 'prenotato', 'In Corso')";
         
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+             
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sql)) {
                 
                 ps.setInt(1, idLibro);

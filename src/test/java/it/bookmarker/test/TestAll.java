@@ -3,9 +3,7 @@ package it.bookmarker.test;
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 
-import it.bookmarker.service.LibroServiceTest;
-import it.bookmarker.service.PrestitoServiceTest;
-import it.bookmarker.service.UtenteServiceTest;
+import it.bookmarker.unit.service.*;
 
 @Suite
 @SelectClasses({

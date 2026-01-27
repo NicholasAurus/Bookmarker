@@ -1,4 +1,4 @@
-package it.bookmarker.service;
+package it.bookmarker.unit.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -13,6 +13,7 @@ import it.bookmarker.dao.LibriDAO;
 import it.bookmarker.dao.PrestitiDAO;
 import it.bookmarker.model.Prestito;
 import it.bookmarker.model.Libro;
+import it.bookmarker.service.PrestitoService;
 import it.bookmarker.service.exception.GenericException.*;
 import it.bookmarker.service.exception.PrestitoServiceException.*;
 import it.bookmarker.service.exception.LibroServiceException.*;

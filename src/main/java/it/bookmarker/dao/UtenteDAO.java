@@ -1,7 +1,6 @@
 package it.bookmarker.dao;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,21 +11,11 @@ import it.bookmarker.model.Utente;
 
 public class UtenteDAO {
 
-    private String url = "jdbc:mysql://localhost:3306/biblioteca?serverTimezone=UTC";
-    private String user = "root";
-    private String pass = "Bookmarker09!";
-
     public boolean registraUtente(Utente utente) throws SQLException {
         String sql = "INSERT INTO utenti (nome, cognome, codice_fiscale, email, password, ruolo, stato, data_registrazione, domanda_sicurezza, risposta_sicurezza) VALUES (?, ?, ?, ?, ?, ?, 'in_attesa', CURDATE(), ?, ?)";
         
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            return false;
-        }
 
-        try (Connection conn = DriverManager.getConnection(url, user, pass);
+        try (Connection conn = DBUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, utente.getNome());
@@ -40,6 +29,9 @@ public class UtenteDAO {
             
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
+        } catch (Exception e) { 
+            e.printStackTrace();
+            return false;
         }
     }
     
@@ -48,8 +40,8 @@ public class UtenteDAO {
         String sql = "SELECT 1 FROM utenti WHERE email = ?"; 
 
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(url, user, pass);
+
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
                 pstmt.setString(1, email);
@@ -72,8 +64,8 @@ public class UtenteDAO {
         String sql = "SELECT 1 FROM utenti WHERE codice_fiscale = ?"; 
 
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(url, user, pass);
+
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
                 pstmt.setString(1, codiceFiscale);
@@ -96,9 +88,8 @@ public class UtenteDAO {
         String query = "SELECT * FROM utenti WHERE email = ?";
 
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
 
-            try (Connection conn = DriverManager.getConnection(url, user, pass);
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(query)) {
 
                 stmt.setString(1, email);
@@ -132,8 +123,8 @@ public class UtenteDAO {
         String sql = "UPDATE utenti SET stato = ? WHERE email = ?";
         
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(url, user, pass);
+
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
                 pstmt.setString(1, nuovoStato); 
@@ -153,8 +144,8 @@ public class UtenteDAO {
         String sql = "SELECT * FROM utenti WHERE stato = 'in_attesa'";
 
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(url, user, pass);
+
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement pstmt = conn.prepareStatement(sql);
                  ResultSet rs = pstmt.executeQuery()) {
 
@@ -178,8 +169,8 @@ public class UtenteDAO {
     public String getDomandaSicurezza(String email) {
         String sql = "SELECT domanda_sicurezza FROM utenti WHERE email = ?";
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(url, user, pass);
+
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sql)) {
                 
                 ps.setString(1, email);
@@ -199,8 +190,8 @@ public class UtenteDAO {
     public String getRispostaSicurezza(String email) {
         String sql = "SELECT risposta_sicurezza FROM utenti WHERE email = ?";
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(url, user, pass);
+
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sql)) {
                 
                 ps.setString(1, email);
@@ -220,8 +211,8 @@ public class UtenteDAO {
     public boolean updatePassword(String email, String nuovaPasswordHash) {
         String sql = "UPDATE utenti SET password = ? WHERE email = ?";
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(url, user, pass);
+
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sql)) {
                 
                 ps.setString(1, nuovaPasswordHash);
@@ -239,8 +230,8 @@ public class UtenteDAO {
         String sql = "DELETE FROM utenti WHERE email = ?";
         
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection conn = DriverManager.getConnection(url, user, pass);
+
+            try (Connection conn = DBUtil.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sql)) {
                 
                 ps.setString(1, email);

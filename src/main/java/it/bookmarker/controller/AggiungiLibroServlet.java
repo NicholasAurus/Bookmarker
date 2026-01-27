@@ -78,7 +78,7 @@ public class AggiungiLibroServlet extends HttpServlet {
             
         } catch (Exception e) {
             e.printStackTrace();
-            session.setAttribute("errorMessage", "Errore tecnico durante il salvataggio del libro.");
+            session.setAttribute("errorMessage", "Errore durante il salvataggio del libro.");
             response.sendRedirect("aggiungiLibro.jsp");
         }
     }
