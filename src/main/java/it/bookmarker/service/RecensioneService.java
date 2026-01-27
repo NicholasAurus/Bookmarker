@@ -34,7 +34,7 @@ public class RecensioneService {
         return false;
     }
     
-    // Metodo generico (puoi lasciarlo per compatibilità o rimuoverlo se non usato)
+    // Metodo vecchio
     public List<Recensione> getRecensioniPerLibro(int idLibro) {
         return recensioneDAO.getRecensioniByLibro(idLibro);
     }

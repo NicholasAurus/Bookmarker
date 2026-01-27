@@ -76,8 +76,6 @@ public class UtenteService {
 		
 		}
 
-
-
     
     public Utente login(String email, String password) throws CredenzialiNonValideException, UtenteNonAbilitatoException {
         
