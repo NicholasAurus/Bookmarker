@@ -55,7 +55,6 @@
         <div class="white-box">
             <div class="product-hero">
                 <div class="hero-image-container">
-               <%--Funzionalità dei preferiti ancora non implementata, priority LOW --%>
                     <button class="favorite-btn" title="Aggiungi ai preferiti">
                         <i class="fa-regular fa-heart"></i>
                     </button>
@@ -78,11 +77,11 @@
                            String err = request.getParameter("error"); %>
 
                         <% if ("prenotazione_ok".equals(msg)) { %>
-                            <div style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin-bottom: 15px; border-left: 5px solid #28a745;">
+                            <div class="success-message" style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin-bottom: 15px; border-left: 5px solid #28a745;">
                                 <i class="fa-solid fa-check-circle"></i> Prenotazione inviata con successo!
                             </div>
                         <% } else if (errorePrenotazione != null) { %>
-                            <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px; border-left: 5px solid #dc3545;">
+                            <div class="server-error" style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px; border-left: 5px solid #dc3545;">
                                 <i class="fa-solid fa-circle-exclamation"></i> <%= errorePrenotazione %>
                             </div>
                         <% } else if ("db_error".equals(err)) { %>
