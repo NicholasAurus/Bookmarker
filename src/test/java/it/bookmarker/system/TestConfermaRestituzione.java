@@ -12,16 +12,16 @@ import java.time.Duration;
 
 import it.bookmarker.system.utils.DatabaseTestHelper;
 
-public class TestConfermaRitiro {
+public class TestConfermaRestituzione {
 
     private WebDriver driver;
     
     private final String EMAIL_ADMIN = "n.bibliotecario@gmail.com";
     private final String PASSWORD = "Password123!";
     
-    private final String EMAIL_USER = "mario.ritiro@test.com";
-    private final int ID_LIBRO = 800;
-    private final String TITOLO_LIBRO = "Libro da Ritirare";
+    private final String EMAIL_USER = "mario.restituzione@test.com";
+    private final int ID_LIBRO = 900;
+    private final String TITOLO_LIBRO = "Libro da Restituire";
 
     @BeforeEach
     public void setup() {
@@ -29,15 +29,14 @@ public class TestConfermaRitiro {
         DatabaseTestHelper.createUtente(EMAIL_USER, "LETTORE", "attivo");
         DatabaseTestHelper.createLibro(ID_LIBRO, TITOLO_LIBRO, 5);
         
-  
-        DatabaseTestHelper.createPrestito(EMAIL_USER, ID_LIBRO, "prenotato");
+        DatabaseTestHelper.createPrestito(EMAIL_USER, ID_LIBRO, "In Corso");
         
         driver = new ChromeDriver();
         driver.manage().window().maximize();
     }
 
     @Test
-    public void testConfermaRitiroSuccesso() {
+    public void testConfermaRestituzioneSuccesso() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         JavascriptExecutor js = (JavascriptExecutor) driver;
 
@@ -50,34 +49,29 @@ public class TestConfermaRitiro {
 
         driver.get("http://localhost:8080/BookMarker/GestionePrestitiServlet");
 
-
-        WebElement tabDaRitirare = wait.until(ExpectedConditions.elementToBeClickable(
-            By.xpath("//button[contains(@class, 'tab-button') and contains(., 'Da Ritirare')]")
+        WebElement tabInCorso = wait.until(ExpectedConditions.elementToBeClickable(
+            By.xpath("//button[contains(@class, 'tab-button') and contains(., 'In Corso')]")
         ));
-        js.executeScript("arguments[0].click();", tabDaRitirare);
+        js.executeScript("arguments[0].click();", tabInCorso);
         
-
-        wait.until(ExpectedConditions.attributeContains(By.id("tabPrenotati"), "class", "active"));
-
+        wait.until(ExpectedConditions.attributeContains(By.id("tabAttivi"), "class", "active"));
 
         WebElement rigaPrestito = wait.until(ExpectedConditions.presenceOfElementLocated(
-            By.xpath("//div[@id='tabPrenotati']//tr[contains(., '" + EMAIL_USER + "')]")
+            By.xpath("//div[@id='tabAttivi']//tr[contains(., '" + EMAIL_USER + "')]")
         ));
         
         js.executeScript("arguments[0].scrollIntoView({block: 'center'});", rigaPrestito);
         
-
-        WebElement btnRitiro = rigaPrestito.findElement(By.xpath(".//button[contains(@class, 'btn-green') or contains(., 'Ritiro')]"));
+        WebElement btnRestituzione = rigaPrestito.findElement(By.xpath(".//button[contains(@class, 'btn-blue') or contains(., 'Restituzione')]"));
         
-        wait.until(ExpectedConditions.elementToBeClickable(btnRitiro));
-        js.executeScript("arguments[0].click();", btnRitiro);
+        wait.until(ExpectedConditions.elementToBeClickable(btnRestituzione));
+        js.executeScript("arguments[0].click();", btnRestituzione);
 
         WebElement modal = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("confirmationModal")));
         WebElement btnConfirm = modal.findElement(By.id("confirmBtn"));
         
         wait.until(ExpectedConditions.elementToBeClickable(btnConfirm));
         
-      
         try { Thread.sleep(500); } catch (InterruptedException e) {}
         
         js.executeScript("arguments[0].click();", btnConfirm);
@@ -92,9 +86,9 @@ public class TestConfermaRitiro {
         
         Assertions.assertTrue(
             toastText.contains("successo") || 
-            toastText.contains("approvato") || 
+            toastText.contains("restituit") || 
             toastText.contains("registrato"),
-            "Il messaggio di conferma ritiro non è corretto. Testo trovato: [" + toastText + "]"
+            "Il messaggio di conferma restituzione non è corretto. Testo trovato: [" + toastText + "]"
         );
     }
 

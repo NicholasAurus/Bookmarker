@@ -18,7 +18,6 @@ public class DatabaseTestHelper {
         createUtente(email, ruolo, stato, randomCF);
     }
 
-
     public static void createUtente(String email, String ruolo, String stato, String cf) {
         deleteUtente(email); 
 
@@ -59,9 +58,11 @@ public class DatabaseTestHelper {
     }
 
     public static void createPrestito(String emailUtente, int idLibro, String stato) {
+        boolean isAttivo = "in_corso".equalsIgnoreCase(stato) || "ATTIVO".equalsIgnoreCase(stato);
+        
         String sql = "INSERT INTO prestiti (utente_email, libro_id, stato, data_prenotazione, data_inizio) " +
                      "VALUES (?, ?, ?, CURDATE(), " + 
-                     ("in_corso".equalsIgnoreCase(stato) ? "CURDATE()" : "NULL") + ")";
+                     (isAttivo ? "CURDATE()" : "NULL") + ")";
         
         executeUpdate(sql, emailUtente, idLibro, stato);
     }

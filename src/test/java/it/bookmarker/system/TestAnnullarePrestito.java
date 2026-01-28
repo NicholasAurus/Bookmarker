@@ -12,16 +12,16 @@ import java.time.Duration;
 
 import it.bookmarker.system.utils.DatabaseTestHelper;
 
-public class TestConfermaRitiro {
+public class TestAnnullarePrestito {
 
     private WebDriver driver;
     
     private final String EMAIL_ADMIN = "n.bibliotecario@gmail.com";
     private final String PASSWORD = "Password123!";
     
-    private final String EMAIL_USER = "mario.ritiro@test.com";
-    private final int ID_LIBRO = 800;
-    private final String TITOLO_LIBRO = "Libro da Ritirare";
+    private final String EMAIL_USER = "mario.annulla@test.com";
+    private final int ID_LIBRO = 600;
+    private final String TITOLO_LIBRO = "Libro da Annullare";
 
     @BeforeEach
     public void setup() {
@@ -29,7 +29,6 @@ public class TestConfermaRitiro {
         DatabaseTestHelper.createUtente(EMAIL_USER, "LETTORE", "attivo");
         DatabaseTestHelper.createLibro(ID_LIBRO, TITOLO_LIBRO, 5);
         
-  
         DatabaseTestHelper.createPrestito(EMAIL_USER, ID_LIBRO, "prenotato");
         
         driver = new ChromeDriver();
@@ -37,7 +36,7 @@ public class TestConfermaRitiro {
     }
 
     @Test
-    public void testConfermaRitiroSuccesso() {
+    public void testAnnullarePrestitoSuccesso() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         JavascriptExecutor js = (JavascriptExecutor) driver;
 
@@ -50,15 +49,12 @@ public class TestConfermaRitiro {
 
         driver.get("http://localhost:8080/BookMarker/GestionePrestitiServlet");
 
-
         WebElement tabDaRitirare = wait.until(ExpectedConditions.elementToBeClickable(
             By.xpath("//button[contains(@class, 'tab-button') and contains(., 'Da Ritirare')]")
         ));
         js.executeScript("arguments[0].click();", tabDaRitirare);
         
-
         wait.until(ExpectedConditions.attributeContains(By.id("tabPrenotati"), "class", "active"));
-
 
         WebElement rigaPrestito = wait.until(ExpectedConditions.presenceOfElementLocated(
             By.xpath("//div[@id='tabPrenotati']//tr[contains(., '" + EMAIL_USER + "')]")
@@ -66,18 +62,23 @@ public class TestConfermaRitiro {
         
         js.executeScript("arguments[0].scrollIntoView({block: 'center'});", rigaPrestito);
         
-
-        WebElement btnRitiro = rigaPrestito.findElement(By.xpath(".//button[contains(@class, 'btn-green') or contains(., 'Ritiro')]"));
+        WebElement btnAnnulla = rigaPrestito.findElement(By.xpath(".//button[contains(@class, 'btn-red') or contains(., 'Annulla')]"));
         
-        wait.until(ExpectedConditions.elementToBeClickable(btnRitiro));
-        js.executeScript("arguments[0].click();", btnRitiro);
+        wait.until(ExpectedConditions.elementToBeClickable(btnAnnulla));
+        js.executeScript("arguments[0].click();", btnAnnulla);
 
         WebElement modal = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("confirmationModal")));
-        WebElement btnConfirm = modal.findElement(By.id("confirmBtn"));
         
+        WebElement motivazioneBox = modal.findElement(By.id("motivazioneBox"));
+        wait.until(ExpectedConditions.visibilityOf(motivazioneBox));
+
+        WebElement motivazioneInput = modal.findElement(By.id("motivazioneInput"));
+        motivazioneInput.clear();
+        motivazioneInput.sendKeys("Prestito annullato per test automatico");
+
+        WebElement btnConfirm = modal.findElement(By.id("confirmBtn"));
         wait.until(ExpectedConditions.elementToBeClickable(btnConfirm));
         
-      
         try { Thread.sleep(500); } catch (InterruptedException e) {}
         
         js.executeScript("arguments[0].click();", btnConfirm);
@@ -91,10 +92,10 @@ public class TestConfermaRitiro {
         String toastText = msgDiv.getText().toLowerCase();
         
         Assertions.assertTrue(
-            toastText.contains("successo") || 
-            toastText.contains("approvato") || 
-            toastText.contains("registrato"),
-            "Il messaggio di conferma ritiro non è corretto. Testo trovato: [" + toastText + "]"
+            toastText.contains("rifiutata") || 
+            toastText.contains("annullat") || 
+            toastText.contains("ko"),
+            "Il messaggio di annullamento non è corretto. Testo trovato: [" + toastText + "]"
         );
     }
 
