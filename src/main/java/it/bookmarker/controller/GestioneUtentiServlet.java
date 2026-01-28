@@ -76,6 +76,7 @@ public class GestioneUtentiServlet extends HttpServlet {
         String tipoOperazione = request.getParameter("tipoOperazione"); 
         String azione = request.getParameter("azione"); 
         String tabDaAprire = "utenti"; 
+        String msgParam = ""; // Variabile per il messaggio Toast
 
         UtenteDAO utenteDao = new UtenteDAO();
         PrestitiDAO prestitoDao = new PrestitiDAO();
@@ -86,12 +87,15 @@ public class GestioneUtentiServlet extends HttpServlet {
         
         if ("utente".equals(tipoOperazione)) {
             String emailUtente = request.getParameter("emailUtente");
+            tabDaAprire = "utenti";
             
             try {
                 if ("accetta".equals(azione)) {
                     utenteService.accettaUtente(emailUtente);
+                    msgParam = "&msg=user_ok"; // Successo attivazione
                 } else if ("rifiuta".equals(azione)) {
                     utenteService.rifiutaUtente(emailUtente);
+                    msgParam = "&msg=user_ko"; // Successo rifiuto
                 }
             } catch (FormatoDatiNonValidoException | UtenteNonTrovatoException | StatoUtenteNonValidoException e) {
                 request.getSession().setAttribute("errore", e.getMessage());
@@ -99,19 +103,20 @@ public class GestioneUtentiServlet extends HttpServlet {
                 e.printStackTrace();
                 request.getSession().setAttribute("errore", "Errore imprevisto durante l'operazione.");
             }
-            
-            tabDaAprire = "utenti";
         } 
         
         else if ("prestito".equals(tipoOperazione)) {
             String idPrestitoStr = request.getParameter("idPrestito");
+            tabDaAprire = "prestiti";
             
             try {
                 if ("accetta".equals(azione)) {
                     prestitoService.approvaRichiestaPrestito(idPrestitoStr);
+                    msgParam = "&msg=loan_ok"; // Successo approvazione prestito
                 } else if ("rifiuta".equals(azione)) {
                     String motivazione = request.getParameter("motivazione");
                     prestitoService.rifiutaRichiestaPrestito(idPrestitoStr, motivazione);
+                    msgParam = "&msg=loan_ko"; // Successo rifiuto prestito
                 }
             } catch (FormatoDatiNonValidoException | PrestitoNonTrovatoException | 
                      StatoPrestitoNonValidoException | CopieNonDisponibiliException e) {
@@ -120,11 +125,10 @@ public class GestioneUtentiServlet extends HttpServlet {
                 e.printStackTrace();
                 request.getSession().setAttribute("errore", "Errore tecnico durante l'operazione.");
             }
-            
-            tabDaAprire = "prestiti";
         }
 
-        response.sendRedirect("GestioneUtentiServlet?tab=" + tabDaAprire);
+      
+        response.sendRedirect("GestioneUtentiServlet?tab=" + tabDaAprire + msgParam);
     }
     
     private boolean isBibliotecario(HttpServletRequest request) {

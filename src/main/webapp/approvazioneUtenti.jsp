@@ -18,6 +18,21 @@
 </head>
 <body>
 
+    <c:choose>
+        <c:when test="${param.msg == 'user_ok'}">
+            <c:set var="messaggioSuccesso" value="Utente attivato con successo!" />
+        </c:when>
+        <c:when test="${param.msg == 'user_ko'}">
+            <c:set var="messaggioSuccesso" value="Richiesta utente rifiutata." />
+        </c:when>
+        <c:when test="${param.msg == 'loan_ok'}">
+            <c:set var="messaggioSuccesso" value="Prestito approvato e registrato con successo!" />
+        </c:when>
+        <c:when test="${param.msg == 'loan_ko'}">
+            <c:set var="messaggioSuccesso" value="Richiesta di prestito rifiutata." />
+        </c:when>
+    </c:choose>
+
     <c:if test="${not empty messaggioSuccesso}">
         <div class="toast-container">
             <div class="toast success">
@@ -216,9 +231,8 @@
             const inputMotivazione = document.getElementById('motivazioneInput');
 
             formDaInviareId = formId;
-            inputMotivazione.value = ""; // Reset textarea
+            inputMotivazione.value = ""; 
 
-            // Gestione visibilità box motivazione
             if (tipo === 'prestito' && azione === 'rifiuta') {
                 boxMotivazione.style.display = 'block';
             } else {
@@ -259,7 +273,6 @@
 
         document.getElementById('confirmBtn').addEventListener('click', function() { 
             if (formDaInviareId) {
-                // Se c'è il box motivazione visibile, copio il valore nel form
                 const boxMotivazione = document.getElementById('motivazioneBox');
                 if (boxMotivazione.style.display !== 'none') {
                     const motivazione = document.getElementById('motivazioneInput').value;
@@ -267,7 +280,6 @@
                         alert("Inserisci una motivazione per il rifiuto.");
                         return;
                     }
-                    // Trovo l'input hidden dentro il form specifico
                     const form = document.getElementById(formDaInviareId);
                     const hiddenInput = form.querySelector('input[name="motivazione"]');
                     if(hiddenInput) hiddenInput.value = motivazione;
@@ -281,22 +293,19 @@
             if (event.target == document.getElementById('errorModal')) chiudiModal('errorModal');
         }
 
-        //GESTIONE TOAST & ERRORI AL CARICAMENTO
         window.addEventListener('load', function() {
-            // Se c'è un errore lato server
             <c:if test="${not empty errore}">
                 apriErrorModal("${errore}");
             </c:if>
 
-            // Animazione sparizione Toast (Successo)
             const toasts = document.querySelectorAll('.toast');
             if (toasts.length > 0) {
                 setTimeout(() => {
                     toasts.forEach(toast => {
-                        toast.style.animation = 'fadeOut 1s forwards'; // Usa l'animazione CSS
-                        setTimeout(() => toast.remove(), 1000); // Rimuove dal DOM dopo l'animazione
+                        toast.style.animation = 'fadeOut 1s forwards'; 
+                        setTimeout(() => toast.remove(), 1000); 
                     });
-                }, 5000); // Spariscono dopo 5 secondi
+                }, 5000); 
             }
         });
     </script>

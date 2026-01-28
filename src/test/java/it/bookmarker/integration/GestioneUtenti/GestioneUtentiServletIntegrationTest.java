@@ -122,7 +122,7 @@ public class GestioneUtentiServletIntegrationTest {
         doPost.setAccessible(true);
         doPost.invoke(servlet, request, response);
 
-        verify(response).sendRedirect("GestioneUtentiServlet?tab=utenti");
+        verify(response).sendRedirect("GestioneUtentiServlet?tab=utenti&msg=user_ok");
 
         try (Connection con = DBUtil.getConnection();
              Statement stmt = con.createStatement();
@@ -191,8 +191,7 @@ public class GestioneUtentiServletIntegrationTest {
         doPost.setAccessible(true);
         doPost.invoke(servlet, request, response);
 
-        verify(response).sendRedirect("GestioneUtentiServlet?tab=utenti");
-
+        verify(response).sendRedirect("GestioneUtentiServlet?tab=utenti&msg=user_ko");
         try (Connection con = DBUtil.getConnection();
              Statement stmt = con.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT count(*) FROM utenti WHERE email = 'baduser@test.it'")) {
@@ -220,7 +219,7 @@ public class GestioneUtentiServletIntegrationTest {
         doPost.setAccessible(true);
         doPost.invoke(servlet, request, response);
 
-        verify(response).sendRedirect("GestioneUtentiServlet?tab=prestiti");
+        verify(response).sendRedirect("GestioneUtentiServlet?tab=prestiti&msg=loan_ok");
 
         try (Connection con = DBUtil.getConnection();
              Statement stmt = con.createStatement();
