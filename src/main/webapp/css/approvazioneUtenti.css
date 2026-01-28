@@ -178,3 +178,59 @@
     border-bottom: 1px solid #ddd;
     margin-bottom: 20px;
 }
+
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 3000;
+    min-width: 300px;
+    max-width: 400px;
+}
+
+.toast {
+    background: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+    animation: slideInRight 0.5s ease-out forwards;
+    border-left: 5px solid #ccc;
+}
+
+.toast.success { border-left-color: #27ae60; } /* Verde per successo */
+.toast.error { border-left-color: #c0392b; }   /* Rosso per errore (opzionale) */
+
+.toast-icon { font-size: 1.5rem; }
+.toast.success .toast-icon { color: #27ae60; }
+.toast.error .toast-icon { color: #c0392b; }
+
+.toast-message {
+    font-size: 0.95rem;
+    color: #333;
+    line-height: 1.4;
+    font-family: Arial, sans-serif;
+}
+
+.toast-close {
+    margin-left: auto;
+    cursor: pointer;
+    color: #999;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.toast-close:hover { color: #333; }
+
+/* Animazioni */
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+    to { opacity: 0; visibility: hidden; }
+}

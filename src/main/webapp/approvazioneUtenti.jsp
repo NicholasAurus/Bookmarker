@@ -18,6 +18,16 @@
 </head>
 <body>
 
+    <c:if test="${not empty messaggioSuccesso}">
+        <div class="toast-container">
+            <div class="toast success">
+                <div class="toast-icon"><i class="fa-solid fa-circle-check"></i></div>
+                <div class="toast-message">${messaggioSuccesso}</div>
+                <div class="toast-close" onclick="this.parentElement.remove()">&times;</div>
+            </div>
+        </div>
+    </c:if>
+
     <header>
         <div class="header-spacer"></div>
         <a href="index.jsp" class="logo-container"> 
@@ -90,6 +100,7 @@
                                         <button type="button" class="btn-action btn-green" onclick="apriModal('utente', 'accetta', '${u.nome}', 'form-user-accetta-${loop.index}')"><i class="fa-solid fa-check"></i> Accetta</button>
                                         <button type="button" class="btn-action btn-red" onclick="apriModal('utente', 'rifiuta', '${u.nome}', 'form-user-rifiuta-${loop.index}')"><i class="fa-solid fa-trash"></i> Rifiuta</button>
                                     </td>
+                                
                                 </tr>
                             </c:forEach>
                         </tbody>
@@ -270,11 +281,24 @@
             if (event.target == document.getElementById('errorModal')) chiudiModal('errorModal');
         }
 
-        <c:if test="${not empty errore}">
-            window.addEventListener('load', function() {
+        //GESTIONE TOAST & ERRORI AL CARICAMENTO
+        window.addEventListener('load', function() {
+            // Se c'è un errore lato server
+            <c:if test="${not empty errore}">
                 apriErrorModal("${errore}");
-            });
-        </c:if>
+            </c:if>
+
+            // Animazione sparizione Toast (Successo)
+            const toasts = document.querySelectorAll('.toast');
+            if (toasts.length > 0) {
+                setTimeout(() => {
+                    toasts.forEach(toast => {
+                        toast.style.animation = 'fadeOut 1s forwards'; // Usa l'animazione CSS
+                        setTimeout(() => toast.remove(), 1000); // Rimuove dal DOM dopo l'animazione
+                    });
+                }, 5000); // Spariscono dopo 5 secondi
+            }
+        });
     </script>
 </body>
 </html>
