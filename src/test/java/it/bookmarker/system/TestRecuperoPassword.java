@@ -13,6 +13,7 @@ import it.bookmarker.system.utils.DatabaseTestHelper;
 
 public class TestRecuperoPassword {
 
+	
     private WebDriver driver;
     
     private final String EMAIL_TEST = "recupero.password@test.com";

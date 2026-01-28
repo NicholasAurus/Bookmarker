@@ -49,6 +49,7 @@ public class DatabaseTestHelper {
         
         executeUpdate(sql, idLibro, titolo, disponibilita);
     }
+    
 
     public static void deleteLibro(int idLibro) {
         executeUpdate("DELETE FROM segnalazioni WHERE recensione_id IN (SELECT id FROM recensioni WHERE libro_id = ?)", idLibro);

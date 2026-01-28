@@ -11,6 +11,7 @@ import java.time.Duration;
 
 import it.bookmarker.system.utils.DatabaseTestHelper;
 
+
 public class TestLogin {
 
     private WebDriver driver;

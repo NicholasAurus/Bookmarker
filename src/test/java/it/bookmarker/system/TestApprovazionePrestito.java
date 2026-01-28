@@ -37,6 +37,7 @@ public class TestApprovazionePrestito {
         driver.manage().window().maximize();
     }
 
+    
     @Test
     public void testApprovaPrenotazione_Successo() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
