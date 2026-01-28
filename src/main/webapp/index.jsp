@@ -50,7 +50,7 @@
                     <div class="icon-container" style="background-color: #d35400;"> 
                         <i class="fa-solid fa-book-open-reader" style="font-size: 4rem; color: white;"></i>
                     </div>
-                    <p>CATALOGO BIBLIOTECARIO</p>
+                    <p>CATALOGO <br> BIBLIOTECARIO</p>
                 </a>
                 
                 <a href="GestionePrestitiServlet" class="main-link">
