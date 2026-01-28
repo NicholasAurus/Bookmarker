@@ -25,7 +25,7 @@ public class TestPrenotazioneLibro {
     public void setup() {
   
         DatabaseTestHelper.createUtente(EMAIL_TEST, "LETTORE", "attivo");
-        DatabaseTestHelper.createLibro(ID_LIBRO, "Libro Selenium Prenotazione", 5);
+        DatabaseTestHelper.createLibro(ID_LIBRO, "Libro Test Prenotazione", 5);
 
 
         io.github.bonigarcia.wdm.WebDriverManager.chromedriver().setup();
@@ -38,7 +38,7 @@ public class TestPrenotazioneLibro {
     public void testPrenotazioneLibro_Successo() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
-        // 1. Login
+   
         driver.get("http://localhost:8080/BookMarker/login.jsp");
         driver.findElement(By.id("email")).sendKeys(EMAIL_TEST);
         driver.findElement(By.id("password")).sendKeys("Password123!"); 
@@ -156,7 +156,7 @@ public class TestPrenotazioneLibro {
         Assertions.assertTrue(testoErrore.contains("limite") || 
                               testoErrore.contains("massimo") || 
                               testoErrore.contains("3"), 
-            "Il messaggio non indica il raggiungimento del limite. Testo trovato: " + testoErrore);
+            "Il messaggio non indica il raggiungimento del limite " + testoErrore);
     }
     @AfterEach
     public void tearDown() {

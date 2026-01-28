@@ -1,7 +1,14 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<% String nomeUtente = (String) session.getAttribute("utenteLoggato"); %>
+<% 
+    String nomeUtente = (String) session.getAttribute("utenteLoggato");
+    String successMsg = (String) session.getAttribute("successMessage");
+    String errorMsg = (String) session.getAttribute("errorMessage");
+
+    if(successMsg != null) session.removeAttribute("successMessage");
+    if(errorMsg != null) session.removeAttribute("errorMessage");
+%>
 
 <!DOCTYPE html>
 <html lang="it">
@@ -13,6 +20,24 @@
     <link rel="stylesheet" href="css/gestionePrestiti.css">
 </head>
 <body>
+
+    <div class="toast-container">
+        <% if (successMsg != null && !successMsg.isEmpty()) { %>
+            <div class="toast success">
+                <i class="fa-solid fa-circle-check toast-icon"></i>
+                <div class="toast-message"><%= successMsg %></div>
+                <i class="fa-solid fa-xmark toast-close" onclick="this.parentElement.remove()"></i>
+            </div>
+        <% } %>
+
+        <% if (errorMsg != null && !errorMsg.isEmpty()) { %>
+            <div class="toast error">
+                <i class="fa-solid fa-circle-exclamation toast-icon"></i>
+                <div class="toast-message"><%= errorMsg %></div>
+                <i class="fa-solid fa-xmark toast-close" onclick="this.parentElement.remove()"></i>
+            </div>
+        <% } %>
+    </div>
 
     <header>
         <div class="header-spacer"></div>
@@ -211,9 +236,8 @@
             const inputMotivazione = document.getElementById('motivazioneInput');
 
             formDaInviareId = formId;
-            inputMotivazione.value = ""; // Reset
+            inputMotivazione.value = "";
 
-            // Mostra box solo per annulla
             if (azione === 'annulla') {
                 boxMotivazione.style.display = 'block';
             } else {
@@ -262,6 +286,20 @@
         });
         
         window.onclick = function(event) { if (event.target == document.getElementById('confirmationModal')) chiudiModal(); }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const toasts = document.querySelectorAll('.toast');
+            if (toasts.length > 0) {
+                setTimeout(() => {
+                    toasts.forEach(toast => {
+                        toast.style.animation = 'fadeOut 0.5s forwards';
+                        toast.addEventListener('animationend', () => {
+                            toast.remove();
+                        });
+                    });
+                }, 4000);
+            }
+        });
     </script>
 </body>
 </html>
